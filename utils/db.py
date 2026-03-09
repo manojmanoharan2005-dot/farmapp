@@ -147,6 +147,11 @@ class MockDatabase:
         TOKENS_FILE = os.path.join(DATA_DIR, 'reset_tokens.json')
         return MockCollection('password_reset_tokens', TOKENS_FILE)
 
+    @property
+    def registration_otps(self):
+        REG_OTPS_FILE = os.path.join(DATA_DIR, 'registration_otps.json')
+        return MockCollection('registration_otps', REG_OTPS_FILE)
+
 class MockCollection:
     def __init__(self, name, file_path, is_dict=False):
         self.name = name
