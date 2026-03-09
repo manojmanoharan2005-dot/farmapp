@@ -235,11 +235,17 @@ def register():
         name = request.form['name']
         email = request.form['email']
         password = request.form['password']
+        confirm_password = request.form.get('confirm_password', '')
         phone = request.form['phone']
         pincode = request.form.get('pincode', '')
         state = request.form['state']
         district = request.form['district']
         village = request.form.get('village', '')
+        
+        # Check if passwords match
+        if password != confirm_password:
+            flash('🔒 Passwords do not match. Please try again.', 'error')
+            return render_template('register.html', states_districts=states_districts)
         
         # Check if user already exists by email
         if find_user_by_email(email):

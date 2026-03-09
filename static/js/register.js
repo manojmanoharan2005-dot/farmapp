@@ -197,6 +197,12 @@ function sendOTP() {
             otpSection.style.display = 'block';
             document.getElementById('otp').focus();
             
+            // If development OTP is provided, display it for testing
+            if (data.dev_otp) {
+                console.log('%c[DEV MODE] OTP: ' + data.dev_otp, 'background: #22c55e; color: white; font-size: 16px; padding: 5px 10px; font-weight: bold;');
+                statusElement.innerHTML += ' <span style="color: #ef4444; font-weight: bold;">[DEV: ' + data.dev_otp + ']</span>';
+            }
+            
             // Start countdown timer (5 minutes)
             startOTPCountdown(300);
             
@@ -356,3 +362,34 @@ document.addEventListener('DOMContentLoaded', function() {
 // Globalize OTP functions
 window.sendOTP = sendOTP;
 window.verifyOTP = verifyOTP;
+
+// Check if password and confirm password match
+function checkPasswordMatch() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const statusElement = document.getElementById('password-match-status');
+    
+    // Only validate if both fields have content
+    if (!password && !confirmPassword) {
+        statusElement.textContent = '';
+        statusElement.className = 'pincode-status';
+        return;
+    }
+    
+    // Only show validation if confirm password has content
+    if (confirmPassword.length > 0) {
+        if (password === confirmPassword) {
+            statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Passwords match';
+            statusElement.className = 'pincode-status success';
+        } else {
+            statusElement.innerHTML = '<i class="fas fa-times-circle"></i> Passwords do not match';
+            statusElement.className = 'pincode-status error';
+        }
+    } else {
+        statusElement.textContent = '';
+        statusElement.className = 'pincode-status';
+    }
+}
+
+// Globalize password match function
+window.checkPasswordMatch = checkPasswordMatch;

@@ -1,4 +1,12 @@
 import os
+import sys
+
+# Set UTF-8 encoding for Windows console
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except:
+        pass
 
 # Console colors for consistent logging
 class Colors:
@@ -8,10 +16,29 @@ class Colors:
     BLUE = '\033[94m'
     ENDC = '\033[0m'
 
-def log_success(msg): print(f"{Colors.GREEN}✅ [SUCCESS]{Colors.ENDC} {msg}")
-def log_warning(msg): print(f"{Colors.YELLOW}⚠️  [WARNING]{Colors.ENDC} {msg}")
-def log_error(msg): print(f"{Colors.RED}❌ [ERROR]{Colors.ENDC} {msg}")
-def log_info(msg): print(f"{Colors.BLUE}ℹ️  [INFO]{Colors.ENDC} {msg}")
+def log_success(msg): 
+    try:
+        print(f"{Colors.GREEN}[SUCCESS]{Colors.ENDC} {msg}")
+    except:
+        print(f"[SUCCESS] {msg}")
+
+def log_warning(msg): 
+    try:
+        print(f"{Colors.YELLOW}[WARNING]{Colors.ENDC} {msg}")
+    except:
+        print(f"[WARNING] {msg}")
+
+def log_error(msg): 
+    try:
+        print(f"{Colors.RED}[ERROR]{Colors.ENDC} {msg}")
+    except:
+        print(f"[ERROR] {msg}")
+
+def log_info(msg): 
+    try:
+        print(f"{Colors.BLUE}[INFO]{Colors.ENDC} {msg}")
+    except:
+        print(f"[INFO] {msg}")
 
 class CropPredictor:
     def __init__(self, model_dir="ml_models"):

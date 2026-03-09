@@ -39,74 +39,464 @@ class EmailGateway:
         
         # Prepare email content based on purpose
         if purpose == "reset":
-            subject = "Password Reset OTP - Smart Farming Assistant"
+            subject = "🔐 Password Reset OTP - Smart Farming Assistant"
             html_content = f"""
             <!DOCTYPE html>
-            <html>
+            <html lang="en">
             <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <style>
-                    body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                    .header {{ background-color: #4CAF50; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }}
-                    .content {{ background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px; }}
-                    .otp-box {{ background-color: #fff; border: 2px dashed #4CAF50; padding: 20px; text-align: center; margin: 20px 0; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #4CAF50; }}
-                    .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #666; }}
-                    .warning {{ color: #d32f2f; font-weight: bold; }}
+                    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+                    body {{ 
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                        line-height: 1.6; 
+                        color: #2c3e50;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        padding: 40px 20px;
+                    }}
+                    .email-wrapper {{ 
+                        max-width: 600px; 
+                        margin: 0 auto; 
+                        background: #ffffff;
+                        border-radius: 16px;
+                        overflow: hidden;
+                        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    }}
+                    .header {{ 
+                        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                        padding: 40px 30px;
+                        text-align: center;
+                    }}
+                    .header-icon {{
+                        width: 80px;
+                        height: 80px;
+                        background: rgba(255,255,255,0.2);
+                        border-radius: 50%;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 40px;
+                        margin-bottom: 15px;
+                    }}
+                    .header h1 {{ 
+                        color: #ffffff; 
+                        font-size: 28px;
+                        font-weight: 600;
+                        margin: 0;
+                        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    }}
+                    .content {{ 
+                        padding: 40px 30px;
+                        background: #ffffff;
+                    }}
+                    .greeting {{
+                        font-size: 18px;
+                        color: #2c3e50;
+                        margin-bottom: 20px;
+                        font-weight: 500;
+                    }}
+                    .message {{
+                        font-size: 15px;
+                        color: #5a6c7d;
+                        margin-bottom: 30px;
+                        line-height: 1.8;
+                    }}
+                    .otp-container {{
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border-radius: 12px;
+                        padding: 30px;
+                        text-align: center;
+                        margin: 30px 0;
+                        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+                    }}
+                    .otp-label {{
+                        color: rgba(255,255,255,0.9);
+                        font-size: 13px;
+                        font-weight: 600;
+                        letter-spacing: 1px;
+                        text-transform: uppercase;
+                        margin-bottom: 15px;
+                    }}
+                    .otp-code {{ 
+                        background: #ffffff;
+                        color: #667eea;
+                        padding: 20px 30px;
+                        border-radius: 8px;
+                        font-size: 36px;
+                        font-weight: 700;
+                        letter-spacing: 8px;
+                        display: inline-block;
+                        font-family: 'Courier New', monospace;
+                        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+                    }}
+                    .validity {{
+                        background: #fff3cd;
+                        border-left: 4px solid #ffc107;
+                        padding: 15px 20px;
+                        border-radius: 8px;
+                        margin: 25px 0;
+                        font-size: 14px;
+                        color: #856404;
+                    }}
+                    .validity strong {{
+                        display: block;
+                        margin-bottom: 5px;
+                        font-size: 15px;
+                    }}
+                    .warning-box {{ 
+                        background: #ffe5e5;
+                        border-left: 4px solid #dc3545;
+                        padding: 15px 20px;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                    }}
+                    .warning-box p {{
+                        color: #842029;
+                        font-size: 14px;
+                        margin: 0;
+                    }}
+                    .warning-icon {{
+                        font-size: 20px;
+                        margin-right: 8px;
+                    }}
+                    .footer-note {{
+                        color: #6c757d;
+                        font-size: 14px;
+                        margin-top: 30px;
+                        padding-top: 20px;
+                        border-top: 2px solid #e9ecef;
+                    }}
+                    .signature {{
+                        margin-top: 30px;
+                        font-size: 15px;
+                        color: #495057;
+                    }}
+                    .signature strong {{
+                        color: #667eea;
+                        display: block;
+                        font-size: 16px;
+                    }}
+                    .footer {{ 
+                        background: #f8f9fa;
+                        padding: 25px 30px;
+                        text-align: center;
+                        border-top: 1px solid #e9ecef;
+                    }}
+                    .footer p {{
+                        color: #6c757d;
+                        font-size: 13px;
+                        margin: 5px 0;
+                    }}
+                    .footer-links {{
+                        margin-top: 15px;
+                    }}
+                    .footer-links a {{
+                        color: #667eea;
+                        text-decoration: none;
+                        margin: 0 10px;
+                        font-size: 12px;
+                    }}
                 </style>
             </head>
             <body>
-                <div class="container">
+                <div class="email-wrapper">
                     <div class="header">
-                        <h1>🌾 Password Reset Request</h1>
+                        <div class="header-icon">🔐</div>
+                        <h1>Password Reset Request</h1>
                     </div>
                     <div class="content">
-                        <p>Hello Farmer,</p>
-                        <p>You requested to reset your password. Use the OTP below to proceed:</p>
-                        <div class="otp-box">{otp}</div>
-                        <p><strong>This OTP is valid for 5 minutes.</strong></p>
-                        <p class="warning">⚠️ Never share this code with anyone!</p>
-                        <p>If you didn't request this password reset, please ignore this email and your password will remain unchanged.</p>
-                        <p>Best regards,<br>Smart Farming Assistant Team</p>
+                        <p class="greeting">Hello, Farmer! 👨‍🌾</p>
+                        <p class="message">
+                            We received a request to reset your password for your Smart Farming Assistant account. 
+                            To proceed with resetting your password, please use the One-Time Password (OTP) below:
+                        </p>
+                        
+                        <div class="otp-container">
+                            <div class="otp-label">Your One-Time Password</div>
+                            <div class="otp-code">{otp}</div>
+                        </div>
+                        
+                        <div class="validity">
+                            <strong>⏰ Valid for 5 minutes only</strong>
+                            This OTP will expire in 5 minutes for security reasons. Please use it promptly.
+                        </div>
+                        
+                        <div class="warning-box">
+                            <p><span class="warning-icon">⚠️</span><strong>Security Notice:</strong> Never share this OTP with anyone, including Smart Farming Assistant staff. We will never ask for your OTP.</p>
+                        </div>
+                        
+                        <p class="footer-note">
+                            If you didn't request this password reset, please ignore this email and your password will remain unchanged. 
+                            For added security, we recommend changing your password regularly.
+                        </p>
+                        
+                        <div class="signature">
+                            Best regards,<br>
+                            <strong>Smart Farming Assistant Team</strong>
+                        </div>
                     </div>
                     <div class="footer">
-                        <p>This is an automated message, please do not reply.</p>
+                        <p>© 2026 Smart Farming Assistant. All rights reserved.</p>
+                        <p>This is an automated message. Please do not reply to this email.</p>
+                        <div class="footer-links">
+                            <a href="#">Help Center</a> • 
+                            <a href="#">Privacy Policy</a> • 
+                            <a href="#">Terms of Service</a>
+                        </div>
                     </div>
                 </div>
             </body>
             </html>
             """
         else:  # verification
-            subject = "Email Verification OTP - Smart Farming Assistant"
+            subject = "✅ Email Verification OTP - Smart Farming Assistant"
             html_content = f"""
             <!DOCTYPE html>
-            <html>
+            <html lang="en">
             <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <style>
-                    body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                    .header {{ background-color: #2196F3; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }}
-                    .content {{ background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px; }}
-                    .otp-box {{ background-color: #fff; border: 2px dashed #2196F3; padding: 20px; text-align: center; margin: 20px 0; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #2196F3; }}
-                    .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #666; }}
-                    .warning {{ color: #d32f2f; font-weight: bold; }}
+                    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+                    body {{ 
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                        line-height: 1.6; 
+                        color: #2c3e50;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        padding: 40px 20px;
+                    }}
+                    .email-wrapper {{ 
+                        max-width: 600px; 
+                        margin: 0 auto; 
+                        background: #ffffff;
+                        border-radius: 16px;
+                        overflow: hidden;
+                        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    }}
+                    .header {{ 
+                        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                        padding: 40px 30px;
+                        text-align: center;
+                    }}
+                    .header-icon {{
+                        width: 80px;
+                        height: 80px;
+                        background: rgba(255,255,255,0.2);
+                        border-radius: 50%;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 40px;
+                        margin-bottom: 15px;
+                    }}
+                    .header h1 {{ 
+                        color: #ffffff; 
+                        font-size: 28px;
+                        font-weight: 600;
+                        margin: 0;
+                        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    }}
+                    .header p {{
+                        color: rgba(255,255,255,0.95);
+                        font-size: 16px;
+                        margin-top: 10px;
+                    }}
+                    .content {{ 
+                        padding: 40px 30px;
+                        background: #ffffff;
+                    }}
+                    .greeting {{
+                        font-size: 18px;
+                        color: #2c3e50;
+                        margin-bottom: 20px;
+                        font-weight: 500;
+                    }}
+                    .message {{
+                        font-size: 15px;
+                        color: #5a6c7d;
+                        margin-bottom: 30px;
+                        line-height: 1.8;
+                    }}
+                    .otp-container {{
+                        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                        border-radius: 12px;
+                        padding: 30px;
+                        text-align: center;
+                        margin: 30px 0;
+                        box-shadow: 0 8px 24px rgba(79, 172, 254, 0.3);
+                    }}
+                    .otp-label {{
+                        color: rgba(255,255,255,0.9);
+                        font-size: 13px;
+                        font-weight: 600;
+                        letter-spacing: 1px;
+                        text-transform: uppercase;
+                        margin-bottom: 15px;
+                    }}
+                    .otp-code {{ 
+                        background: #ffffff;
+                        color: #4facfe;
+                        padding: 20px 30px;
+                        border-radius: 8px;
+                        font-size: 36px;
+                        font-weight: 700;
+                        letter-spacing: 8px;
+                        display: inline-block;
+                        font-family: 'Courier New', monospace;
+                        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+                    }}
+                    .validity {{
+                        background: #fff3cd;
+                        border-left: 4px solid #ffc107;
+                        padding: 15px 20px;
+                        border-radius: 8px;
+                        margin: 25px 0;
+                        font-size: 14px;
+                        color: #856404;
+                    }}
+                    .validity strong {{
+                        display: block;
+                        margin-bottom: 5px;
+                        font-size: 15px;
+                    }}
+                    .warning-box {{ 
+                        background: #ffe5e5;
+                        border-left: 4px solid #dc3545;
+                        padding: 15px 20px;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                    }}
+                    .warning-box p {{
+                        color: #842029;
+                        font-size: 14px;
+                        margin: 0;
+                    }}
+                    .warning-icon {{
+                        font-size: 20px;
+                        margin-right: 8px;
+                    }}
+                    .features {{
+                        background: #f8f9fa;
+                        border-radius: 8px;
+                        padding: 20px;
+                        margin: 25px 0;
+                    }}
+                    .features h3 {{
+                        color: #4facfe;
+                        font-size: 16px;
+                        margin-bottom: 15px;
+                    }}
+                    .feature-list {{
+                        list-style: none;
+                        padding: 0;
+                    }}
+                    .feature-list li {{
+                        padding: 8px 0;
+                        color: #5a6c7d;
+                        font-size: 14px;
+                    }}
+                    .feature-list li:before {{
+                        content: "✓ ";
+                        color: #28a745;
+                        font-weight: bold;
+                        margin-right: 8px;
+                    }}
+                    .footer-note {{
+                        color: #6c757d;
+                        font-size: 14px;
+                        margin-top: 30px;
+                        padding-top: 20px;
+                        border-top: 2px solid #e9ecef;
+                    }}
+                    .signature {{
+                        margin-top: 30px;
+                        font-size: 15px;
+                        color: #495057;
+                    }}
+                    .signature strong {{
+                        color: #4facfe;
+                        display: block;
+                        font-size: 16px;
+                    }}
+                    .footer {{ 
+                        background: #f8f9fa;
+                        padding: 25px 30px;
+                        text-align: center;
+                        border-top: 1px solid #e9ecef;
+                    }}
+                    .footer p {{
+                        color: #6c757d;
+                        font-size: 13px;
+                        margin: 5px 0;
+                    }}
+                    .footer-links {{
+                        margin-top: 15px;
+                    }}
+                    .footer-links a {{
+                        color: #4facfe;
+                        text-decoration: none;
+                        margin: 0 10px;
+                        font-size: 12px;
+                    }}
                 </style>
             </head>
             <body>
-                <div class="container">
+                <div class="email-wrapper">
                     <div class="header">
-                        <h1>🌾 Welcome to Smart Farming Assistant!</h1>
+                        <div class="header-icon">🌾</div>
+                        <h1>Welcome to Smart Farming!</h1>
+                        <p>Let's verify your email address</p>
                     </div>
                     <div class="content">
-                        <p>Hello,</p>
-                        <p>Thank you for registering! Please verify your email address using the OTP below:</p>
-                        <div class="otp-box">{otp}</div>
-                        <p><strong>This OTP is valid for 5 minutes.</strong></p>
-                        <p class="warning">⚠️ Never share this code with anyone!</p>
-                        <p>If you didn't create an account with us, please ignore this email.</p>
-                        <p>Best regards,<br>Smart Farming Assistant Team</p>
+                        <p class="greeting">Hello, Future Farmer! 👋</p>
+                        <p class="message">
+                            Thank you for joining Smart Farming Assistant! We're excited to have you on board. 
+                            To complete your registration and unlock all features, please verify your email address using the OTP below:
+                        </p>
+                        
+                        <div class="otp-container">
+                            <div class="otp-label">Your Verification Code</div>
+                            <div class="otp-code">{otp}</div>
+                        </div>
+                        
+                        <div class="validity">
+                            <strong>⏰ Valid for 5 minutes only</strong>
+                            This OTP will expire in 5 minutes for security reasons. Please complete verification promptly.
+                        </div>
+                        
+                        <div class="warning-box">
+                            <p><span class="warning-icon">⚠️</span><strong>Security Notice:</strong> Never share this OTP with anyone. We will never ask for your verification code.</p>
+                        </div>
+                        
+                        <div class="features">
+                            <h3>What's waiting for you:</h3>
+                            <ul class="feature-list">
+                                <li>Crop recommendations based on soil and weather</li>
+                                <li>Market price tracking and insights</li>
+                                <li>Equipment sharing marketplace</li>
+                                <li>Growing activity management</li>
+                                <li>AI-powered farming assistant</li>
+                            </ul>
+                        </div>
+                        
+                        <p class="footer-note">
+                            If you didn't create an account with Smart Farming Assistant, please ignore this email and no account will be created.
+                        </p>
+                        
+                        <div class="signature">
+                            Best regards,<br>
+                            <strong>Smart Farming Assistant Team</strong>
+                        </div>
                     </div>
                     <div class="footer">
-                        <p>This is an automated message, please do not reply.</p>
+                        <p>© 2026 Smart Farming Assistant. All rights reserved.</p>
+                        <p>Empowering farmers with smart technology for better yields</p>
+                        <div class="footer-links">
+                            <a href="#">Help Center</a> • 
+                            <a href="#">Privacy Policy</a> • 
+                            <a href="#">Terms of Service</a>
+                        </div>
                     </div>
                 </div>
             </body>

@@ -29,62 +29,76 @@ db = None
 def init_db(app):
     global client, db
     
-    # Create data directory if it doesn't exist
+    # Create data directory for backups (optional)
     os.makedirs(DATA_DIR, exist_ok=True)
     
-    OTPS_FILE = os.path.join(DATA_DIR, 'otps.json')
-    TOKENS_FILE = os.path.join(DATA_DIR, 'reset_tokens.json')
+    # MongoDB is REQUIRED - attempt connection
+    if not MONGODB_URI or MONGODB_URI == 'your-mongodb-connection-string-here':
+        print("\n" + "="*60)
+        print("⚠️  WARNING: MongoDB URI not configured!")
+        print("="*60)
+        print("Please update your .env file with a valid MONGODB_URI")
+        print("All data will be stored in MongoDB collections, not JSON files.")
+        print("="*60 + "\n")
+        # Use mock database as fallback for development
+        db = MockDatabase()
+        return
     
-    # Initialize JSON files if they don't exist
-    for file_path in [USERS_FILE, CROPS_FILE, FERTILIZERS_FILE, DISEASES_FILE, GROWING_FILE, EQUIPMENT_FILE, NOTIFICATIONS_FILE, OTPS_FILE, TOKENS_FILE]:
-        if not os.path.exists(file_path):
-            with open(file_path, 'w', encoding='utf-8') as f:
-                if file_path in [EQUIPMENT_FILE, NOTIFICATIONS_FILE, OTPS_FILE, TOKENS_FILE]:
-                    json.dump([], f)
-                else:
-                    json.dump({}, f)
-    
-    print("[SUCCESS] File-based database initialized successfully!")
-    print("[INFO] Data will be stored in the 'data' directory")
-    
-    # Try MongoDB Atlas connection as backup (only if URI is configured)
-    if MONGODB_URI:
+    try:
+        print("[INFO] 🔌 Connecting to MongoDB Atlas...")
+        client = MongoClient(MONGODB_URI, 
+                           serverSelectionTimeoutMS=5000,
+                           connectTimeoutMS=5000,
+                           socketTimeoutMS=10000,
+                           retryWrites=True,
+                           maxPoolSize=10,
+                           minPoolSize=1)
+        
+        # Extract database name from URI or use default
+        db_name = 'smartfarming'
+        if '/' in MONGODB_URI.split('mongodb.net/')[-1]:
+            db_name = MONGODB_URI.split('mongodb.net/')[-1].split('?')[0].strip('/')
+        
+        db = client[db_name]
+        
+        # Test the connection
+        client.admin.command('ping')
+        print(f"✅ Successfully connected to MongoDB Atlas!")
+        print(f"📊 Using database: {db_name}")
+        print(f"📁 Collections will store all data (users, crops, equipment, etc.)")
+        
+        # Create indexes for better performance
         try:
-            print("[INFO] Attempting MongoDB Atlas connection...")
-            client = MongoClient(MONGODB_URI, 
-                               serverSelectionTimeoutMS=5000,
-                               connectTimeoutMS=5000,
-                               socketTimeoutMS=10000,
-                               retryWrites=False,
-                               maxPoolSize=10,
-                               minPoolSize=1)
-            
-            # Use myVirtualDatabase database
-            db = client.myVirtualDatabase
-            # Test the connection
-            client.admin.command('ping')
-            print("[SUCCESS] Successfully connected to MongoDB Atlas!")
-            print(f"[INFO] Using database: myVirtualDatabase")
-            
-            # Create indexes for better performance (if supported)
+            # Create unique index on email
             try:
                 db.users.create_index("email", unique=True)
-                print("[INFO] Database indexes created successfully")
+                print("✅ Email index created successfully")
             except Exception as e:
-                print(f"[WARNING] Index creation note: {e}")
-                print("   (This is normal for Atlas SQL interface)")
+                print(f"ℹ️  Email index note: {e}")
+            
+            # Create index on phone (not unique to avoid conflicts)
+            try:
+                db.users.create_index("phone")
+                print("✅ Phone index created successfully")
+            except Exception as e:
+                print(f"ℹ️  Phone index note: {e}")
                 
         except Exception as e:
-            print(f"[ERROR] MongoDB connection failed: {e}")
-            print("[WARNING] Common issues:")
-            print("   1. Check if your IP address is whitelisted in MongoDB Atlas")
-            print("   2. Verify network connectivity and firewall settings")
-            print("   3. Ensure Atlas SQL interface is enabled")
-            print("[INFO] Using file-based database for development")
-            db = MockDatabase()
-    else:
-        print("[INFO] MongoDB disabled - using file-based database")
+            print(f"ℹ️  Index creation note: {e}")
+            
+    except Exception as e:
+        print("\n" + "="*60)
+        print(f"❌ MongoDB connection failed: {e}")
+        print("="*60)
+        print("Common issues:")
+        print("  1. Check if your IP address is whitelisted in MongoDB Atlas")
+        print("  2. Verify the connection string in .env file")
+        print("  3. Ensure network connectivity")
+        print("  4. Check username and password are correct")
+        print("="*60 + "\n")
+        # Use mock database as fallback
         db = MockDatabase()
+        print("⚠️  Using fallback file-based storage for development")
 
 class MockDatabase:
     """Enhanced Mock database that persists to JSON files when MongoDB is not available"""
@@ -383,14 +397,14 @@ def get_db():
 
 # User model functions
 def create_user(name, email, password, phone, state, district, pincode='', village=''):
-    """Create a new user and save to file-based storage"""
+    """Create a new user and save to MongoDB database"""
     import uuid
+    from bson import ObjectId
     
     # Generate unique ID
     user_id = str(uuid.uuid4())
     
     user_data = {
-        '_id': user_id,
         'name': name,
         'email': email,
         'password': password.decode('utf-8') if isinstance(password, bytes) else password,
@@ -399,104 +413,83 @@ def create_user(name, email, password, phone, state, district, pincode='', villa
         'state': state,
         'district': district,
         'village': village,
-        'created_at': datetime.utcnow().isoformat(),
+        'created_at': datetime.utcnow(),
         'saved_crops': [],
         'saved_fertilizers': [],
         'disease_history': []
     }
     
-    # Try MongoDB first
+    # Use MongoDB database
     if db is not None and hasattr(db, 'users'):
         try:
             result = db.users.insert_one(user_data.copy())
-            print(f"👤 User created in MongoDB: {name} ({email})")
+            print(f"✅ User created in MongoDB: {name} ({email}) - ID: {result.inserted_id}")
+            return result
         except Exception as e:
-            print(f"[MONGODB ERROR] {e}")
-    
-    # Always save to file-based storage (primary for now)
-    try:
-        # Load existing users
-        users_dict = {}
-        if os.path.exists(USERS_FILE):
-            with open(USERS_FILE, 'r', encoding='utf-8') as f:
-                users_dict = json.load(f)
-        
-        # Add new user with email as key
-        users_dict[email] = user_data
-        
-        # Save back to file
-        with open(USERS_FILE, 'w', encoding='utf-8') as f:
-            json.dump(users_dict, f, indent=2, ensure_ascii=False, default=str)
-        
-        print(f"👤 User created in file storage: {name} ({email}) - ID: {user_id}")
-        
-        # Return mock result with inserted_id
-        return type('Result', (), {'inserted_id': user_id})()
-    except Exception as e:
-        print(f"[ERROR] Failed to create user: {e}")
-        raise
+            print(f"[MONGODB ERROR] Failed to create user: {e}")
+            raise e
+    else:
+        print("[ERROR] MongoDB database not connected! Please check MONGODB_URI in .env file")
+        raise Exception("Database not available. Please configure MongoDB connection.")
 
 def find_user_by_email(email):
-    """Find user by email - searches both MongoDB and file storage"""
-    # Try MongoDB first
-    if hasattr(db, 'users'):
+    """Find user by email - searches MongoDB database"""
+    # Use MongoDB database
+    if db is not None and hasattr(db, 'users'):
         try:
             users = db.users
             user = users.find_one({'email': email})
             if user:
                 print(f"🔍 User found in MongoDB: {email}")
                 return user
-        except:
-            pass
-    
-    # File-based storage (primary method)
-    try:
-        if os.path.exists(USERS_FILE):
-            with open(USERS_FILE, 'r', encoding='utf-8') as f:
-                users_dict = json.load(f)
-            
-            # Direct lookup by email key
-            if email in users_dict:
-                print(f"🔍 User found in file storage: {email}")
-                return users_dict[email]
-    except Exception as e:
-        print(f"[ERROR] find_user_by_email: {e}")
-    
-    return None
+            else:
+                print(f"❌ User not found in MongoDB: {email}")
+                return None
+        except Exception as e:
+            print(f"[ERROR] find_user_by_email MongoDB error: {e}")
+            raise e
+    else:
+        print("[ERROR] MongoDB database not connected! Please check MONGODB_URI in .env file")
+        return None
 
 def find_user_by_phone(phone):
-    """Find user by phone number"""
-    if hasattr(db, 'users'):
-        users = db.users
-        # Get all users and search for phone
-        all_users = users.find({})
-        for user in all_users:
-            if user.get('phone') == phone:
+    """Find user by phone number in MongoDB database"""
+    if db is not None and hasattr(db, 'users'):
+        try:
+            users = db.users
+            user = users.find_one({'phone': phone})
+            if user:
                 print(f"🔍 User found with phone: {phone}")
                 return user
-    return None
+            else:
+                print(f"❌ User not found with phone: {phone}")
+                return None
+        except Exception as e:
+            print(f"[ERROR] find_user_by_phone MongoDB error: {e}")
+            return None
+    else:
+        print("[ERROR] MongoDB database not connected!")
+        return None
 
 def update_user_password(email, new_password):
-    """Update user password by email"""
-    try:
-        # Load users from file
-        with open(USERS_FILE, 'r') as f:
-            users_db = json.load(f)
-        
-        # Find and update user
-        for user_id, user in users_db.items():
-            if user.get('email') == email:
-                user['password'] = new_password
-                # Save back to file
-                with open(USERS_FILE, 'w') as f:
-                    json.dump(users_db, f, indent=2, default=str)
-                print(f"[SUCCESS] Password updated for user: {email}")
+    """Update user password by email in MongoDB database"""
+    if db is not None and hasattr(db, 'users'):
+        try:
+            result = db.users.update_one(
+                {'email': email},
+                {'$set': {'password': new_password}}
+            )
+            if result.modified_count > 0:
+                print(f"✅ Password updated for user: {email}")
                 return True
-        
-        print(f"[WARNING] User not found: {email}")
-        return False
-    except Exception as e:
-        print(f"[ERROR] Error updating password: {e}")
+            else:
+                print(f"⚠️ User not found: {email}")
+                return False
+        except Exception as e:
+            print(f"[ERROR] Error updating password in MongoDB: {e}")
+            return False
+    else:
+        print("[ERROR] MongoDB database not connected!")
         return False
 
 def find_user_by_id(user_id):

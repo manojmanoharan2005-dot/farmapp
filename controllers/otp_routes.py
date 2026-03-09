@@ -5,6 +5,7 @@ Handles OTP sending and verification for registration via Brevo
 from flask import Blueprint, request, jsonify
 from utils.otp_manager import OTPManager
 from utils.email_gateway import EmailGateway
+from utils.db import find_user_by_email
 import os
 import re
 from datetime import datetime, timedelta
@@ -40,6 +41,10 @@ def send_registration_otp():
         if not email or not re.match(email_regex, email):
             return jsonify({'success': False, 'message': 'Please enter a valid email address'}), 400
         
+        # Check if email already exists in database
+        if find_user_by_email(email):
+            return jsonify({'success': False, 'message': 'Email already registered! Please login or use a different email.'}), 400
+        
         # Check cooldown (30 seconds)
         if email in registration_otp_store:
             last_sent = registration_otp_store[email].get('sent_at')
@@ -55,20 +60,34 @@ def send_registration_otp():
             'otp': otp,
             'sent_at': datetime.now(),
             'expires_at': datetime.now() + timedelta(minutes=5),
-            'attempts': 0,
             'verified': False
         }
+        
+        # Debug logging - show the generated OTP
+        print(f"[OTP Generated] Email: {email}, OTP: '{otp}' (type={type(otp)}, len={len(otp)})")
         
         # Send OTP via Email using Brevo
         email_success, email_message = EmailGateway.send_otp_email(email, otp, purpose="verification")
         
+        # Check if in development mode (not production)
+        is_dev_mode = not (os.getenv('FLASK_ENV') == 'production' or os.getenv('RENDER'))
+        
         if email_success:
             print(f"[Registration OTP] Sent to {email}")
+            if is_dev_mode:
+                print(f"[DEV MODE] ✅ OTP for {email}: {otp}")
             return jsonify({'success': True, 'message': 'OTP sent successfully to your email'})
         else:
             # Email failed - still return success (OTP stored for verification in dev mode)
             print(f"[INFO] Email delivery failed for {email}, OTP stored for manual verification")
-            print(f"[DEV MODE] OTP for {email}: {otp}")
+            print(f"[DEV MODE] ⚠️ IMPORTANT - OTP for {email}: {otp}")
+            # In dev mode, include OTP in response for easier testing
+            if is_dev_mode:
+                return jsonify({
+                    'success': True, 
+                    'message': 'OTP sent! Please check your email.',
+                    'dev_otp': otp  # Only in dev mode
+                })
             return jsonify({'success': True, 'message': 'OTP sent! Please check your email.'})
             
     except Exception as e:
@@ -99,20 +118,41 @@ def verify_registration_otp():
             del registration_otp_store[email]
             return jsonify({'success': False, 'message': 'OTP expired. Please request a new one.'}), 400
         
-        # Check attempts
-        if otp_data['attempts'] >= 3:
-            del registration_otp_store[email]
-            return jsonify({'success': False, 'message': 'Too many failed attempts. Please request a new OTP.'}), 400
+        # Debug logging - compare OTPs
+        stored_otp = str(otp_data['otp']).strip()
+        entered_otp = str(otp).strip()
+        print(f"[OTP Debug] Email: {email}")
+        print(f"[OTP Debug] Stored OTP: '{stored_otp}' (len={len(stored_otp)})")
+        print(f"[OTP Debug] Entered OTP: '{entered_otp}' (len={len(entered_otp)})")
+        print(f"[OTP Debug] Match: {stored_otp == entered_otp}")
         
-        # Verify OTP
-        if otp_data['otp'] == otp:
+        # Verify OTP - simple comparison, no attempts limit
+        if stored_otp == entered_otp:
             registration_otp_store[email]['verified'] = True
+            print(f"✅ [OTP Success] Email {email} verified successfully")
             return jsonify({'success': True, 'message': 'Email verified successfully!'})
         else:
-            registration_otp_store[email]['attempts'] += 1
-            remaining = 3 - registration_otp_store[email]['attempts']
-            return jsonify({'success': False, 'message': f'Invalid OTP. {remaining} attempts remaining.'}), 400
+            print(f"❌ [OTP Failed] Invalid OTP for {email}")
+            print(f"   Expected: '{stored_otp}', Got: '{entered_otp}'")
+            return jsonify({'success': False, 'message': 'Invalid OTP. Please check and try again.'}), 400
             
     except Exception as e:
         print(f"[Error] verify_registration_otp: {e}")
         return jsonify({'success': False, 'message': 'Verification failed. Please try again.'}), 500
+
+
+@otp_bp.route('/api/register/debug-otp/<email>', methods=['GET'])
+def debug_otp(email):
+    """DEBUG ENDPOINT - Shows stored OTP for testing (REMOVE IN PRODUCTION)"""
+    if email in registration_otp_store:
+        otp_data = registration_otp_store[email]
+        return jsonify({
+            'email': email,
+            'otp': otp_data['otp'],
+            'otp_type': str(type(otp_data['otp'])),
+            'attempts': otp_data['attempts'],
+            'verified': otp_data['verified'],
+            'expires_in_seconds': (otp_data['expires_at'] - datetime.now()).total_seconds()
+        })
+    else:
+        return jsonify({'error': 'No OTP found for this email'}), 404

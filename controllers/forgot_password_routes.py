@@ -120,7 +120,7 @@ def request_otp():
                 print(f"✅ Email sent successfully: {msg}")
                 # Mask email for display (e.g. f***r@example.com)
                 masked = user_email[0] + '***' + user_email[user_email.index('@')-1:]
-                response_msg = f"OTP sent to {masked}"
+                response_msg = f"OTP sent successfully to {masked}"
             else:
                 print(f"❌ Email failed: {msg}")
                 # Still proceed (OTP is stored in session for verification)
@@ -133,12 +133,13 @@ def request_otp():
                 'identifier': identifier
             })
             
-        # Security: Fake success if user not found
+        # Security: Return error if user not found (don't send OTP to non-registered emails)
+        print(f"❌ User not found for: {identifier}")
         return jsonify({
-            'success': True,
-            'message': 'If account exists, OTP has been sent.',
+            'success': False,
+            'message': 'No account found with this email/mobile number. Please register first.',
             'identifier': identifier
-        })
+        }), 404
 
     except Exception as e:
         print(f"Error in request_otp: {e}")
