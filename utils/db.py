@@ -52,10 +52,12 @@ def init_db(app):
         try:
             print("[INFO] Attempting MongoDB Atlas connection...")
             client = MongoClient(MONGODB_URI, 
-                               serverSelectionTimeoutMS=30000,
-                               connectTimeoutMS=30000,
-                               socketTimeoutMS=30000,
-                               retryWrites=False)
+                               serverSelectionTimeoutMS=5000,
+                               connectTimeoutMS=5000,
+                               socketTimeoutMS=10000,
+                               retryWrites=False,
+                               maxPoolSize=10,
+                               minPoolSize=1)
             
             # Use myVirtualDatabase database
             db = client.myVirtualDatabase

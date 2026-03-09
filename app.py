@@ -66,17 +66,44 @@ from utils.db import init_db
 print_banner()
 
 app = Flask(__name__)
-app.secret_key = 'smart_farming_assistant_2024_secret_key'
+app.secret_key = os.environ.get('SECRET_KEY', 'smart_farming_assistant_2024_secret_key')
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching
-app.config['TEMPLATES_AUTO_RELOAD'] = True  # Auto-reload templates
 
-# Add no-cache headers to all responses
+# Detect environment
+IS_PRODUCTION = os.environ.get('FLASK_ENV') == 'production' or os.environ.get('RENDER')
+
+if IS_PRODUCTION:
+    # Production: cache static assets for 1 day
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
+    app.config['TEMPLATES_AUTO_RELOAD'] = False
+else:
+    # Development: no caching
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+# Enable gzip compression
+try:
+    from flask_compress import Compress
+    Compress(app)
+except ImportError:
+    pass
+
 @app.after_request
 def add_header(response):
-    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '0'
+    if IS_PRODUCTION:
+        # Cache static assets (CSS, JS, fonts, images) for 1 day
+        if response.content_type and any(
+            ct in response.content_type
+            for ct in ['text/css', 'javascript', 'font', 'image/', 'application/octet-stream']
+        ):
+            response.headers['Cache-Control'] = 'public, max-age=86400'
+        else:
+            # Don't cache HTML/API responses
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    else:
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
     return response
 
 log_info(f"Flask application initialized with secret key")
