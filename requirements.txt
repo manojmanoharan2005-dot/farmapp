@@ -24,11 +24,11 @@ APScheduler>=3.10.0
 # Utilities
 python-dotenv==1.0.0
 
-# HTTP Requests (for SMS gateways)
+# HTTP Requests
 requests>=2.31.0
 
-# SMS - Twilio
-twilio>=8.0.0
+# Email - Brevo (formerly Sendinblue)
+sib-api-v3-sdk>=7.6.0
 
 # PDF Generation (reportlab is easier to install on Render)
 reportlab>=4.0.0

@@ -1,1 +1,17 @@
-{}
+{
+  "manojmanoharan0007@gmail.com": {
+    "_id": "3348dfae-c428-423f-9e63-ab2acbe0b41f",
+    "name": "manoj kumar",
+    "email": "manojmanoharan0007@gmail.com",
+    "password": "$2b$12$8ksTzQDwKhbgkQqwp3BM0uN6o3DLNq3OV9/DVwb6HpuxofPHfdzy6",
+    "phone": "6382801974",
+    "pincode": "624616",
+    "state": "Tamil Nadu",
+    "district": "Dindigul",
+    "village": "Kuttampundi",
+    "created_at": "2026-03-09T04:21:05.931048",
+    "saved_crops": [],
+    "saved_fertilizers": [],
+    "disease_history": []
+  }
+}

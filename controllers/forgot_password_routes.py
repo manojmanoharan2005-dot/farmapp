@@ -3,65 +3,18 @@ Forgot Password Routes
 Handles password reset flow with OTP verification
 """
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, flash
-from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
 import re
 import time
 import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 from utils.otp_manager import OTPManager
-from utils.sms_gateway import SMSGateway
+from utils.email_gateway import EmailGateway
+from utils.auth import hash_password
 
 forgot_password_bp = Blueprint('forgot_password', __name__)
 
 # --- Helper Functions ---
-
-def send_otp_email(to_email, otp):
-    """Send OTP via Email"""
-    smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
-    smtp_port = int(os.getenv('SMTP_PORT', 587))
-    sender_email = os.getenv('SMTP_EMAIL', '')
-    sender_password = os.getenv('SMTP_PASSWORD', '')
-
-    if not sender_email or not sender_password or 'your_' in sender_email:
-        print(f"[DEV MODE] Email OTP skipped (not configured).")
-        return False
-
-    msg = MIMEMultipart()
-    msg['From'] = f"Farming Assistant <{sender_email}>"
-    msg['To'] = to_email
-    msg['Subject'] = "Your Password Reset OTP - Smart Farming Assistant"
-
-    body = f"""
-    Hello Farmer,
-    
-    Your One-Time Password (OTP) for resetting your password is:
-    
-    {otp}
-    
-    This OTP is valid for 5 minutes. Do not share this code with anyone.
-    
-    If you did not request this, please ignore this email.
-    
-    Regards,
-    Smart Farming Assistant
-    """
-    msg.attach(MIMEText(body, 'plain'))
-
-    try:
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.send_message(msg)
-        server.quit()
-        print(f"[Email] OTP sent to {to_email}")
-        return True
-    except Exception as e:
-        print(f"[Email Error] Failed to send email: {e}")
-        return False
 
 def validate_password_strength(password):
     """Validate password strength"""
@@ -109,38 +62,43 @@ def request_otp():
             remaining = int(30 - (time.time() - last_sent))
             return jsonify({'success': False, 'message': f'Please wait {remaining} seconds before resending OTP'}), 429
 
-        # 2. Validate Mobile Number (Strict 10-digit)
-        if not is_email:
-             if identifier.startswith('+91'): identifier = identifier[3:]
-             elif identifier.startswith('91') and len(identifier) == 12: identifier = identifier[2:]
-             
-             if not re.match(r'^\d{10}$', identifier):
-                 return jsonify({'success': False, 'message': 'Please enter a valid 10-digit mobile number'}), 400
+        # 2. Validate Input (Email or Mobile Number)
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        mobile_regex = r'^\d{10}$'
+        if is_email:
+            if not re.match(email_regex, identifier):
+                return jsonify({'success': False, 'message': 'Please enter a valid email address'}), 400
+        else:
+            if not re.match(mobile_regex, identifier):
+                return jsonify({'success': False, 'message': 'Please enter a valid email or 10-digit mobile number'}), 400
         
         # 3. Check User Existence
         from utils.db import get_db
         db = get_db()
-        query = {'email': identifier} if is_email else {'phone': identifier}
         
         user = None
-        if hasattr(db, 'users'):
-            user = db.users.find_one(query)
-        else:
-            # Fallback for file-based DB
-            if is_email:
+        if is_email:
+            if hasattr(db, 'users'):
+                user = db.users.find_one({'email': identifier})
+            else:
                 from utils.db import find_user_by_email
                 user = find_user_by_email(identifier)
-            else:
+        else:
+            # Look up user by mobile/phone number
+            if hasattr(db, 'users'):
+                user = db.users.find_one({'phone': identifier})
+            if not user:
                 from utils.db import find_user_by_phone
                 user = find_user_by_phone(identifier)
 
         if user:
-            print(f"✅ User found: {user.get('email')} | {user.get('phone')}")
+            user_email = user.get('email')
+            print(f"✅ User found: {user_email}")
             
             # 4. Generate OTP
             otp = OTPManager.generate_otp()
             otp_hash = OTPManager.hash_otp(otp)
-            expiry_timestamp = time.time() + (5 * 60) # 5 minutes from now
+            expiry_timestamp = time.time() + (3 * 60) # 3 minutes from now
             
             # ALWAYS PRINT OTP FOR DEBUGGING
             print(f"\n{'='*40}")
@@ -154,43 +112,20 @@ def request_otp():
             session['reset_user_id'] = str(user['_id']) # Store ID for final reset
             session['otp_last_sent_time'] = time.time()
             
-            # 6. Send OTP (SMS -> Email Fallback)
-            success = False
-            response_msg = ""
+            # 6. Send OTP to user's registered email
+            print(f"📧 Attempting to send Email to {user_email}...")
+            success, msg = EmailGateway.send_otp_email(user_email, otp, purpose="reset")
             
-            if is_email:
-                print(f"📧 Attempting to send Email to {identifier}...")
-                success = send_otp_email(identifier, otp)
-                if success:
-                    print("✅ Email sent successfully.")
-                    response_msg = f"OTP sent to email {identifier}"
-                else:
-                    print("❌ Email sending failed.")
+            if success:
+                print(f"✅ Email sent successfully: {msg}")
+                # Mask email for display (e.g. f***r@example.com)
+                masked = user_email[0] + '***' + user_email[user_email.index('@')-1:]
+                response_msg = f"OTP sent to {masked}"
             else:
-                # Try SMS
-                print(f"📱 Attempting to send SMS to {identifier}...")
-                success, msg = SMSGateway.send_otp(identifier, otp)
-                
-                if success:
-                    print(f"✅ SMS sent successfully: {msg}")
-                    response_msg = f"OTP sent to mobile ending in {identifier[-4:]}"
-                else:
-                    print(f"❌ SMS failed: {msg}")
-                    # Fallback to Email if SMS fails
-                    user_email = user.get('email')
-                    if user_email and '@' in user_email:
-                        print(f"📧 [Fallback] Sending to email: {user_email}")
-                        if send_otp_email(user_email, otp):
-                            success = True
-                            print("✅ Fallback email sent.")
-                            response_msg = f"SMS failed. OTP sent to registered email: {user_email}"
-                        else:
-                             print("❌ Fallback email failed.")
-            
-            # If SMS/email failed, still proceed (OTP is stored)
-            if not success:
-                print(f"[INFO] OTP delivery failed for {identifier}, OTP stored for manual verification")
-                success = True  # Proceed for UI
+                print(f"❌ Email failed: {msg}")
+                # Still proceed (OTP is stored in session for verification)
+                print(f"[INFO] OTP delivery failed for {user_email}, OTP stored for manual verification")
+                response_msg = "OTP has been generated. Please check your email."
                 
             return jsonify({
                 'success': True,
@@ -284,8 +219,8 @@ def reset_password():
         if not is_strong:
             return jsonify({'success': False, 'message': msg}), 400
             
-        # Hash Password
-        hashed_password = generate_password_hash(new_password, method='pbkdf2:sha256')
+        # Hash Password (using bcrypt, same as registration)
+        hashed_password = hash_password(new_password)
         user_id = session.get('reset_user_id')
         
         # Update DB

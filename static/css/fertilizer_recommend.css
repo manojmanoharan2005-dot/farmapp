@@ -39,7 +39,7 @@
 }
 
 .btn-save-secondary {
-    background: white;
+    background: var(--bg-white);
     color: #10b981;
     border: 2px solid #10b981;
 }
@@ -165,7 +165,7 @@
     border-radius: var(--radius-md);
     font-size: 15px;
     transition: all 0.3s ease;
-    background: white;
+    background: var(--bg-white);
 }
 
 .form-card .input-group input:focus,
@@ -205,7 +205,7 @@
 }
 
 .result-card {
-    background: white;
+    background: var(--bg-white);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     overflow: hidden;
@@ -357,7 +357,7 @@
 }
 
 .action-btn.secondary {
-    background: white;
+    background: var(--bg-white);
     color: var(--text-primary);
     border: 2px solid var(--border-color);
 }

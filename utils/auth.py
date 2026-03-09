@@ -1,19 +1,26 @@
 import bcrypt
 from flask import session, redirect, url_for
 from functools import wraps
+from werkzeug.security import check_password_hash
 
 def hash_password(password):
     """Hash a password using bcrypt"""
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
 def check_password(password, hashed):
-    """Check if password matches hashed password"""
+    """Check if password matches hashed password (supports both bcrypt and pbkdf2)"""
     if isinstance(hashed, str):
+        # Handle werkzeug/pbkdf2 hashes (e.g. from older password resets)
+        if hashed.startswith('pbkdf2:') or hashed.startswith('scrypt:'):
+            return check_password_hash(hashed, password)
         # Handle string representation of bytes (e.g. "b'$2b$...'")
         if hashed.startswith("b'") and hashed.endswith("'"):
             hashed = hashed[2:-1]
         hashed = hashed.encode('utf-8')
-    return bcrypt.checkpw(password.encode('utf-8'), hashed)
+    try:
+        return bcrypt.checkpw(password.encode('utf-8'), hashed)
+    except (ValueError, TypeError):
+        return False
 
 def login_required(f):
     """Decorator to require login for certain routes"""

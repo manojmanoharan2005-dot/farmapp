@@ -14,6 +14,10 @@
         background: linear-gradient(135deg, #f8fdf8 0%, #e8f5e9 100%);
     }
 
+    [data-theme="dark"] .register-section {
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    }
+
     .register-container {
         width: 100%;
         max-width: 580px;
@@ -25,6 +29,12 @@
         padding: 48px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
         border: 1px solid rgba(34, 197, 94, 0.1);
+    }
+
+    [data-theme="dark"] .register-card {
+        background: #1E293B;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        border-color: rgba(34, 197, 94, 0.2);
     }
 
     .register-header {
@@ -56,9 +66,17 @@
         margin-bottom: 8px;
     }
 
+    [data-theme="dark"] .register-title {
+        color: #F1F5F9;
+    }
+
     .register-subtitle {
         color: #6b7280;
         font-size: 1rem;
+    }
+
+    [data-theme="dark"] .register-subtitle {
+        color: #CBD5E1;
     }
 
     .register-form {
@@ -72,6 +90,11 @@
         border-radius: 16px;
         padding: 20px;
         border: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .form-section {
+        background: #0F172A;
+        border-color: #334155;
     }
 
     .form-section-title {
@@ -124,9 +147,17 @@
         gap: 6px;
     }
 
+    [data-theme="dark"] .form-group label {
+        color: #F1F5F9;
+    }
+
     .form-group label small {
         color: #9ca3af;
         font-weight: 400;
+    }
+
+    [data-theme="dark"] .form-group label small {
+        color: #94A3B8;
     }
 
     .input-wrapper {
@@ -143,6 +174,10 @@
         transition: color 0.2s;
     }
 
+    [data-theme="dark"] .input-wrapper i {
+        color: #64748B;
+    }
+
     .input-wrapper input,
     .input-wrapper select {
         width: 100%;
@@ -155,11 +190,23 @@
         transition: all 0.2s ease;
     }
 
+    [data-theme="dark"] .input-wrapper input,
+    [data-theme="dark"] .input-wrapper select {
+        background: #0F172A;
+        border-color: #334155;
+        color: #F1F5F9;
+    }
+
     .input-wrapper input:focus,
     .input-wrapper select:focus {
         outline: none;
         border-color: #22c55e;
         box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+    }
+
+    [data-theme="dark"] .input-wrapper input:focus,
+    [data-theme="dark"] .input-wrapper select:focus {
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
     }
 
     .input-wrapper input:focus + i,
@@ -170,6 +217,10 @@
 
     .input-wrapper input::placeholder {
         color: #9ca3af;
+    }
+
+    [data-theme="dark"] .input-wrapper input::placeholder {
+        color: #64748B;
     }
 
     .pincode-status {
@@ -200,6 +251,11 @@
         border: 1px solid #e5e7eb;
     }
 
+    [data-theme="dark"] .terms-check {
+        background: #0F172A;
+        border-color: #334155;
+    }
+
     .terms-check input[type="checkbox"] {
         width: 20px;
         height: 20px;
@@ -213,6 +269,10 @@
         color: #6b7280;
         font-size: 0.9rem;
         line-height: 1.5;
+    }
+
+    [data-theme="dark"] .terms-check label {
+        color: #CBD5E1;
     }
 
     .terms-check a {
@@ -258,6 +318,11 @@
         border-top: 1px solid #e5e7eb;
         color: #6b7280;
         font-size: 0.95rem;
+    }
+
+    [data-theme="dark"] .register-footer {
+        border-top-color: #334155;
+        color: #CBD5E1;
     }
 
     .register-footer a {
@@ -345,6 +410,11 @@
         border: 2px solid #bfdbfe;
     }
 
+    [data-theme="dark"] .otp-section {
+        background: #1a2d45;
+        border-color: #334d6b;
+    }
+
     .otp-input-wrapper {
         display: flex;
         gap: 10px;
@@ -362,10 +432,20 @@
         transition: all 0.2s ease;
     }
 
+    [data-theme="dark"] .otp-input-wrapper input {
+        background: #0F172A;
+        border-color: #334155;
+        color: #F1F5F9;
+    }
+
     .otp-input-wrapper input:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    [data-theme="dark"] .otp-input-wrapper input:focus {
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
     }
 
     .btn-verify-otp {
@@ -434,6 +514,49 @@
     .phone-verified i {
         font-size: 1.1rem;
     }
+
+    .email-verified {
+        margin-top: 8px;
+        padding: 10px 14px;
+        background: #dcfce7;
+        border-radius: 10px;
+        color: #16a34a;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .email-verified i {
+        font-size: 1.1rem;
+    }
+
+    .email-otp-wrapper {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 480px) {
+        .email-otp-wrapper {
+            flex-direction: column;
+        }
+        .email-otp-wrapper .input-wrapper {
+            width: 100%;
+        }
+    }
+
+    .email-status {
+        font-size: 0.8rem;
+        margin-top: 6px;
+        min-height: 18px;
+    }
+
+    .email-status.loading { color: #3b82f6; }
+    .email-status.success { color: #22c55e; }
+    .email-status.error { color: #ef4444; }
 </style>
 
 <section class="register-section">
@@ -464,16 +587,24 @@
                     
                     <div class="form-group" style="margin-top: 16px;">
                         <label for="phone">Phone Number</label>
-                        <div class="phone-otp-wrapper">
+                        <div class="input-wrapper">
+                            <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required placeholder="10-digit number">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label for="email">Email Address</label>
+                        <div class="email-otp-wrapper">
                             <div class="input-wrapper" style="flex: 1;">
-                                <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required placeholder="10-digit number">
-                                <i class="fas fa-phone"></i>
+                                <input type="email" id="email" name="email" required placeholder="Enter your email">
+                                <i class="fas fa-envelope"></i>
                             </div>
                             <button type="button" id="sendOtpBtn" class="btn-send-otp" onclick="sendOTP()">
                                 <i class="fas fa-paper-plane"></i> Send OTP
                             </button>
                         </div>
-                        <div id="phone-status" class="phone-status"></div>
+                        <div id="email-status" class="email-status"></div>
                         
                         <!-- OTP Verification Section (Hidden by default) -->
                         <div id="otp-section" class="otp-section" style="display: none;">
@@ -493,16 +624,8 @@
                         </div>
                         
                         <!-- Verified Badge (Hidden by default) -->
-                        <div id="phone-verified" class="phone-verified" style="display: none;">
-                            <i class="fas fa-check-circle"></i> Phone number verified
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-top: 16px;">
-                        <label for="email">Email Address</label>
-                        <div class="input-wrapper">
-                            <input type="email" id="email" name="email" required placeholder="Enter your email">
-                            <i class="fas fa-envelope"></i>
+                        <div id="email-verified" class="email-verified" style="display: none;">
+                            <i class="fas fa-check-circle"></i> Email address verified
                         </div>
                     </div>
 

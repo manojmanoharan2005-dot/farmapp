@@ -12,7 +12,7 @@
                 AI-Powered Agriculture
             </div>
             <h1 class="hero-title">Smart Farming <span>Assistant</span> for Modern Farmers</h1>
-            <p class="hero-subtitle">Get AI-powered crop suggestions, real-time weather updates, market prices, fertilizer recommendations, and more — all in one powerful platform.</p>
+            <p class="hero-subtitle">Tools to help with crop planning, weather forecasts, market prices, and fertilizer recommendations — designed for farmers who want to make better decisions.</p>
             <div class="hero-buttons">
                 <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
                     <i class="fas fa-rocket"></i> Get Started Free
@@ -20,20 +20,6 @@
                 <a href="{{ url_for('features') }}" class="btn btn-secondary btn-lg">
                     <i class="fas fa-play-circle"></i> Explore Features
                 </a>
-            </div>
-            <div class="hero-stats">
-                <div class="hero-stat">
-                    <span class="hero-stat-value">10K+</span>
-                    <span class="hero-stat-label">Active Farmers</span>
-                </div>
-                <div class="hero-stat">
-                    <span class="hero-stat-value">50+</span>
-                    <span class="hero-stat-label">Crop Types</span>
-                </div>
-                <div class="hero-stat">
-                    <span class="hero-stat-value">95%</span>
-                    <span class="hero-stat-label">Accuracy</span>
-                </div>
             </div>
         </div>
         <div class="hero-visual">
@@ -50,8 +36,8 @@
         <span class="section-badge">
             <i class="fas fa-star"></i> Our Features
         </span>
-        <h2 class="section-title">Everything You Need for Smart Farming</h2>
-        <p class="section-subtitle">Our comprehensive platform provides all the tools and information modern farmers need to maximize their harvest and profits.</p>
+        <h2 class="section-title">Tools to Help You Farm Smarter</h2>
+        <p class="section-subtitle">Access crop recommendations, market prices, weather forecasts, and more in one place.</p>
     </div>
     
     <div class="features-grid">
@@ -59,36 +45,36 @@
             <div class="feature-icon">
                 <i class="fas fa-seedling"></i>
             </div>
-            <h3 class="feature-title">AI Crop Suggestion</h3>
-            <p class="feature-description">Get intelligent crop recommendations based on soil type, climate conditions, and seasonal patterns using advanced ML models.</p>
+            <h3 class="feature-title">Crop Suggestions</h3>
+            <p class="feature-description">Get crop recommendations based on your soil nutrients, temperature, humidity, and rainfall data.</p>
         </div>
         <div class="feature-card">
             <div class="feature-icon">
                 <i class="fas fa-cloud-sun"></i>
             </div>
             <h3 class="feature-title">Weather Forecasts</h3>
-            <p class="feature-description">Access real-time weather updates and 7-day forecasts to plan your farming activities effectively.</p>
+            <p class="feature-description">Check the weather forecast for your location to plan irrigation, harvesting, and other farm activities.</p>
         </div>
         <div class="feature-card">
             <div class="feature-icon">
                 <i class="fas fa-chart-line"></i>
             </div>
             <h3 class="feature-title">Market Prices</h3>
-            <p class="feature-description">Track live commodity prices across markets to sell your produce at the best rates.</p>
+            <p class="feature-description">View current market prices for crops across different mandis to find better selling opportunities.</p>
         </div>
         <div class="feature-card">
             <div class="feature-icon">
                 <i class="fas fa-leaf"></i>
             </div>
             <h3 class="feature-title">Fertilizer Guide</h3>
-            <p class="feature-description">Get personalized fertilizer recommendations with optimal dosage based on soil nutrients and crop requirements.</p>
+            <p class="feature-description">Find fertilizer recommendations based on your crop type and soil nutrient levels.</p>
         </div>
         <div class="feature-card">
             <div class="feature-icon">
                 <i class="fas fa-hand-holding-usd"></i>
             </div>
-            <h3 class="feature-title">Govt Schemes</h3>
-            <p class="feature-description">Stay updated with the latest government subsidies, schemes, and support programs for farmers.</p>
+            <h3 class="feature-title">Resources</h3>
+            <p class="feature-description">Browse information about government schemes, subsidies, and farming resources.</p>
         </div>
         <div class="feature-card" style="background: linear-gradient(135deg, #059669, #047857); color: white; position: relative; overflow: hidden;">
             <div style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%; opacity: 0.7;"></div>
@@ -148,25 +134,25 @@
         <span class="section-badge">
             <i class="fas fa-microchip"></i> Our Technology
         </span>
-        <h2 class="section-title">Powered by Advanced AI & ML</h2>
-        <p class="section-subtitle">We leverage cutting-edge technologies to provide accurate and reliable farming insights.</p>
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">The platform uses machine learning and data from various sources to provide farming insights.</p>
     </div>
     
     <div class="technology-grid">
         <div class="tech-card">
             <i class="fas fa-brain"></i>
             <h4>Machine Learning</h4>
-            <p>Predictive analytics for crops</p>
+            <p>Crop recommendation models</p>
         </div>
         <div class="tech-card">
             <i class="fas fa-satellite"></i>
-            <h4>Weather API</h4>
-            <p>Real-time climate data</p>
+            <h4>Weather Data</h4>
+            <p>Location-based forecasts</p>
         </div>
         <div class="tech-card">
             <i class="fas fa-database"></i>
-            <h4>Big Data</h4>
-            <p>Market price analytics</p>
+            <h4>Market Data</h4>
+            <p>Price information from mandis</p>
         </div>
     </div>
 </section>
@@ -174,8 +160,8 @@
 <!-- CTA Section -->
 <section class="cta-section">
     <div class="cta-container">
-        <h2 class="cta-title">Ready to Transform Your Farming?</h2>
-        <p class="cta-subtitle">Join thousands of farmers who are already using Smart Farming Assistant to increase their productivity and profits.</p>
+        <h2 class="cta-title">Ready to Get Started?</h2>
+        <p class="cta-subtitle">Create a free account to access crop recommendations, market prices, and other farming tools.</p>
         <div class="cta-buttons">
             <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
                 <i class="fas fa-user-plus"></i> Create Free Account
@@ -195,7 +181,7 @@
                 <div class="footer-brand">
                     <i class="fas fa-seedling"></i> Smart Farming
                 </div>
-                <p class="footer-description">Empowering farmers with world-class AI technology solutions for smarter, more productive agriculture.</p>
+                <p class="footer-description">A platform to help farmers access crop information, market prices, and farming resources.</p>
                 <div class="footer-social">
                     <a href="#"><i class="fab fa-facebook-f"></i></a>
                     <a href="#"><i class="fab fa-twitter"></i></a>

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from utils.db import create_user, find_user_by_email, get_db, find_user_by_phone, update_user_password
 from utils.auth import hash_password, check_password, create_session, clear_session
-from controllers.otp_routes import is_phone_verified, clear_phone_verification
+from controllers.otp_routes import is_email_verified, clear_email_verification
 import json
 import os
 import re
@@ -251,9 +251,9 @@ def register():
             flash('⚠️ Phone number already registered! Please use a different phone number or login.', 'warning')
             return render_template('register.html', states_districts=states_districts)
         
-        # Check if phone number is verified via OTP
-        if not is_phone_verified(phone):
-            flash('⚠️ Please verify your phone number with OTP first.', 'warning')
+        # Check if email is verified via OTP
+        if not is_email_verified(email):
+            flash('⚠️ Please verify your email address with OTP first.', 'warning')
             return render_template('register.html', states_districts=states_districts)
         
         # Validate password strength
@@ -267,7 +267,7 @@ def register():
         create_user(name, email, hashed_password, phone, state, district, pincode, village)
         
         # Clean up OTP store
-        clear_phone_verification(phone)
+        clear_email_verification(email)
         
         flash('✅ Registration successful! Welcome to Smart Farming Assistant. Please login.', 'success')
         return redirect(url_for('auth.login'))

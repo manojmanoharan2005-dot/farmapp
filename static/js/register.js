@@ -152,31 +152,32 @@ function fetchPincodeDetails() {
 // Globalize for safety
 window.updateDistricts = updateDistricts;
 window.fetchPincodeDetails = fetchPincodeDetails;
-// ----- OTP Verification for Phone Number -----
+// ----- OTP Verification for Email Address -----
 
 let otpCountdownInterval = null;
-let phoneVerified = false;
+let emailVerified = false;
 
-// Send OTP to phone number
+// Send OTP to email address
 function sendOTP() {
-    const phoneInput = document.getElementById('phone');
-    const phone = phoneInput.value.trim();
+    const emailInput = document.getElementById('email');
+    const email = emailInput.value.trim();
     const sendOtpBtn = document.getElementById('sendOtpBtn');
-    const statusElement = document.getElementById('phone-status');
+    const statusElement = document.getElementById('email-status');
     const otpSection = document.getElementById('otp-section');
     
-    // Validate phone
-    if (!phone || !/^[0-9]{10}$/.test(phone)) {
-        statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Enter a valid 10-digit phone number';
-        statusElement.className = 'phone-status error';
+    // Validate email
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!email || !emailRegex.test(email)) {
+        statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Enter a valid email address';
+        statusElement.className = 'email-status error';
         return;
     }
     
     // Disable button and show loading
     sendOtpBtn.disabled = true;
     sendOtpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-    statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
-    statusElement.className = 'phone-status loading';
+    statusElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP to your email...';
+    statusElement.className = 'email-status loading';
     
     // Call API to send OTP
     fetch('/api/register/send-otp', {
@@ -184,13 +185,13 @@ function sendOTP() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ phone: phone })
+        body: JSON.stringify({ email: email })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             statusElement.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
-            statusElement.className = 'phone-status success';
+            statusElement.className = 'email-status success';
             
             // Show OTP input section
             otpSection.style.display = 'block';
@@ -199,14 +200,14 @@ function sendOTP() {
             // Start countdown timer (5 minutes)
             startOTPCountdown(300);
             
-            // Disable phone input after OTP sent
-            phoneInput.readOnly = true;
-            phoneInput.style.backgroundColor = '#f0f0f0';
+            // Disable email input after OTP sent
+            emailInput.readOnly = true;
+            emailInput.style.backgroundColor = '#f0f0f0';
             
             sendOtpBtn.innerHTML = '<i class="fas fa-clock"></i> OTP Sent';
         } else {
             statusElement.innerHTML = '<i class="fas fa-times-circle"></i> ' + data.message;
-            statusElement.className = 'phone-status error';
+            statusElement.className = 'email-status error';
             sendOtpBtn.disabled = false;
             sendOtpBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP';
         }
@@ -214,7 +215,7 @@ function sendOTP() {
     .catch(error => {
         console.error('Send OTP error:', error);
         statusElement.innerHTML = '<i class="fas fa-times-circle"></i> Failed to send OTP. Please try again.';
-        statusElement.className = 'phone-status error';
+        statusElement.className = 'email-status error';
         sendOtpBtn.disabled = false;
         sendOtpBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP';
     });
@@ -222,18 +223,18 @@ function sendOTP() {
 
 // Verify OTP
 function verifyOTP() {
-    const phone = document.getElementById('phone').value.trim();
+    const email = document.getElementById('email').value.trim();
     const otp = document.getElementById('otp').value.trim();
     const verifyBtn = document.getElementById('verifyOtpBtn');
-    const statusElement = document.getElementById('phone-status');
+    const statusElement = document.getElementById('email-status');
     const otpSection = document.getElementById('otp-section');
-    const verifiedBadge = document.getElementById('phone-verified');
+    const verifiedBadge = document.getElementById('email-verified');
     const sendOtpBtn = document.getElementById('sendOtpBtn');
     
     // Validate OTP format
     if (!otp || !/^[0-9]{6}$/.test(otp)) {
         statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Enter the 6-digit OTP';
-        statusElement.className = 'phone-status error';
+        statusElement.className = 'email-status error';
         return;
     }
     
@@ -247,7 +248,7 @@ function verifyOTP() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ phone: phone, otp: otp })
+        body: JSON.stringify({ email: email, otp: otp })
     })
     .then(response => response.json())
     .then(data => {
@@ -263,15 +264,15 @@ function verifyOTP() {
                 clearInterval(otpCountdownInterval);
             }
             
-            phoneVerified = true;
+            emailVerified = true;
             
             // Clear success message after a moment
             setTimeout(() => {
-                statusElement.className = 'phone-status';
+                statusElement.className = 'email-status';
             }, 100);
         } else {
             statusElement.innerHTML = '<i class="fas fa-times-circle"></i> ' + data.message;
-            statusElement.className = 'phone-status error';
+            statusElement.className = 'email-status error';
             verifyBtn.disabled = false;
             verifyBtn.innerHTML = '<i class="fas fa-check"></i> Verify';
             
@@ -283,7 +284,7 @@ function verifyOTP() {
     .catch(error => {
         console.error('Verify OTP error:', error);
         statusElement.innerHTML = '<i class="fas fa-times-circle"></i> Verification failed. Please try again.';
-        statusElement.className = 'phone-status error';
+        statusElement.className = 'email-status error';
         verifyBtn.disabled = false;
         verifyBtn.innerHTML = '<i class="fas fa-check"></i> Verify';
     });
@@ -325,10 +326,10 @@ function startOTPCountdown(seconds) {
             sendOtpBtn.disabled = false;
             sendOtpBtn.innerHTML = '<i class="fas fa-redo"></i> Resend';
             
-            // Allow editing phone number
-            const phoneInput = document.getElementById('phone');
-            phoneInput.readOnly = false;
-            phoneInput.style.backgroundColor = '#fff';
+            // Allow editing email again
+            const emailInput = document.getElementById('email');
+            emailInput.readOnly = false;
+            emailInput.style.backgroundColor = '#fff';
         }
     }, 1000);
 }
@@ -339,14 +340,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (form) {
         form.addEventListener('submit', function(e) {
-            if (!phoneVerified) {
+            if (!emailVerified) {
                 e.preventDefault();
-                const statusElement = document.getElementById('phone-status');
-                statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please verify your phone number first';
-                statusElement.className = 'phone-status error';
+                const statusElement = document.getElementById('email-status');
+                statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please verify your email address first';
+                statusElement.className = 'email-status error';
                 
-                // Scroll to phone section
-                document.getElementById('phone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Scroll to email section
+                document.getElementById('email').scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
     }

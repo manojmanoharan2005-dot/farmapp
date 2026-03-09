@@ -103,6 +103,13 @@
             </div>
         </nav>
 
+        <div class="sidebar-footer">
+            <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+                <span>Dark Mode</span>
+            </button>
+        </div>
+
         <div class="sidebar-user">
             <div class="user-info" onclick="openProfileModal()" style="cursor: pointer;">
                 <div class="user-avatar">{{ user_name[0] if user_name else 'U' }}</div>

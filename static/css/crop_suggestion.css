@@ -95,7 +95,7 @@
     border-radius: var(--radius-md);
     font-size: 15px;
     transition: all 0.3s ease;
-    background: white;
+    background: var(--bg-white);
 }
 
 .form-card .input-group input:focus,
@@ -165,7 +165,7 @@
 }
 
 .crop-result-card {
-    background: white;
+    background: var(--bg-white);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     overflow: hidden;
@@ -283,7 +283,7 @@
 }
 
 .crop-action-btn.secondary {
-    background: white;
+    background: var(--bg-white);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
 }
