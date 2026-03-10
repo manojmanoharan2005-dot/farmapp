@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Purchase History - Smart Farming{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_connect.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">🌾</div>
+            <div>
+                <div class="sidebar-title">Smart Farming</div>
+                <div class="sidebar-subtitle">Agricultural Platform</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Main Menu</div>
+                <a href="{{ url_for('dashboard.dashboard') }}" class="nav-link">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('crop.crop_suggestion') }}" class="nav-link">
+                    <i class="fas fa-seedling"></i>
+                    <span>Crop Suggestion</span>
+                </a>
+                <a href="{{ url_for('fertilizer.fertilizer_recommend') }}" class="nav-link">
+                    <i class="fas fa-flask"></i>
+                    <span>Fertilizer Advice</span>
+                </a>
+                <a href="{{ url_for('market.market_watch') }}" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Market Prices</span>
+                    <span class="badge">Live</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Buyer Connect</div>
+                <a href="{{ url_for('buyer_connect.create_listing') }}" class="nav-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Sell My Crop</span>
+                </a>
+                <a href="{{ url_for('buyer_connect.my_listings') }}" class="nav-link">
+                    <i class="fas fa-list-alt"></i>
+                    <span>My Listings</span>
+                </a>
+                <a href="{{ url_for('buyer_connect.marketplace') }}" class="nav-link">
+                    <i class="fas fa-store"></i>
+                    <span>Buy from Farmers</span>
+                </a>
+                <a href="{{ url_for('buyer_connect.purchase_history') }}" class="nav-link active">
+                    <i class="fas fa-history"></i>
+                    <span>Purchase History</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-user">
+            <div class="user-info">
+                <div class="user-avatar">{{ session.get('user_name', 'U')[0] }}</div>
+                <div class="user-details">
+                    <h4>{{ session.get('user_name', 'User') }}</h4>
+                    <span>Farmer</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-history"></i> Purchase History</h1>
+            <p class="page-subtitle">View your buying and selling transaction history</p>
+        </div>
+
+        <!-- Tabs -->
+        <div style="display: flex; gap: 12px; margin-top: 24px; margin-bottom: 24px;">
+            <button onclick="showTab('bought')" id="tab-bought" class="btn-submit" style="flex: 1; padding: 14px;">
+                <i class="fas fa-shopping-cart"></i> Crops I Bought ({{ bought|length }})
+            </button>
+            <button onclick="showTab('sold')" id="tab-sold" style="flex: 1; padding: 14px; background: #e2e8f0; color: #475569; border: 2px solid #cbd5e1; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px;">
+                <i class="fas fa-hand-holding-usd"></i> Crops I Sold ({{ sold|length }})
+            </button>
+        </div>
+
+        <!-- Bought Tab -->
+        <div id="section-bought">
+            {% if bought %}
+            <div style="display: grid; gap: 20px;">
+                {% for item in bought %}
+                <div style="background: white; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); overflow: hidden; border-left: 5px solid #3b82f6;">
+                    <div style="padding: 24px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;">
+                        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 36px;">
+                            🛒
+                        </div>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                                <h3 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;">{{ item.crop }}</h3>
+                                <span style="background: #dbeafe; color: #1d4ed8; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">PURCHASED</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                                <div>
+                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Quantity</span>
+                                    <div style="font-weight: 700; color: #1e293b;">{{ item.quantity }} {{ item.unit }}</div>
+                                </div>
+                                <div>
+                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Price Paid</span>
+                                    <div style="font-weight: 800; color: #16a34a; font-size: 18px;">₹{{ "%.2f"|format(item.farmer_price) }}/kg</div>
+                                </div>
+                                <div>
+                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Farmer</span>
+                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-user" style="color: #22c55e;"></i> {{ item.farmer_name }}</div>
+                                </div>
+                                <div>
+                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Farmer Phone</span>
+                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-phone" style="color: #3b82f6;"></i> {{ item.farmer_phone }}</div>
+                                </div>
+                                <div>
+                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Location</span>
+                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-map-marker-alt" style="color: #ef4444;"></i> {{ item.district }}, {{ item.state }}</div>
+                                </div>
+                                <div>
+                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Purchased On</span>
+                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-calendar-check" style="color: #8b5cf6;"></i> {{ item.sold_at[:10] if item.sold_at else 'N/A' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 60px 20px;">
+                <div style="font-size: 64px; margin-bottom: 16px;">🛒</div>
+                <h3 style="font-size: 20px; color: #1e293b; margin-bottom: 8px;">No Purchases Yet</h3>
+                <p style="color: #64748b;">You haven't bought any crops yet. Visit the marketplace to find fresh produce!</p>
+                <a href="{{ url_for('buyer_connect.marketplace') }}" class="btn-submit" style="display: inline-flex; margin-top: 16px;">
+                    <i class="fas fa-store"></i> Go to Marketplace
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sold Tab -->
+        <div id="section-sold" style="display: none;">
+            {% if sold %}
+            <div style="display: grid; gap: 20px;">
+                {% for item in sold %}
+                <div style="background: white; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); overflow: hidden; border-left: 5px solid #22c55e;">
+                    <div style="padding: 24px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;">
+                        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 36px;">
+                            💰
+                        </div>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                                <h3 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;">{{ item.crop }}</h3>
+                                <span style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">SOLD</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                                <div>
+                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Quantity</span>
+                                    <div style="font-weight: 700; color: #1e293b;">{{ item.quantity }} {{ item.unit }}</div>
+                                </div>
+                                <div>
+                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Price</span>
+                                    <div style="font-weight: 800; color: #16a34a; font-size: 18px;">₹{{ "%.2f"|format(item.farmer_price) }}/kg</div>
+                                </div>
+                                <div>
+                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Buyer</span>
+                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-user" style="color: #3b82f6;"></i> {{ item.buyer_name }}</div>
+                                </div>
+                                <div>
+                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Buyer Phone</span>
+                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-phone" style="color: #3b82f6;"></i> {{ item.buyer_phone }}</div>
+                                </div>
+                                <div>
+                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Location</span>
+                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-map-marker-alt" style="color: #ef4444;"></i> {{ item.district }}, {{ item.state }}</div>
+                                </div>
+                                <div>
+                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Sold On</span>
+                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-calendar-check" style="color: #8b5cf6;"></i> {{ item.sold_at[:10] if item.sold_at else 'N/A' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 60px 20px;">
+                <div style="font-size: 64px; margin-bottom: 16px;">💰</div>
+                <h3 style="font-size: 20px; color: #1e293b; margin-bottom: 8px;">No Sales Yet</h3>
+                <p style="color: #64748b;">None of your listings have been sold yet. Keep your listings active!</p>
+                <a href="{{ url_for('buyer_connect.my_listings') }}" class="btn-submit" style="display: inline-flex; margin-top: 16px;">
+                    <i class="fas fa-list-alt"></i> View My Listings
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function showTab(tab) {
+    document.getElementById('section-bought').style.display = tab === 'bought' ? 'block' : 'none';
+    document.getElementById('section-sold').style.display = tab === 'sold' ? 'block' : 'none';
+    
+    const boughtBtn = document.getElementById('tab-bought');
+    const soldBtn = document.getElementById('tab-sold');
+    
+    if (tab === 'bought') {
+        boughtBtn.style.background = '';
+        boughtBtn.style.color = '';
+        boughtBtn.style.border = '';
+        boughtBtn.className = 'btn-submit';
+        soldBtn.style.background = '#e2e8f0';
+        soldBtn.style.color = '#475569';
+        soldBtn.style.border = '2px solid #cbd5e1';
+        soldBtn.className = '';
+    } else {
+        soldBtn.style.background = '';
+        soldBtn.style.color = '';
+        soldBtn.style.border = '';
+        soldBtn.className = 'btn-submit';
+        boughtBtn.style.background = '#e2e8f0';
+        boughtBtn.style.color = '#475569';
+        boughtBtn.style.border = '2px solid #cbd5e1';
+        boughtBtn.className = '';
+    }
+}
+</script>
+{% endblock %}

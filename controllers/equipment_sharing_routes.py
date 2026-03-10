@@ -13,7 +13,8 @@ from utils.db import (
     get_live_equipment_rent,
     update_equipment_status,
     get_equipment_listing_by_id,
-    find_user_by_id
+    find_user_by_id,
+    get_db
 )
 import json
 import os
@@ -515,3 +516,33 @@ def api_complete_rental(listing_id):
     except Exception as e:
         print(f"Complete rental error: {str(e)}")
         return jsonify({'success': False, 'error': 'An error occurred. Please try again.'}), 500
+
+
+@equipment_sharing_bp.route('/rental-history')
+@login_required
+def rental_history():
+    """View rental history for the logged-in user (as renter and as owner)"""
+    user_id = str(session.get('user_id', ''))
+
+    try:
+        db = get_db()
+        rented = []
+        given = []
+
+        if db is not None:
+            # Equipment rented by this user
+            rented_cursor = db.equipment_listings.find({'renter_id': user_id, 'status': {'$in': ['booked', 'completed']}}).sort('booked_at', -1)
+            rented = list(rented_cursor)
+            for l in rented:
+                l['_id'] = str(l['_id'])
+
+            # Equipment given out by this user (as owner)
+            given_cursor = db.equipment_listings.find({'owner_id': user_id, 'status': {'$in': ['booked', 'completed']}}).sort('booked_at', -1)
+            given = list(given_cursor)
+            for l in given:
+                l['_id'] = str(l['_id'])
+
+        return render_template('equipment_rental_history.html', rented=rented, given=given)
+    except Exception as e:
+        print(f"Rental history error: {e}")
+        return render_template('equipment_rental_history.html', rented=[], given=[])

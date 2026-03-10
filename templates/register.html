@@ -557,6 +557,61 @@
     .email-status.loading { color: #3b82f6; }
     .email-status.success { color: #22c55e; }
     .email-status.error { color: #ef4444; }
+
+    /* Password Requirements Styles */
+    .password-requirements {
+        margin-top: 8px;
+        padding: 12px 14px;
+        background: #f9fafb;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+    }
+
+    [data-theme="dark"] .password-requirements {
+        background: #0F172A;
+        border-color: #334155;
+    }
+
+    .password-requirements.visible {
+        display: block;
+    }
+
+    .password-requirements .req-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #6b7280;
+        margin: 0 0 8px 0;
+    }
+
+    [data-theme="dark"] .password-requirements .req-title {
+        color: #94A3B8;
+    }
+
+    .password-requirements .req-item {
+        font-size: 0.82rem;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 3px 0;
+        transition: color 0.2s;
+    }
+
+    .password-requirements .req-item i {
+        font-size: 0.75rem;
+        width: 14px;
+        text-align: center;
+        flex-shrink: 0;
+        transition: color 0.2s;
+    }
+
+    .password-requirements .req-item.met {
+        color: #22c55e;
+    }
+
+    .password-requirements .req-item.unmet {
+        color: #ef4444;
+    }
 </style>
 
 <section class="register-section">
@@ -580,7 +635,7 @@
                     <div class="form-group">
                         <label for="name">Full Name</label>
                         <div class="input-wrapper">
-                            <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                            <input type="text" id="name" name="name" required placeholder="Enter your full name" value="{{ form_data.name if form_data else '' }}">
                             <i class="fas fa-user"></i>
                         </div>
                     </div>
@@ -588,7 +643,7 @@
                     <div class="form-group" style="margin-top: 16px;">
                         <label for="phone">Phone Number</label>
                         <div class="input-wrapper">
-                            <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required placeholder="10-digit number">
+                            <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required placeholder="10-digit number" value="{{ form_data.phone if form_data else '' }}">
                             <i class="fas fa-phone"></i>
                         </div>
                     </div>
@@ -597,7 +652,7 @@
                         <label for="email">Email Address</label>
                         <div class="email-otp-wrapper">
                             <div class="input-wrapper" style="flex: 1;">
-                                <input type="email" id="email" name="email" required placeholder="Enter your email">
+                                <input type="email" id="email" name="email" required placeholder="Enter your email" value="{{ form_data.email if form_data else '' }}">
                                 <i class="fas fa-envelope"></i>
                             </div>
                             <button type="button" id="sendOtpBtn" class="btn-send-otp" onclick="sendOTP()">
@@ -632,8 +687,16 @@
                     <div class="form-group" style="margin-top: 16px;">
                         <label for="password">Password</label>
                         <div class="input-wrapper">
-                            <input type="password" id="password" name="password" required placeholder="Create a strong password" oninput="checkPasswordMatch()">
+                            <input type="password" id="password" name="password" required placeholder="Create a strong password" oninput="checkPasswordStrength(); checkPasswordMatch()">
                             <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="password-requirements" id="password-requirements">
+                            <p class="req-title">Password must contain:</p>
+                            <div class="req-item" id="req-length"><i class="fas fa-circle"></i> At least 8 characters</div>
+                            <div class="req-item" id="req-upper"><i class="fas fa-circle"></i> Uppercase letter (A-Z)</div>
+                            <div class="req-item" id="req-lower"><i class="fas fa-circle"></i> Lowercase letter (a-z)</div>
+                            <div class="req-item" id="req-number"><i class="fas fa-circle"></i> Number (0-9)</div>
+                            <div class="req-item" id="req-special"><i class="fas fa-circle"></i> Special character (!@#$%^&*)</div>
                         </div>
                     </div>
 
@@ -657,7 +720,7 @@
                         <label for="pincode">Pincode</label>
                         <div class="input-wrapper">
                             <input type="text" id="pincode" name="pincode" pattern="[0-9]{6}" 
-                                placeholder="Enter 6-digit pincode" maxlength="6" oninput="fetchPincodeDetails()">
+                                placeholder="Enter 6-digit pincode" maxlength="6" oninput="fetchPincodeDetails()" value="{{ form_data.pincode if form_data else '' }}">
                             <i class="fas fa-map-pin"></i>
                         </div>
                         <div id="pincode-status" class="pincode-status"></div>
@@ -670,7 +733,7 @@
                                 <select id="state" name="state" required onchange="updateDistricts()">
                                     <option value="">Select state</option>
                                     {% for state in states_districts.keys() %}
-                                    <option value="{{ state }}">{{ state }}</option>
+                                    <option value="{{ state }}" {% if form_data and form_data.state == state %}selected{% endif %}>{{ state }}</option>
                                     {% endfor %}
                                 </select>
                                 <i class="fas fa-map"></i>
@@ -720,5 +783,27 @@
     {{ states_districts | tojson | safe }}
 </script>
 <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+<script>
+    // Restore state/district/village selection from form_data on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if form_data and form_data.state %}
+        var savedState = "{{ form_data.state }}";
+        var savedDistrict = "{{ form_data.district }}";
+        var savedVillage = "{{ form_data.village }}";
+        
+        if (savedState) {
+            var stateSelect = document.getElementById('state');
+            stateSelect.value = savedState;
+            updateDistricts();
+            
+            if (savedDistrict) {
+                setTimeout(function() {
+                    document.getElementById('district').value = savedDistrict;
+                }, 100);
+            }
+        }
+        {% endif %}
+    });
+</script>
 
 {% endblock %}

@@ -13,7 +13,8 @@ from utils.db import (
     get_live_market_price,
     update_listing_status,
     get_listing_by_id,
-    find_user_by_id
+    find_user_by_id,
+    get_db
 )
 import json
 import os
@@ -307,16 +308,13 @@ def marketplace():
     state_filter = request.args.get('state', '')
     sort_by = request.args.get('sort', 'recent')  # recent, price_low, price_high
     
-    # Get only available listings
-    all_listings = get_available_listings(
+    # Get all available listings (show globally)
+    listings = get_available_listings(
         crop=crop_filter,
         district=district_filter,
         state=state_filter,
         sort_by=sort_by
     )
-    
-    # Filter out user's own listings from marketplace
-    listings = [l for l in all_listings if str(l.get('farmer_id', '')) != user_id]
     
     # Get unique values for filters (from all listings, not filtered by user)
     all_available = get_available_listings()
@@ -344,7 +342,7 @@ def view_listing(listing_id):
         return redirect(url_for('buyer_connect.marketplace'))
     
     # Don't show sold listings
-    if listing['status'] != 'available':
+    if listing['status'] != 'active':
         flash('❌ This listing is no longer available', 'error')
         return redirect(url_for('buyer_connect.marketplace'))
     
@@ -376,7 +374,7 @@ def api_confirm_purchase():
             return jsonify({'success': False, 'error': 'Listing not found'}), 404
         
         # Check if listing is available
-        if listing['status'] != 'available':
+        if listing['status'] != 'active':
             return jsonify({'success': False, 'error': 'This listing is no longer available'}), 400
         
         # Prevent farmers from buying their own crops
@@ -490,3 +488,33 @@ def api_cancel_listing(listing_id):
     except Exception as e:
         print(f"Cancel listing error: {str(e)}")
         return jsonify({'success': False, 'error': 'An error occurred. Please try again.'}), 500
+
+
+@buyer_connect_bp.route('/purchase-history')
+@login_required
+def purchase_history():
+    """View purchase history for the logged-in user (as buyer and as seller)"""
+    user_id = str(session.get('user_id', ''))
+    
+    try:
+        db = get_db()
+        bought = []
+        sold = []
+        
+        if db is not None:
+            # Listings bought by this user
+            bought_cursor = db.crop_listings.find({'buyer_id': user_id, 'status': 'sold'}).sort('sold_at', -1)
+            bought = list(bought_cursor)
+            for l in bought:
+                l['_id'] = str(l['_id'])
+            
+            # Listings sold by this user
+            sold_cursor = db.crop_listings.find({'farmer_id': user_id, 'status': 'sold'}).sort('sold_at', -1)
+            sold = list(sold_cursor)
+            for l in sold:
+                l['_id'] = str(l['_id'])
+        
+        return render_template('purchase_history.html', bought=bought, sold=sold)
+    except Exception as e:
+        print(f"Purchase history error: {e}")
+        return render_template('purchase_history.html', bought=[], sold=[])

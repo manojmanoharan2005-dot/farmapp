@@ -161,6 +161,8 @@ def validate_password_strength(password):
         return False, "Password must contain at least one lowercase letter"
     if not re.search(r'[0-9]', password):
         return False, "Password must contain at least one number"
+    if not re.search(r'[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]', password):
+        return False, "Password must contain at least one special character (!@#$%^&* etc.)"
     return True, "Password is strong"
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -209,7 +211,7 @@ def login():
             return redirect(url_for('dashboard.dashboard'))
         else:
             flash('❌ Invalid email or password. Please try again.', 'error')
-            return render_template('login.html')
+            return render_template('login.html', email=email)
     
     return render_template('login.html')
 
@@ -242,41 +244,69 @@ def register():
         district = request.form['district']
         village = request.form.get('village', '')
         
+        # Preserved form data to repopulate on errors
+        form_data = {
+            'name': name,
+            'email': email,
+            'phone': phone,
+            'pincode': pincode,
+            'state': state,
+            'district': district,
+            'village': village
+        }
+        
         # Check if passwords match
         if password != confirm_password:
             flash('🔒 Passwords do not match. Please try again.', 'error')
-            return render_template('register.html', states_districts=states_districts)
-        
-        # Check if user already exists by email
-        if find_user_by_email(email):
-            flash('⚠️ Email already registered! Please use a different email or login.', 'warning')
-            return render_template('register.html', states_districts=states_districts)
-        
-        # Check if phone number is already registered
-        if find_user_by_phone(phone):
-            flash('⚠️ Phone number already registered! Please use a different phone number or login.', 'warning')
-            return render_template('register.html', states_districts=states_districts)
-        
-        # Check if email is verified via OTP
-        if not is_email_verified(email):
-            flash('⚠️ Please verify your email address with OTP first.', 'warning')
-            return render_template('register.html', states_districts=states_districts)
+            return render_template('register.html', states_districts=states_districts, form_data=form_data)
         
         # Validate password strength
         is_strong, message = validate_password_strength(password)
         if not is_strong:
             flash(f'🔒 {message}', 'warning')
-            return render_template('register.html', states_districts=states_districts)
+            return render_template('register.html', states_districts=states_districts, form_data=form_data)
+        
+        # Check if user already exists by email
+        if find_user_by_email(email):
+            flash('⚠️ Email already registered! Please use a different email or login.', 'warning')
+            return render_template('register.html', states_districts=states_districts, form_data=form_data)
+        
+        # Check if phone number is already registered
+        if find_user_by_phone(phone):
+            flash('⚠️ Phone number already registered! Please use a different phone number or login.', 'warning')
+            return render_template('register.html', states_districts=states_districts, form_data=form_data)
+        
+        # Check if email is verified via OTP
+        if not is_email_verified(email):
+            flash('⚠️ Please verify your email address with OTP first.', 'warning')
+            return render_template('register.html', states_districts=states_districts, form_data=form_data)
         
         # Hash password and create user
         hashed_password = hash_password(password)
-        create_user(name, email, hashed_password, phone, state, district, pincode, village)
+        user = create_user(name, email, hashed_password, phone, state, district, pincode, village)
         
         # Clean up OTP store
         clear_email_verification(email)
         
-        flash('✅ Registration successful! Welcome to Smart Farming Assistant. Please login.', 'success')
-        return redirect(url_for('auth.login'))
+        # Auto-login: set session so user goes directly to dashboard
+        db = get_db()
+        if hasattr(db, 'users'):
+            created_user = db.users.find_one({'email': email})
+        else:
+            created_user = find_user_by_email(email)
+        
+        if created_user:
+            session['user_id'] = str(created_user['_id'])
+            session['user_name'] = created_user['name']
+            session['user_email'] = created_user['email']
+            session['user_phone'] = created_user.get('phone', 'Not provided')
+            session['user_state'] = created_user.get('state', 'Not provided')
+            session['user_district'] = created_user.get('district', 'Not provided')
+            session['user_village'] = created_user.get('village', '')
+            session['user_pincode'] = created_user.get('pincode', '')
+        
+        flash('🎉 Registration successful! Welcome to Smart Farming Assistant.', 'success')
+        return redirect(url_for('dashboard.dashboard'))
     
     return render_template('register.html', states_districts=states_districts)
 

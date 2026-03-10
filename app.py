@@ -228,7 +228,7 @@ if __name__ == '__main__':
     
     # Start the Flask development server with DEBUG enabled
     try:
-        app.run(debug=True, host='0.0.0.0', port=port)
+        app.run(debug=True, host='0.0.0.0', port=port, reloader_type='stat')
     except KeyboardInterrupt:
         print(f"\n{ConsoleColors.WARNING}🛑 Server stopped by user{ConsoleColors.ENDC}")
         print(f"{ConsoleColors.OKBLUE}👋 Thank you for using Smart Farming Assistant!{ConsoleColors.ENDC}")

@@ -391,5 +391,41 @@ function checkPasswordMatch() {
     }
 }
 
-// Globalize password match function
+// Live password strength checker
+function checkPasswordStrength() {
+    const password = document.getElementById('password').value;
+    const reqBox = document.getElementById('password-requirements');
+    
+    const requirements = [
+        { id: 'req-length', test: password.length >= 8 },
+        { id: 'req-upper', test: /[A-Z]/.test(password) },
+        { id: 'req-lower', test: /[a-z]/.test(password) },
+        { id: 'req-number', test: /[0-9]/.test(password) },
+        { id: 'req-special', test: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) }
+    ];
+    
+    if (password.length > 0) {
+        reqBox.classList.add('visible');
+    } else {
+        reqBox.classList.remove('visible');
+    }
+    
+    requirements.forEach(function(req) {
+        const el = document.getElementById(req.id);
+        if (!el) return;
+        if (password.length === 0) {
+            el.className = 'req-item';
+            el.querySelector('i').className = 'fas fa-circle';
+        } else if (req.test) {
+            el.className = 'req-item met';
+            el.querySelector('i').className = 'fas fa-check-circle';
+        } else {
+            el.className = 'req-item unmet';
+            el.querySelector('i').className = 'fas fa-times-circle';
+        }
+    });
+}
+
+// Globalize password functions
 window.checkPasswordMatch = checkPasswordMatch;
+window.checkPasswordStrength = checkPasswordStrength;
