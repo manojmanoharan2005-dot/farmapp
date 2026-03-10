@@ -53,13 +53,13 @@
         </nav>
 
         <div class="sidebar-user">
-            <div class="user-info" onclick="openProfileModal()" style="cursor: pointer;">
+            <div class="user-info user-info-clickable" onclick="openProfileModal()">
                 <div class="user-avatar">{{ user_name[0] if user_name else 'U' }}</div>
                 <div class="user-details">
                     <h4>{{ user_name }}</h4>
                     <span>Farmer</span>
                 </div>
-                <i class="fas fa-chevron-right" style="margin-left: auto; opacity: 0.5; font-size: 12px;"></i>
+                <i class="fas fa-chevron-right sidebar-chevron"></i>
             </div>
         </div>
     </div>
@@ -101,9 +101,8 @@
                     <span>AI Powered</span>
                 </div>
             </div>
-            <div style="margin-left: auto;">
-                <a href="{{ url_for('auth.logout') }}"
-                    style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+            <div class="stats-bar-actions">
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
@@ -285,10 +284,9 @@
             <!-- Categorized Results Section -->
             {% if categorized_recommendations %}
             {% for category, items in categorized_recommendations.items() %}
-            <div class="results-section" style="margin-top: 30px;">
-                <div class="results-header {{ 'cat-header-organic' if category=='Organic & Soil Amendments' else 'cat-header-complex' if category=='Complex (NPK)' else 'cat-header-nitro' if category=='Nitrogenous' else 'cat-header-default' }}"
-                    style="padding: 16px 24px; border-radius: 16px 16px 0 0; color: white;">
-                    <h3 style="margin: 0; display: flex; align-items: center; gap: 12px; font-size: 20px;">
+            <div class="results-section">
+                <div class="results-header {{ 'cat-header-organic' if category=='Organic & Soil Amendments' else 'cat-header-complex' if category=='Complex (NPK)' else 'cat-header-nitro' if category=='Nitrogenous' else 'cat-header-default' }}">
+                    <h3 class="results-header-title">
                         {% if category == 'Organic & Soil Amendments' %}🌱
                         {% elif category == 'Complex (NPK)' %}⚖️
                         {% elif category == 'Nitrogenous' %}⚡
@@ -299,60 +297,53 @@
                     </h3>
                 </div>
 
-                <div class="recommendations-grid"
-                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 24px; background: white; border-radius: 0 0 16px 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                <div class="recommendations-grid">
                     {% for rec in items %}
-                    <div class="recommendation-card {{ 'card-border-high' if rec.priority == 'High' else 'card-border-default' }}"
-                        style="background: linear-gradient(135deg, #f8fafc, white); border-radius: 12px; padding: 20px; position: relative;">
+                    <div class="recommendation-card {{ 'card-border-high' if rec.priority == 'High' else 'card-border-default' }}">
                         {% if rec.priority == 'High' %}
-                        <div
-                            style="position: absolute; top: -10px; right: 16px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                        <div class="rec-top-pick-badge">
                             ⭐ TOP PICK
                         </div>
                         {% endif %}
 
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                            <div
-                                style="width: 48px; height: 48px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">
+                        <div class="rec-card-header">
+                            <div class="rec-card-icon">
                                 🧪
                             </div>
                             <div>
-                                <h3 style="margin: 0; font-size: 16px; color: #1e293b;">{{ rec.name }}</h3>
+                                <h3 class="rec-card-name">{{ rec.name }}</h3>
                                 <span
-                                    class="{{ 'badge-high' if rec.priority == 'High' else 'badge-medium' if rec.priority == 'Medium' else 'badge-low' }}"
-                                    style="display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;">
+                                    class="rec-priority-badge {{ 'badge-high' if rec.priority == 'High' else 'badge-medium' if rec.priority == 'Medium' else 'badge-low' }}">
                                     {{ rec.priority }} Priority
                                 </span>
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                            <div
-                                style="background: white; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
-                                <div style="font-size: 18px; font-weight: 700; color: #10b981;">{{
+                        <div class="rec-stats-grid">
+                            <div class="rec-stat-box">
+                                <div class="rec-stat-value">{{
                                     rec.confidence_percentage|round|int }}%</div>
-                                <div style="font-size: 11px; color: #64748b;">Confidence</div>
+                                <div class="rec-stat-label">Confidence</div>
                             </div>
-                            <div
-                                style="background: white; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
-                                <div style="font-size: 14px; font-weight: 600; color: #3b82f6;">{{ rec.dosage }}</div>
-                                <div style="font-size: 11px; color: #64748b;">Dosage</div>
+                            <div class="rec-stat-box">
+                                <div class="rec-stat-value--blue">{{ rec.dosage }}</div>
+                                <div class="rec-stat-label">Dosage</div>
                             </div>
                         </div>
 
-                        <div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
-                            <div style="font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">
+                        <div class="rec-usage-box">
+                            <div class="rec-usage-label">
                                 <i class="fas fa-info-circle"></i> How to Use:
                             </div>
-                            <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;">{{ rec.usage }}</p>
+                            <p class="rec-usage-text">{{ rec.usage }}</p>
                         </div>
 
-                        <div style="font-size: 12px; color: #64748b; font-style: italic;">
+                        <div class="rec-note">
                             💡 {{ rec.note }}
                         </div>
 
                         <form action="{{ url_for('fertilizer.save_fertilizer') }}" method="POST"
-                            style="margin-top: 16px;">
+                            class="rec-save-form">
                             <input type="hidden" name="fertilizer_name" value="{{ rec.name }}">
                             <input type="hidden" name="crop_type"
                                 value="{{ input_data.crop_type if input_data else '' }}">
@@ -367,8 +358,7 @@
                             <input type="hidden" name="potassium"
                                 value="{{ input_data.potassium if input_data else '' }}">
                             <button type="submit"
-                                class="{{ 'btn-save-primary' if loop.index == 1 else 'btn-save-secondary' }}"
-                                style="width: 100%; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease;">
+                                class="rec-save-btn {{ 'btn-save-primary' if loop.index == 1 else 'btn-save-secondary' }}">
                                 <i class="fas fa-bookmark"></i> Save This
                             </button>
                         </form>
@@ -379,73 +369,65 @@
             {% endfor %}
 
             {% elif recommendations %}
-            <div class="results-section" style="margin-top: 30px;">
-                <div class="results-header cat-header-default"
-                    style="padding: 24px; border-radius: 16px 16px 0 0; color: white;">
-                    <h2 style="margin: 0; display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 32px;">🧪</span>
+            <div class="results-section">
+                <div class="results-header results-header--padded cat-header-default">
+                    <h2 class="results-header-title">
+                        <span class="emoji-icon-lg">🧪</span>
                         Fertilizer Recommendations
                     </h2>
-                    <p style="margin: 8px 0 0 0; opacity: 0.9;">Top {{ recommendations|length }} recommendations for {{
+                    <p class="results-header-subtitle">Top {{ recommendations|length }} recommendations for {{
                         input_data.crop_type|title if input_data else 'your crop' }}</p>
                 </div>
 
-                <div class="recommendations-grid"
-                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 24px; background: white; border-radius: 0 0 16px 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                <div class="recommendations-grid">
                     {% for rec in recommendations %}
-                    <div class="recommendation-card {{ 'card-bg-top' if loop.index == 1 else 'card-bg-second' if loop.index == 2 else 'card-bg-default' }}"
-                        style="border-radius: 12px; padding: 20px; position: relative;">
+                    <div class="recommendation-card {{ 'card-bg-top' if loop.index == 1 else 'card-bg-second' if loop.index == 2 else 'card-bg-default' }}">
                         {% if loop.index == 1 %}
-                        <div
-                            style="position: absolute; top: -10px; right: 16px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                        <div class="rec-top-pick-badge">
                             ⭐ TOP PICK
                         </div>
                         {% endif %}
 
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                            <div
-                                style="width: 48px; height: 48px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">
+                        <div class="rec-card-header">
+                            <div class="rec-card-icon">
                                 🧪
                             </div>
                             <div>
-                                <h3 style="margin: 0; font-size: 16px; color: #1e293b;">{{ rec.name }}</h3>
+                                <h3 class="rec-card-name">{{ rec.name }}</h3>
                                 <span
-                                    class="{{ 'badge-high' if rec.priority == 'High' else 'badge-medium' if rec.priority == 'Medium' else 'badge-low' }}"
-                                    style="display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;">
+                                    class="rec-priority-badge {{ 'badge-high' if rec.priority == 'High' else 'badge-medium' if rec.priority == 'Medium' else 'badge-low' }}">
                                     {{ rec.priority }} Priority
                                 </span>
                             </div>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                            <div
-                                style="background: white; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
-                                <div style="font-size: 18px; font-weight: 700; color: #10b981;">{{
+                        <div class="rec-stats-grid">
+                            <div class="rec-stat-box">
+                                <div class="rec-stat-value">{{
                                     rec.confidence_percentage|round|int }}%</div>
-                                <div style="font-size: 11px; color: #64748b;">Confidence</div>
+                                <div class="rec-stat-label">Confidence</div>
                             </div>
-                            <div
-                                style="background: white; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
-                                <div style="font-size: 14px; font-weight: 600; color: #3b82f6;">{{ rec.dosage }}</div>
-                                <div style="font-size: 11px; color: #64748b;">Dosage</div>
+                            <div class="rec-stat-box">
+                                <div class="rec-stat-value--blue">{{ rec.dosage }}</div>
+                                <div class="rec-stat-label">Dosage</div>
                             </div>
                         </div>
 
-                        <div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
-                            <div style="font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 6px;">
+                        <div class="rec-usage-box">
+                            <div class="rec-usage-label">
                                 <i class="fas fa-info-circle"></i> How to Use:
                             </div>
-                            <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;">{{ rec.usage }}</p>
+                            <p class="rec-usage-text">{{ rec.usage }}</p>
                         </div>
 
-                        <div style="font-size: 12px; color: #64748b; font-style: italic; margin-bottom: 16px;">
+                        <div class="rec-note rec-note--spaced">
                             💡 {{ rec.note }}
                         </div>
 
                         <!-- Action Buttons -->
-                        <div style="display: flex; gap: 8px; margin-top: 16px;">
+                        <div class="rec-actions">
                             <form action="{{ url_for('fertilizer.save_fertilizer') }}" method="POST"
-                                style="flex: 1;">
+                                class="rec-action-form">
                                 <input type="hidden" name="fertilizer_name" value="{{ rec.name }}">
                                 <input type="hidden" name="crop_type"
                                     value="{{ input_data.crop_type if input_data else '' }}">
@@ -460,15 +442,12 @@
                                 <input type="hidden" name="potassium"
                                     value="{{ input_data.potassium if input_data else '' }}">
                                 <button type="submit"
-                                    class="{{ 'btn-save-primary' if loop.index == 1 else 'btn-save-secondary' }}"
-                                    style="width: 100%; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease;">
+                                    class="rec-save-btn {{ 'btn-save-primary' if loop.index == 1 else 'btn-save-secondary' }}">
                                     <i class="fas fa-bookmark"></i> Save This
                                 </button>
                             </form>
                             <button onclick="window.open('https://agri-e-commerce.vercel.app', '_blank')"
-                                style="flex: 1; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease; background: #059669; color: white; border: none;"
-                                onmouseover="this.style.background='#047857'"
-                                onmouseout="this.style.background='#059669'">
+                                class="rec-buy-btn">
                                 <i class="fas fa-shopping-cart"></i> Buy Now
                             </button>
                         </div>
@@ -476,9 +455,8 @@
                     {% endfor %}
                 </div>
 
-                <div style="text-align: center; margin-top: 20px;">
-                    <a href="{{ url_for('fertilizer.fertilizer_recommend') }}"
-                        style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: white; color: #475569; border: 2px solid #e2e8f0; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">
+                <div class="rec-new-analysis-wrapper">
+                    <a href="{{ url_for('fertilizer.fertilizer_recommend') }}" class="rec-new-analysis-btn">
                         <i class="fas fa-redo"></i> New Analysis
                     </a>
                 </div>
@@ -532,7 +510,7 @@
                     </div>
 
                     <div class="action-buttons">
-                        <form action="{{ url_for('fertilizer.save_fertilizer') }}" method="POST" style="flex: 1;">
+                        <form action="{{ url_for('fertilizer.save_fertilizer') }}" method="POST" class="rec-action-form">
                             <input type="hidden" name="fertilizer_name" value="{{ recommendation.name }}">
                             <input type="hidden" name="crop_type"
                                 value="{{ input_data.crop_type if input_data else '' }}">
@@ -546,7 +524,7 @@
                                 value="{{ input_data.phosphorous if input_data else '' }}">
                             <input type="hidden" name="potassium"
                                 value="{{ input_data.potassium if input_data else '' }}">
-                            <button type="submit" class="action-btn primary" style="width: 100%;">
+                            <button type="submit" class="action-btn primary action-btn-full">
                                 <i class="fas fa-bookmark"></i> Save Recommendation
                             </button>
                         </form>

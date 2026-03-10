@@ -42,6 +42,78 @@ function toggleSidebar() {
     }
 }
 
+/**
+ * Notification Panel Functions
+ */
+function toggleNotificationPanel() {
+    const panel = document.getElementById('notificationPanel');
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+// Close notification panel when clicking outside
+document.addEventListener('click', function (event) {
+    const panel = document.getElementById('notificationPanel');
+    const btn = document.querySelector('.notification-toggle-btn');
+    if (panel && btn && !panel.contains(event.target) && !btn.contains(event.target)) {
+        panel.style.display = 'none';
+    }
+});
+
+function markAllRead() {
+    fetch('/mark-notifications-read', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                toggleNotificationPanel();
+                showToast('All notifications marked as read', 'success');
+                // Remove badge
+                const badge = document.querySelector('.notification-toggle-btn span');
+                if (badge) badge.remove();
+                // Clear list
+                const list = document.querySelector('.panel-body');
+                if (list) {
+                    list.innerHTML = '<div style="padding: 32px; text-align: center; color: #64748b;"><i class="fas fa-bell-slash" style="font-size: 24px; margin-bottom: 8px; opacity: 0.5;"></i><p style="margin: 0; font-size: 13px;">No new alerts</p></div>';
+                }
+            } else {
+                showToast('Failed to mark notifications', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error marking notifications', 'error');
+        });
+}
+
+/**
+ * Download Panel Functions
+ */
+function toggleDownloadPanel() {
+    const panel = document.getElementById('downloadPanel');
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+// Close download panel when clicking outside
+document.addEventListener('click', function (event) {
+    const panel = document.getElementById('downloadPanel');
+    const btn = document.querySelector('.download-toggle-btn');
+    if (panel && btn && !panel.contains(event.target) && !btn.contains(event.target)) {
+        panel.style.display = 'none';
+    }
+});
+
 // Handlers for Data Attributes in HTML
 function handleCropView(btn) {
     const d = btn.dataset;

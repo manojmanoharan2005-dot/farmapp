@@ -6,6 +6,15 @@ from dotenv import load_dotenv
 # Load environment variables FIRST before any other imports
 load_dotenv()
 
+# Fix WinError 10038 on Windows: prevent werkzeug from using watchdog reloader
+if sys.platform == 'win32':
+    try:
+        sys.modules['watchdog'] = None
+        sys.modules['watchdog.observers'] = None
+        sys.modules['watchdog.events'] = None
+    except Exception:
+        pass
+
 # Console colors and formatting
 class ConsoleColors:
     HEADER = '\033[95m'
@@ -228,7 +237,7 @@ if __name__ == '__main__':
     
     # Start the Flask development server with DEBUG enabled
     try:
-        app.run(debug=True, host='0.0.0.0', port=port, reloader_type='stat')
+        app.run(debug=True, host='0.0.0.0', port=port)
     except KeyboardInterrupt:
         print(f"\n{ConsoleColors.WARNING}🛑 Server stopped by user{ConsoleColors.ENDC}")
         print(f"{ConsoleColors.OKBLUE}👋 Thank you for using Smart Farming Assistant!{ConsoleColors.ENDC}")

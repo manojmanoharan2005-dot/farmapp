@@ -4,153 +4,22 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-<style>
-.equipment-container {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 0 20px;
-}
-
-.page-header {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    padding: 30px;
-    border-radius: 12px;
-    margin-bottom: 30px;
-}
-
-.equipment-form {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #1f2937;
-}
-
-.form-input, .form-select {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    font-size: 15px;
-    transition: all 0.3s;
-}
-
-.form-input:focus, .form-select:focus {
-    outline: none;
-    border-color: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-}
-
-.rent-info-box {
-    background: #f0fdf4;
-    border: 2px solid #10b981;
-    border-radius: 8px;
-    padding: 16px;
-    margin-top: 12px;
-    display: none;
-}
-
-.rent-range {
-    color: #047857;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.btn-submit {
-    background: #10b981;
-    color: white;
-    padding: 14px 28px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.btn-submit:hover {
-    background: #059669;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.my-listings {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.listing-card {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 15px;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.status-available {
-    background: #d1fae5;
-    color: #047857;
-}
-
-.status-booked {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.status-completed {
-    background: #e5e7eb;
-    color: #4b5563;
-}
-
-.form-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-@media (max-width: 768px) {
-    .form-grid-2 {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/equipment_list_form.css') }}">
 {% endblock %}
 
 {% block content %}
 <div class="equipment-container">
     <!-- Page Header -->
     <div class="page-header">
-        <h1 style="margin: 0; font-size: 28px;">
+        <h1>
             <i class="fas fa-tractor"></i> List Equipment for Rent
         </h1>
-        <p style="margin: 8px 0 0 0; opacity: 0.9;">Earn by renting out your farming equipment to nearby farmers</p>
+        <p>Earn by renting out your farming equipment to nearby farmers</p>
     </div>
 
     <!-- Equipment Listing Form -->
     <div class="equipment-form">
-        <h2 style="margin-bottom: 24px; color: #1f2937;">
+        <h2 class="section-heading">
             <i class="fas fa-plus-circle"></i> Create New Listing
         </h2>
 
@@ -201,7 +70,7 @@
                     placeholder="Enter rent per day" class="form-input">
                 
                 <div id="rentInfoBox" class="rent-info-box">
-                    <div style="font-weight: 600; margin-bottom: 8px; color: #047857;">
+                    <div class="rent-info-label">
                         <i class="fas fa-chart-line"></i> Live Market Rent
                     </div>
                     <div>
@@ -210,7 +79,7 @@
                     <div class="rent-range">
                         Allowed Range: ₹<span id="minRent">0</span> - ₹<span id="maxRent">0</span>
                     </div>
-                    <small style="color: #065f46; margin-top: 8px; display: block;">
+                    <small class="rent-info-hint">
                         <i class="fas fa-info-circle"></i> You can set rent within ±15% of market rate
                     </small>
                 </div>
@@ -251,17 +120,17 @@
 
     <!-- My Listings -->
     <div class="my-listings">
-        <h2 style="margin-bottom: 24px; color: #1f2937;">
+        <h2 class="section-heading">
             <i class="fas fa-list"></i> My Equipment Listings
         </h2>
 
         {% if user_listings %}
         {% for listing in user_listings %}
         <div class="listing-card">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+            <div class="listing-card-header">
                 <div>
-                    <h3 style="margin: 0 0 8px 0; color: #1f2937;">{{ listing.equipment_name }}</h3>
-                    <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                    <h3 class="listing-card-title">{{ listing.equipment_name }}</h3>
+                    <p class="listing-card-location">
                         <i class="fas fa-map-marker-alt"></i> {{ listing.district }}, {{ listing.state }}
                     </p>
                 </div>
@@ -276,27 +145,27 @@
                 </span>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <div class="listing-card-details">
                 <div>
-                    <small style="color: #6b7280;">Rent Per Day</small>
-                    <div style="font-weight: 700; font-size: 20px; color: #10b981;">₹{{ listing.owner_rent }}</div>
+                    <small class="listing-detail-label">Rent Per Day</small>
+                    <div class="listing-rent-value">₹{{ listing.owner_rent }}</div>
                 </div>
                 
                 {% if listing.status == 'booked' %}
                 <div>
-                    <small style="color: #6b7280;">Rented By</small>
-                    <div style="font-weight: 600; color: #1f2937;">{{ listing.renter_name }}</div>
-                    <div style="font-size: 13px; color: #6b7280;">{{ listing.renter_phone }}</div>
+                    <small class="listing-detail-label">Rented By</small>
+                    <div class="listing-renter-name">{{ listing.renter_name }}</div>
+                    <div class="listing-renter-phone">{{ listing.renter_phone }}</div>
                 </div>
                 <div>
-                    <small style="color: #6b7280;">Rental Period</small>
-                    <div style="font-size: 14px; color: #1f2937;">
+                    <small class="listing-detail-label">Rental Period</small>
+                    <div class="listing-rental-period">
                         {{ listing.from_date[:10] }} to {{ listing.to_date[:10] }}
                     </div>
                 </div>
                 <div>
                     <form action="{{ url_for('equipment_sharing.complete_rental', listing_id=listing._id) }}" method="POST">
-                        <button type="submit" class="btn-submit" style="padding: 8px 16px; font-size: 14px;">
+                        <button type="submit" class="btn-submit btn-submit-sm">
                             <i class="fas fa-check"></i> Mark Complete
                         </button>
                     </form>
@@ -306,97 +175,14 @@
         </div>
         {% endfor %}
         {% else %}
-        <div style="text-align: center; padding: 40px; color: #9ca3af;">
-            <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 16px;"></i>
+        <div class="empty-state">
+            <i class="fas fa-inbox empty-state-icon"></i>
             <p>No equipment listed yet. Create your first listing above!</p>
         </div>
         {% endif %}
     </div>
 </div>
 
-<script>
-const statesDistricts = {{ states_districts|tojson }};
-let currentMinRent = 0;
-let currentMaxRent = 0;
-
-// State/District selection
-document.getElementById('stateSelect').addEventListener('change', function() {
-    const state = this.value;
-    const districtSelect = document.getElementById('districtSelect');
-    
-    districtSelect.innerHTML = '<option value="">-- Select District --</option>';
-    
-    if (state && statesDistricts[state]) {
-        statesDistricts[state].forEach(district => {
-            const option = document.createElement('option');
-            option.value = district;
-            option.textContent = district;
-            districtSelect.appendChild(option);
-        });
-    }
-    
-    fetchLiveRent();
-});
-
-document.getElementById('districtSelect').addEventListener('change', fetchLiveRent);
-document.getElementById('equipmentSelect').addEventListener('change', fetchLiveRent);
-
-// Fetch live rent
-async function fetchLiveRent() {
-    const equipment = document.getElementById('equipmentSelect').value;
-    const district = document.getElementById('districtSelect').value;
-    
-    if (!equipment || !district) {
-        document.getElementById('rentInfoBox').style.display = 'none';
-        return;
-    }
-    
-    try {
-        const response = await fetch('/equipment-sharing/api/get-live-rent', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ equipment, location: district })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            document.getElementById('recommendedRent').textContent = data.recommended_rent.toFixed(2);
-            document.getElementById('minRent').textContent = data.min_rent.toFixed(2);
-            document.getElementById('maxRent').textContent = data.max_rent.toFixed(2);
-            document.getElementById('ownerRent').value = data.recommended_rent.toFixed(2);
-            document.getElementById('rentInfoBox').style.display = 'block';
-            
-            currentMinRent = data.min_rent;
-            currentMaxRent = data.max_rent;
-        }
-    } catch (error) {
-        console.error('Error fetching live rent:', error);
-    }
-}
-
-// Validate rent
-document.getElementById('ownerRent').addEventListener('input', function() {
-    const rent = parseFloat(this.value);
-    
-    if (rent && (rent < currentMinRent || rent > currentMaxRent)) {
-        this.style.borderColor = '#ef4444';
-    } else {
-        this.style.borderColor = '#10b981';
-    }
-});
-
-// Form validation
-document.getElementById('equipmentForm').addEventListener('submit', function(e) {
-    const rent = parseFloat(document.getElementById('ownerRent').value);
-    
-    if (rent < currentMinRent || rent > currentMaxRent) {
-        e.preventDefault();
-        alert(`⚠️ Rent must be between ₹${currentMinRent.toFixed(2)} and ₹${currentMaxRent.toFixed(2)}`);
-        return false;
-    }
-});
-</script>
+<script id="states-districts-data" type="application/json">{{ states_districts|tojson }}</script>
+<script src="{{ url_for('static', filename='js/equipment_list_form.js') }}"></script>
 {% endblock %}

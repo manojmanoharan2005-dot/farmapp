@@ -44,16 +44,6 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Floating Action Button for Agri E-Commerce -->
-    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
-        <a href="https://agri-e-commerce.vercel.app" target="_blank" 
-           style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: linear-gradient(135deg, #059669, #047857); color: white; border-radius: 50%; text-decoration: none; box-shadow: 0 4px 20px rgba(5,150,105,0.3); transition: all 0.3s ease; font-size: 24px;"
-           onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 30px rgba(5,150,105,0.5)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 20px rgba(5,150,105,0.3)'" 
-           title="Shop Agricultural Products">
-            <i class="fas fa-shopping-cart"></i>
-        </a>
-    </div>
-
     <!-- Flash Messages Data Island -->
     <script id="flash-messages" type="application/json">
         {{ get_flashed_messages(with_categories=true) | tojson }}

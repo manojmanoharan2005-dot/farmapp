@@ -5,6 +5,7 @@
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_connect.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/listings.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -262,109 +263,7 @@
     </div>
 </div>
 
-<script>
-    function cancelListing(button) {
-        const listingId = button.dataset.id;
-        if (!listingId) {
-            alert('Error: Invalid Listing ID');
-            console.error('Missing listing ID');
-            return;
-        }
+<div id="listings-config" data-cancel-url="{{ url_for('buyer_connect.api_cancel_listing', listing_id=0) }}" style="display:none;"></div>
+<script src="{{ url_for('static', filename='js/my_listings.js') }}"></script>
 
-        if (!confirm('⚠️ Are you sure you want to cancel this listing? This action cannot be undone.')) {
-            return;
-        }
-
-        // The second parameter 'button' is passed as 'this' from the HTML onclick
-        if (button) {
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
-        }
-
-        console.log('Cancelling crop listing:', listingId);
-
-        // Use a placeholder to generate the correct base path even via reverse proxy
-        const apiBase = "{{ url_for('buyer_connect.api_cancel_listing', listing_id='0') }}";
-        // Replace '0' with the actual ID. splitting ensures we handle the tail correctly
-        const url = apiBase.replace('0', listingId);
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        })
-            .then(response => {
-                console.log('Response status:', response.status);
-                if (!response.ok) {
-                    return response.json().then(err => { throw err; }).catch(() => {
-                        throw new Error('Server error: ' + response.status);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Cancel data:', data);
-                if (data.success) {
-                    if (window.showToast) {
-                        showToast('Listing cancelled successfully!', 'success');
-                    } else {
-                        alert('✅ Listing cancelled successfully!');
-                    }
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    throw new Error(data.message || 'Failed to cancel listing');
-                }
-            })
-            .catch(error => {
-                console.error('Cancel error:', error);
-                console.error('Failed URL:', url);
-
-                let msg = error.message || 'Failed to cancel listing';
-                if (msg.includes('Server error: 404')) {
-                    msg = 'Server Error 404: Endpoint not found. URL: ' + url;
-                }
-
-                if (window.showToast) {
-                    showToast(msg, 'error');
-                } else {
-                    alert('❌ ' + msg);
-                }
-                if (button) {
-                    button.disabled = false;
-                    button.innerHTML = '<i class="fas fa-trash-alt"></i> Cancel';
-                }
-            });
-    }
-</script>
-
-<style>
-    .btn-delete:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
-        background: linear-gradient(135deg, #fca5a5, #f87171) !important;
-    }
-
-    .listing-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-    }
-
-    .listing-card {
-        border-left: 4px solid var(--text-muted);
-    }
-
-    .listing-card.status-active {
-        border-left-color: var(--accent-green);
-    }
-
-    .listing-card.status-sold {
-        border-left-color: var(--accent-red);
-    }
-
-    .listing-card.status-cancelled {
-        border-left-color: var(--text-muted);
-    }
-</style>
 {% endblock %}

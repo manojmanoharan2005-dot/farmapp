@@ -2,8 +2,11 @@
 
 {% block title %}Verify OTP - Smart Farming Assistant{% endblock %}
 
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
 {% block content %}
-<style>
     .verify-otp-section {
         min-height: 100vh;
         display: flex;
@@ -249,23 +252,6 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    @media (max-width: 576px) {
-        .verify-otp-card {
-            padding: 32px 24px;
-        }
-        
-        .otp-input {
-            font-size: 1.5rem;
-            letter-spacing: 8px;
-            padding: 16px;
-        }
-
-        .verify-otp-title {
-            font-size: 1.5rem;
-        }
-    }
-</style>
-
 <section class="verify-otp-section">
     <div class="verify-otp-container">
         <div class="verify-otp-card">
@@ -337,149 +323,6 @@
     </div>
 </section>
 
-<script>
-    const identifier = "{{ identifier }}";
-    let timeLeft = 180; // 3 minutes in seconds
-    let timerInterval;
-
-    // Auto-format OTP input to only accept numbers
-    document.getElementById('otpInput').addEventListener('input', function(e) {
-        this.value = this.value.replace(/[^0-9]/g, '');
-    });
-
-    // Start countdown timer
-    function startTimer() {
-        timerInterval = setInterval(() => {
-            timeLeft--;
-
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-
-            document.getElementById('timer').textContent =
-                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                document.querySelector('.otp-timer').innerHTML =
-                    '<i class="fas fa-exclamation-circle" style="color: var(--danger);"></i> <span style="color: var(--danger);">OTP Expired</span>';
-                enableResendButton();
-            }
-        }, 1000);
-    }
-
-    function enableResendButton() {
-        const resendBtn = document.getElementById('resendBtn');
-        resendBtn.disabled = false;
-    }
-
-    async function resendOTP() {
-        const resendBtn = document.getElementById('resendBtn');
-        resendBtn.disabled = true;
-        resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-
-        try {
-            const response = await fetch('/api/forgot-password/request-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ identifier: identifier })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                showAlert('New OTP sent successfully!', 'success');
-
-                // Reset timer
-                clearInterval(timerInterval);
-                timeLeft = 180;
-                startTimer();
-
-                resendBtn.innerHTML = '<i class="fas fa-redo-alt"></i> Resend';
-            } else {
-                showAlert(data.message, 'error');
-                resendBtn.disabled = false;
-                resendBtn.innerHTML = '<i class="fas fa-redo-alt"></i> Resend';
-            }
-
-        } catch (error) {
-            showAlert('Failed to resend OTP. Please try again.', 'error');
-            resendBtn.disabled = false;
-            resendBtn.innerHTML = '<i class="fas fa-redo-alt"></i> Resend';
-        }
-    }
-
-    // Add onclick to resend button
-    document.getElementById('resendBtn').addEventListener('click', resendOTP);
-
-    document.getElementById('verifyOtpForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        const otp = document.getElementById('otpInput').value.trim();
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
-
-        // Validate OTP
-        if (!/^\d{6}$/.test(otp)) {
-            showAlert('Please enter a valid 6-digit OTP', 'error');
-            return;
-        }
-
-        // Disable button and show loading
-        submitBtn.disabled = true;
-        btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-
-        try {
-            const response = await fetch('/api/forgot-password/verify-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ identifier: identifier, otp: otp })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                showAlert(data.message, 'success');
-                clearInterval(timerInterval);
-
-                // Redirect to password reset page
-                setTimeout(() => {
-                    window.location.href = data.redirect_url;
-                }, 1500);
-            } else {
-                showAlert(data.message, 'error');
-                submitBtn.disabled = false;
-                btnText.innerHTML = '<i class="fas fa-check-circle"></i> Verify OTP';
-                document.getElementById('otpInput').value = '';
-                document.getElementById('otpInput').focus();
-            }
-
-        } catch (error) {
-            console.error('Error:', error);
-            showAlert('Network error. Please try again.', 'error');
-            submitBtn.disabled = false;
-            btnText.innerHTML = '<i class="fas fa-check-circle"></i> Verify OTP';
-        }
-    });
-
-    function showAlert(message, type) {
-        const alertContainer = document.getElementById('alertContainer');
-        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-        const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
-
-        alertContainer.innerHTML = `
-            <div class="alert-box ${alertClass}">
-                <i class="fas ${icon}" style="font-size: 18px;"></i>
-                <span>${message}</span>
-            </div>
-        `;
-
-        setTimeout(() => {
-            alertContainer.innerHTML = '';
-        }, 5000);
-    }
-
-    // Auto-focus OTP input and start timer on page load
-    document.getElementById('otpInput').focus();
-    startTimer();
-</script>
+<div id="otp-config" data-identifier="{{ identifier }}" style="display:none;"></div>
+<script src="{{ url_for('static', filename='js/verify_otp.js') }}"></script>
 {% endblock %}

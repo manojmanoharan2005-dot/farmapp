@@ -76,16 +76,14 @@
             <h3 class="feature-title">Resources</h3>
             <p class="feature-description">Browse information about government schemes, subsidies, and farming resources.</p>
         </div>
-        <div class="feature-card" style="background: linear-gradient(135deg, #059669, #047857); color: white; position: relative; overflow: hidden;">
-            <div style="position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-radius: 50%; opacity: 0.7;"></div>
-            <div class="feature-icon" style="color: white; background: rgba(255,255,255,0.2);">
+        <div class="feature-card ecommerce-card">
+            <div class="ecommerce-card-decoration"></div>
+            <div class="feature-icon">
                 <i class="fas fa-shopping-cart"></i>
             </div>
-            <h3 class="feature-title" style="color: white;">Agri E-Commerce</h3>
-            <p class="feature-description" style="color: rgba(255,255,255,0.9); margin-bottom: 16px;">Shop quality agricultural products online - seeds, fertilizers, and equipment delivered to your farm.</p>
-            <a href="https://agri-e-commerce.vercel.app" target="_blank" 
-               style="display: inline-flex; align-items: center; gap: 8px; background: white; color: #059669; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px; transition: all 0.2s;"
-               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <h3 class="feature-title">Agri E-Commerce</h3>
+            <p class="feature-description">Shop quality agricultural products online - seeds, fertilizers, and equipment delivered to your farm.</p>
+            <a href="https://agri-e-commerce.vercel.app" target="_blank" class="ecommerce-card-link">
                 <i class="fas fa-external-link-alt"></i> Visit Store
             </a>
         </div>
@@ -93,35 +91,33 @@
 </section>
 
 <!-- E-Commerce Promotion Section -->
-<section style="background: linear-gradient(135deg, #059669, #047857); padding: 60px 0; color: white; position: relative; overflow: hidden;">
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><circle cx=\"20\" cy=\"20\" r=\"2\" fill=\"rgba(255,255,255,0.1)\"/><circle cx=\"80\" cy=\"40\" r=\"1.5\" fill=\"rgba(255,255,255,0.1)\"/><circle cx=\"40\" cy=\"70\" r=\"1\" fill=\"rgba(255,255,255,0.1)\"/><circle cx=\"90\" cy=\"80\" r=\"2.5\" fill=\"rgba(255,255,255,0.1)\"/></svg>'); opacity: 0.3;"></div>
-    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 2;">
-        <div style="text-align: center; margin-bottom: 40px;">
-            <div style="font-size: 48px; margin-bottom: 16px;">🛒</div>
-            <h2 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 16px 0;">Shop Smart with Agri E-Commerce</h2>
-            <p style="font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto;">Your one-stop destination for premium agricultural products. Quality guaranteed, delivered fast.</p>
+<section class="promo-section">
+    <div class="promo-section-bg"></div>
+    <div class="promo-container">
+        <div class="promo-header">
+            <div class="promo-emoji">🛒</div>
+            <h2>Shop Smart with Agri E-Commerce</h2>
+            <p>Your one-stop destination for premium agricultural products. Quality guaranteed, delivered fast.</p>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-bottom: 40px;">
-            <div style="text-align: center; padding: 20px;">
-                <div style="font-size: 32px; margin-bottom: 12px;">🌱</div>
-                <h4 style="font-size: 1.3rem; margin: 0 0 8px 0; font-weight: 600;">Premium Seeds</h4>
-                <p style="opacity: 0.9; font-size: 0.95rem;">High-yielding varieties from trusted suppliers</p>
+        <div class="promo-grid">
+            <div class="promo-card">
+                <div class="promo-card-emoji">🌱</div>
+                <h4>Premium Seeds</h4>
+                <p>High-yielding varieties from trusted suppliers</p>
             </div>
-            <div style="text-align: center; padding: 20px;">
-                <div style="font-size: 32px; margin-bottom: 12px;">🧪</div>
-                <h4 style="font-size: 1.3rem; margin: 0 0 8px 0; font-weight: 600;">Quality Fertilizers</h4>
-                <p style="opacity: 0.9; font-size: 0.95rem;">Organic and chemical fertilizers for all crops</p>
+            <div class="promo-card">
+                <div class="promo-card-emoji">🧪</div>
+                <h4>Quality Fertilizers</h4>
+                <p>Organic and chemical fertilizers for all crops</p>
             </div>
-            <div style="text-align: center; padding: 20px;">
-                <div style="font-size: 32px; margin-bottom: 12px;">🚜</div>
-                <h4 style="font-size: 1.3rem; margin: 0 0 8px 0; font-weight: 600;">Farm Equipment</h4>
-                <p style="opacity: 0.9; font-size: 0.95rem;">Modern tools and machinery for efficient farming</p>
+            <div class="promo-card">
+                <div class="promo-card-emoji">🚜</div>
+                <h4>Farm Equipment</h4>
+                <p>Modern tools and machinery for efficient farming</p>
             </div>
         </div>
-        <div style="text-align: center;">
-            <a href="https://agri-e-commerce.vercel.app" target="_blank" 
-               style="display: inline-flex; align-items: center; gap: 12px; background: white; color: #059669; padding: 16px 32px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 1.1rem; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.1);"
-               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 30px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.1)'">
+        <div class="promo-cta">
+            <a href="https://agri-e-commerce.vercel.app" target="_blank" class="promo-cta-btn">
                 <i class="fas fa-rocket"></i> Start Shopping Now
             </a>
         </div>

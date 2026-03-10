@@ -125,11 +125,12 @@ def fetch_mandi_prices(state=None, limit=None):
         
         if scheduled_data:
             print(f"[INFO] Using scheduled market data from: {last_updated}")
-            formatted_data = format_scheduled_data_for_display(scheduled_data)
             
-            # Filter by state if requested
+            # Pre-filter by state BEFORE formatting to avoid processing all 72K records
             if state and state != 'All States':
-                formatted_data = [d for d in formatted_data if d['state'] == state]
+                scheduled_data = [d for d in scheduled_data if d.get('state') == state]
+            
+            formatted_data = format_scheduled_data_for_display(scheduled_data)
             
             # Return all data (no limit) so district filtering works correctly
             return formatted_data
@@ -264,62 +265,7 @@ def market_watch():
     
     print(f"Fetching market data for state: {selected_state}, district: {selected_district}, commodity: {selected_commodity}")
     
-    # Fetch real-time market data (no limit to show all commodities)
-    market_data = fetch_mandi_prices(state=selected_state if selected_state != 'All States' else None, limit=None)
-    
-    # Ensure market_data is always a list, never None
-    if market_data is None:
-        market_data = []
-    
-    # Get districts for the selected state
-    if selected_state != 'All States' and selected_state in states_districts:
-        districts = sorted(states_districts[selected_state])
-    else:
-        # Get unique districts from market data
-        districts = set()
-        for item in market_data:
-            if item.get('district'):
-                districts.add(item['district'])
-        districts = sorted(list(districts))
-    
-    # Filter by district if selected
-    if selected_district != 'All Districts' and selected_district:
-        market_data = [item for item in market_data if item.get('district') == selected_district]
-    
-    # Filter by commodity if selected (supports partial matching for search)
-    if selected_commodity and selected_commodity != 'All':
-        if selected_commodity == 'Vegetables':
-            # Filter to show only vegetables
-            market_data = [item for item in market_data if item.get('commodity') in vegetables_list]
-        elif selected_commodity == 'Fruits':
-            # Filter to show only fruits  
-            market_data = [item for item in market_data if item.get('commodity') in fruits_list]
-        elif selected_commodity == 'Grains':
-            # Filter to show only cereals/grains
-            market_data = [item for item in market_data if item.get('commodity') in cereals_list]
-        elif selected_commodity == 'Pulses':
-            # Filter to show only pulses
-            market_data = [item for item in market_data if item.get('commodity') in pulses_list]
-        elif selected_commodity == 'Oilseeds':
-            # Filter to show only oilseeds
-            market_data = [item for item in market_data if item.get('commodity') in oilseeds_list]
-        elif selected_commodity == 'Spices':
-            # Filter to show only spices
-            market_data = [item for item in market_data if item.get('commodity') in spices_list]
-        elif selected_commodity == 'Commercial Crops':
-            # Filter to show only commercial crops
-            market_data = [item for item in market_data if item.get('commodity') in commercial_list]
-        elif selected_commodity == 'Dry Fruits':
-            # Filter to show only dry fruits
-            market_data = [item for item in market_data if item.get('commodity') in dry_fruits_list]
-        elif selected_commodity == 'Animal Products':
-            # Filter to show only animal products
-            market_data = [item for item in market_data if item.get('commodity') in animal_list]
-        else:
-            # Case-insensitive partial match for search functionality (for specific commodities)
-            market_data = [item for item in market_data if selected_commodity.lower() in item.get('commodity', '').lower()]
-    
-    # Categorize into vegetables and fruits - MUST match generate_market_data.py exactly
+    # Define category lists BEFORE they are used for filtering
     vegetables_list = [
         "Tomato", "Onion", "Potato", "Brinjal", "Cabbage", "Cauliflower",
         "Carrot", "Beetroot", "Green Chilli", "Capsicum (Green)", "Capsicum (Red)",
@@ -361,6 +307,51 @@ def market_watch():
     animal_list = [
         "Milk", "Cow Ghee", "Buffalo Ghee", "Egg", "Poultry Chicken", "Fish (Common Varieties)"
     ]
+
+    # Fetch real-time market data (no limit to show all commodities)
+    market_data = fetch_mandi_prices(state=selected_state if selected_state != 'All States' else None, limit=None)
+    
+    # Ensure market_data is always a list, never None
+    if market_data is None:
+        market_data = []
+    
+    # Get districts for the selected state
+    if selected_state != 'All States' and selected_state in states_districts:
+        districts = sorted(states_districts[selected_state])
+    else:
+        # Get unique districts from market data
+        districts = set()
+        for item in market_data:
+            if item.get('district'):
+                districts.add(item['district'])
+        districts = sorted(list(districts))
+    
+    # Filter by district if selected
+    if selected_district != 'All Districts' and selected_district:
+        market_data = [item for item in market_data if item.get('district') == selected_district]
+    
+    # Filter by commodity if selected (supports partial matching for search)
+    if selected_commodity and selected_commodity != 'All':
+        if selected_commodity == 'Vegetables':
+            market_data = [item for item in market_data if item.get('commodity') in vegetables_list]
+        elif selected_commodity == 'Fruits':
+            market_data = [item for item in market_data if item.get('commodity') in fruits_list]
+        elif selected_commodity == 'Grains':
+            market_data = [item for item in market_data if item.get('commodity') in cereals_list]
+        elif selected_commodity == 'Pulses':
+            market_data = [item for item in market_data if item.get('commodity') in pulses_list]
+        elif selected_commodity == 'Oilseeds':
+            market_data = [item for item in market_data if item.get('commodity') in oilseeds_list]
+        elif selected_commodity == 'Spices':
+            market_data = [item for item in market_data if item.get('commodity') in spices_list]
+        elif selected_commodity == 'Commercial Crops':
+            market_data = [item for item in market_data if item.get('commodity') in commercial_list]
+        elif selected_commodity == 'Dry Fruits':
+            market_data = [item for item in market_data if item.get('commodity') in dry_fruits_list]
+        elif selected_commodity == 'Animal Products':
+            market_data = [item for item in market_data if item.get('commodity') in animal_list]
+        else:
+            market_data = [item for item in market_data if selected_commodity.lower() in item.get('commodity', '').lower()]
 
     vegetables = [item for item in market_data if item.get('commodity') in vegetables_list]
     fruits = [item for item in market_data if item.get('commodity') in fruits_list]

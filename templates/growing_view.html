@@ -22,7 +22,7 @@
             <h1 class="page-title">Growing Guide: {{ activity.crop_display_name or activity.crop }}</h1>
             <div class="crop-match">
                 <span>Food Crop:</span>
-                <div style="width: 100px; height: 6px; background: #10b981; border-radius: 3px;"></div>
+                <div class="crop-match-bar"></div>
                 <span>85% Match</span>
             </div>
         </div>
@@ -98,8 +98,8 @@
                 <span class="section-number">2</span>
                 <span>Seed Selection & Sowing</span>
             </div>
-            <div style="margin-bottom: 16px;">
-                <strong style="font-size: 14px; color: #1e293b;">Recommended Varieties</strong>
+            <div class="varieties-heading">
+                <strong class="varieties-title">Recommended Varieties</strong>
             </div>
             <div class="variety-grid">
                 <div class="variety-card">
@@ -112,25 +112,25 @@
                 </div>
             </div>
 
-            <div style="margin-top: 20px;">
-                <div style="display: flex; gap: 16px; margin-bottom: 12px;">
-                    <div style="flex: 1;">
-                        <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">
+            <div class="sowing-details">
+                <div class="sowing-details-grid">
+                    <div class="sowing-detail-col">
+                        <div class="sowing-detail-label">
                             <i class="fas fa-calendar"></i> Sowing Rate
                         </div>
-                        <div style="font-weight: 600;">{{ activity.sowing_rate or '25 kg/hectare' }}</div>
+                        <div class="sowing-detail-value">{{ activity.sowing_rate or '25 kg/hectare' }}</div>
                     </div>
-                    <div style="flex: 1;">
-                        <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">
+                    <div class="sowing-detail-col">
+                        <div class="sowing-detail-label">
                             <i class="fas fa-sun"></i> Sowing Season
                         </div>
-                        <div style="font-weight: 600;">{{ activity.season or 'June-July' }}</div>
+                        <div class="sowing-detail-value">{{ activity.season or 'June-July' }}</div>
                     </div>
-                    <div style="flex: 1;">
-                        <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">
+                    <div class="sowing-detail-col">
+                        <div class="sowing-detail-label">
                             <i class="fas fa-seedling"></i> Sowing Method
                         </div>
-                        <div style="font-weight: 600;">{{ activity.method or 'Row sowing' }}</div>
+                        <div class="sowing-detail-value">{{ activity.method or 'Row sowing' }}</div>
                     </div>
                 </div>
             </div>
@@ -171,7 +171,7 @@
                     <option value="monthly">Monthly</option>
                     <option value="seasonal">Seasonal</option>
                 </select>
-                <button class="btn btn-primary btn-icon" style="width: 100%;">
+                <button class="btn btn-primary btn-icon btn-full-width">
                     <i class="fas fa-plus"></i> Add
                 </button>
             </div>
@@ -198,7 +198,7 @@
                     <input type="number" class="form-input" value="{{ activity.duration_days or '90' }}">
                 </div>
             </div>
-            <button class="btn btn-primary btn-icon" style="margin-top: 12px;">
+            <button class="btn btn-primary btn-icon btn-harvest-plan">
                 <i class="fas fa-calculator"></i> Generate Harvest Plan
             </button>
         </div>

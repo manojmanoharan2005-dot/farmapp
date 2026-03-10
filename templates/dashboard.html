@@ -61,7 +61,7 @@
                 <a href="{{ url_for('buyer_connect.marketplace') }}" class="nav-link">
                     <i class="fas fa-store"></i>
                     <span>Buy from Farmers</span>
-                    <span class="badge" style="background: #3b82f6;">New</span>
+                    <span class="badge badge-blue">New</span>
                 </a>
                 <a href="{{ url_for('buyer_connect.purchase_history') }}" class="nav-link">
                     <i class="fas fa-history"></i>
@@ -102,7 +102,7 @@
                 <a href="{{ url_for('equipment_sharing.marketplace') }}" class="nav-link">
                     <i class="fas fa-store"></i>
                     <span>Rent Equipment</span>
-                    <span class="badge" style="background: #10b981;">Live</span>
+                    <span class="badge badge-green">Live</span>
                 </a>
                 <a href="{{ url_for('equipment_sharing.rental_history') }}" class="nav-link">
                     <i class="fas fa-history"></i>
@@ -119,13 +119,13 @@
         </div>
 
         <div class="sidebar-user">
-            <div class="user-info" onclick="openProfileModal()" style="cursor: pointer;">
+            <div class="user-info sidebar-clickable" onclick="openProfileModal()">
                 <div class="user-avatar">{{ user_name[0] if user_name else 'U' }}</div>
                 <div class="user-details">
                     <h4>{{ user_name }}</h4>
                     <span>Farmer</span>
                 </div>
-                <i class="fas fa-chevron-right" style="margin-left: auto; opacity: 0.5; font-size: 12px;"></i>
+                <i class="fas fa-chevron-right sidebar-chevron"></i>
             </div>
         </div>
     </div>
@@ -191,39 +191,31 @@
                         <span>Crops Suggested</span>
                     </div>
                 </div>
-                <div style="margin-left: auto; display: flex; gap: 12px; align-items: center;">
+                <div class="stats-bar-actions">
                     <!-- Notification Button -->
-                    <button class="notification-toggle-btn" onclick="toggleNotificationPanel()"
-                        style="width: 44px; height: 44px; font-size: 18px; background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; transition: all 0.3s ease;">
+                    <button class="notification-toggle-btn panel-toggle-btn notif" onclick="toggleNotificationPanel()">
                         <i class="fas fa-bell"></i>
                         {% if notifications %}
-                        <span
-                            style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; min-width: 20px; height: 20px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid #1a1c1e; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);">{{
+                        <span class="notif-count-badge">{{
                             notifications|length }}</span>
                         {% endif %}
                     </button>
 
                     <!-- Notification Panel -->
-                    <div id="notificationPanel" class="notification-panel"
-                        style="display: none; position: absolute; top: 80px; right: 20px; width: 420px; background: rgba(30, 41, 59, 0.98); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.5); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 1000; overflow: hidden; transform-origin: top right; animation: panelSlide 0.2s ease;">
-                        <div class="panel-header"
-                            style="padding: 18px 24px; border-bottom: 1px solid rgba(51, 65, 85, 0.5); display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.03);">
-                            <h3
-                                style="font-size: 1.1rem; font-weight: 600; color: #f1f5f9; margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <div id="notificationPanel" class="notification-panel floating-panel notification">
+                        <div class="panel-header">
+                            <h3>
                                 <i class="fas fa-bell" style="color: #64748b; font-size: 0.9em;"></i> Notifications
                             </h3>
-                            <button onclick="markAllRead()"
-                                style="background: transparent; border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; font-size: 0.85rem; cursor: pointer; padding: 6px 12px; border-radius: 6px; transition: all 0.2s;">
+                            <button onclick="markAllRead()" class="mark-read-btn">
                                 Mark all read
                             </button>
                         </div>
-                        <div class="panel-body" style="max-height: 400px; overflow-y: auto;">
+                        <div class="panel-body">
                             {% if notifications %}
                             {% for notif in notifications %}
-                            <div class="notification-item"
-                                style="padding: 16px 24px; border-bottom: 1px solid rgba(51, 65, 85, 0.3); display: flex; gap: 16px; align-items: start; transition: background 0.2s;">
-                                <div class="notif-icon"
-                                    style="width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(59, 130, 246, 0.15); color: #3b82f6; flex-shrink: 0; font-size: 1.2rem;">
+                            <div class="notif-item-panel">
+                                <div class="notif-icon">
                                     {% if notif.type == 'success' %}<i class="fas fa-check-circle"
                                         style="color: #10b981;"></i>
                                     {% elif notif.type == 'warning' %}<i class="fas fa-exclamation-triangle"
@@ -232,21 +224,17 @@
                                     {% else %}<i class="fas fa-info-circle"></i>{% endif %}
                                 </div>
                                 <div style="flex: 1;">
-                                    <p
-                                        style="margin: 0; color: #f1f5f9; font-size: 0.95rem; line-height: 1.5; font-weight: 500;">
-                                        {{
+                                    <p>{{
                                         notif.message }}</p>
-                                    <span
-                                        style="font-size: 0.85rem; color: #94a3b8; display: block; margin-top: 6px; display: flex; align-items: center; gap: 4px;">
+                                    <span class="notif-time">
                                         <i class="far fa-clock" style="font-size: 10px;"></i> {{ notif.time_ago }}
                                     </span>
                                 </div>
                             </div>
                             {% endfor %}
                             {% else %}
-                            <div style="padding: 40px; text-align: center; color: #64748b;">
-                                <div
-                                    style="width: 60px; height: 60px; background: rgba(148, 163, 184, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <div class="empty-notif">
+                                <div class="empty-notif-icon">
                                     <i class="fas fa-bell-slash" style="font-size: 24px; opacity: 0.7;"></i>
                                 </div>
                                 <p style="margin: 0; font-size: 1rem; color: #cbd5e1;">No new alerts</p>
@@ -256,169 +244,77 @@
                         </div>
                     </div>
 
-                    <script>
-                        function toggleNotificationPanel() {
-                            const panel = document.getElementById('notificationPanel');
-                            if (panel.style.display === 'none') {
-                                panel.style.display = 'block';
-                            } else {
-                                panel.style.display = 'none';
-                            }
-                        }
-
-                        // Close panel when clicking outside
-                        document.addEventListener('click', function (event) {
-                            const panel = document.getElementById('notificationPanel');
-                            const btn = document.querySelector('.notification-toggle-btn');
-                            if (panel && btn && !panel.contains(event.target) && !btn.contains(event.target)) {
-                                panel.style.display = 'none';
-                            }
-                        });
-
-                        function markAllRead() {
-                            fetch('/mark-notifications-read', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                }
-                            })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        toggleNotificationPanel();
-                                        showToast('All notifications marked as read', 'success');
-                                        // Remove badge
-                                        const badge = document.querySelector('.notification-toggle-btn span');
-                                        if (badge) badge.remove();
-                                        // Clear list
-                                        const list = document.querySelector('.panel-body');
-                                        if (list) {
-                                            list.innerHTML = '<div style="padding: 32px; text-align: center; color: #64748b;"><i class="fas fa-bell-slash" style="font-size: 24px; margin-bottom: 8px; opacity: 0.5;"></i><p style="margin: 0; font-size: 13px;">No new alerts</p></div>';
-                                        }
-                                    } else {
-                                        showToast('Failed to mark notifications', 'error');
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    showToast('Error marking notifications', 'error');
-                                });
-                        }
-                    </script>
-
                     <!-- Download Button -->
                     <div style="position: relative;">
-                        <button class="download-toggle-btn" onclick="toggleDownloadPanel()"
-                            style="width: 44px; height: 44px; font-size: 18px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; transition: all 0.3s ease;">
+                        <button class="download-toggle-btn panel-toggle-btn download" onclick="toggleDownloadPanel()">
                             <i class="fas fa-download"></i>
                         </button>
 
                         <!-- Download Panel -->
-                        <div id="downloadPanel" class="download-panel"
-                            style="display: none; position: absolute; top: 55px; right: 0; width: 320px; background: rgba(30, 41, 59, 0.98); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.5); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); z-index: 1000; overflow: hidden;">
-                            <div
-                                style="padding: 18px 20px; border-bottom: 1px solid rgba(51, 65, 85, 0.5); background: rgba(255, 255, 255, 0.03);">
-                                <h3
-                                    style="margin: 0; font-size: 1rem; font-weight: 600; color: #f1f5f9; display: flex; align-items: center; gap: 8px;">
+                        <div id="downloadPanel" class="download-panel floating-panel download">
+                            <div class="dl-panel-header">
+                                <h3>
                                     <i class="fas fa-download" style="color: #10b981;"></i> Download Reports
                                 </h3>
-                                <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">Export your farming
-                                    data</p>
+                                <p>Export your farming data</p>
                             </div>
-                            <div style="padding: 12px;">
-                                <a href="{{ url_for('report.download_market_prices_pdf') }}"
-                                    style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 12px; text-decoration: none; transition: all 0.2s; margin-bottom: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);"
-                                    onmouseover="this.style.background='rgba(14, 165, 233, 0.15)'; this.style.borderColor='#0ea5e9';"
-                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.05)'; this.style.borderColor='rgba(255, 255, 255, 0.1)';">
-                                    <div
-                                        style="width: 40px; height: 40px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                            <div class="dl-panel-body">
+                                <a href="{{ url_for('report.download_market_prices_pdf') }}" class="download-item"
+                                    style="--hover-bg: rgba(14, 165, 233, 0.15); --hover-border: #0ea5e9;">
+                                    <div class="dl-icon" style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">
                                         📊
                                     </div>
                                     <div style="flex: 1;">
-                                        <div style="font-weight: 600; color: #f1f5f9; font-size: 0.9rem;">Market Prices
-                                        </div>
-                                        <div style="font-size: 0.8rem; color: #94a3b8;">Today's commodity prices</div>
+                                        <div class="dl-title">Market Prices</div>
+                                        <div class="dl-subtitle">Today's commodity prices</div>
                                     </div>
-                                    <i class="fas fa-chevron-right" style="color: #64748b; font-size: 12px;"></i>
+                                    <i class="fas fa-chevron-right dl-chevron"></i>
                                 </a>
 
-                                <a href="{{ url_for('report.download_weather_pdf') }}"
-                                    style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 12px; text-decoration: none; transition: all 0.2s; margin-bottom: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);"
-                                    onmouseover="this.style.background='rgba(245, 158, 11, 0.15)'; this.style.borderColor='#f59e0b';"
-                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.05)'; this.style.borderColor='rgba(255, 255, 255, 0.1)';">
-                                    <div
-                                        style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                                <a href="{{ url_for('report.download_weather_pdf') }}" class="download-item"
+                                    style="--hover-bg: rgba(245, 158, 11, 0.15); --hover-border: #f59e0b;">
+                                    <div class="dl-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
                                         ☁️
                                     </div>
                                     <div style="flex: 1;">
-                                        <div style="font-weight: 600; color: #f1f5f9; font-size: 0.9rem;">Weather
-                                            Forecast</div>
-                                        <div style="font-size: 0.8rem; color: #94a3b8;">7-day weather data</div>
+                                        <div class="dl-title">Weather Forecast</div>
+                                        <div class="dl-subtitle">7-day weather data</div>
                                     </div>
-                                    <i class="fas fa-chevron-right" style="color: #64748b; font-size: 12px;"></i>
+                                    <i class="fas fa-chevron-right dl-chevron"></i>
                                 </a>
 
-                                <a href="{{ url_for('report.download_expense_pdf') }}"
-                                    style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 12px; text-decoration: none; transition: all 0.2s; margin-bottom: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);"
-                                    onmouseover="this.style.background='rgba(236, 72, 153, 0.15)'; this.style.borderColor='#ec4899';"
-                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.05)'; this.style.borderColor='rgba(255, 255, 255, 0.1)';">
-                                    <div
-                                        style="width: 40px; height: 40px; background: linear-gradient(135deg, #ec4899, #db2777); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                                <a href="{{ url_for('report.download_expense_pdf') }}" class="download-item"
+                                    style="--hover-bg: rgba(236, 72, 153, 0.15); --hover-border: #ec4899;">
+                                    <div class="dl-icon" style="background: linear-gradient(135deg, #ec4899, #db2777);">
                                         🧮
                                     </div>
                                     <div style="flex: 1;">
-                                        <div style="font-weight: 600; color: #f1f5f9; font-size: 0.9rem;">Expense
-                                            Calculator</div>
-                                        <div style="font-size: 0.8rem; color: #94a3b8;">Last calculation</div>
+                                        <div class="dl-title">Expense Calculator</div>
+                                        <div class="dl-subtitle">Last calculation</div>
                                     </div>
-                                    <i class="fas fa-chevron-right" style="color: #64748b; font-size: 12px;"></i>
+                                    <i class="fas fa-chevron-right dl-chevron"></i>
                                 </a>
 
-                                <a href="{{ url_for('report.download_crop_progress_pdf') }}"
-                                    style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 12px; text-decoration: none; transition: all 0.2s; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);"
-                                    onmouseover="this.style.background='rgba(34, 197, 94, 0.15)'; this.style.borderColor='#22c55e';"
-                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.05)'; this.style.borderColor='rgba(255, 255, 255, 0.1)';">
-                                    <div
-                                        style="width: 40px; height: 40px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                                <a href="{{ url_for('report.download_crop_progress_pdf') }}" class="download-item"
+                                    style="--hover-bg: rgba(34, 197, 94, 0.15); --hover-border: #22c55e;">
+                                    <div class="dl-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
                                         🌱
                                     </div>
                                     <div style="flex: 1;">
-                                        <div style="font-weight: 600; color: #f1f5f9; font-size: 0.9rem;">Crop Progress
-                                        </div>
-                                        <div style="font-size: 0.8rem; color: #94a3b8;">Active crops status</div>
+                                        <div class="dl-title">Crop Progress</div>
+                                        <div class="dl-subtitle">Active crops status</div>
                                     </div>
-                                    <i class="fas fa-chevron-right" style="color: #64748b; font-size: 12px;"></i>
+                                    <i class="fas fa-chevron-right dl-chevron"></i>
                                 </a>
                             </div>
                         </div>
                     </div>
 
-                    <script>
-                        function toggleDownloadPanel() {
-                            const panel = document.getElementById('downloadPanel');
-                            if (panel.style.display === 'none') {
-                                panel.style.display = 'block';
-                            } else {
-                                panel.style.display = 'none';
-                            }
-                        }
-
-                        // Close panel when clicking outside
-                        document.addEventListener('click', function (event) {
-                            const panel = document.getElementById('downloadPanel');
-                            const btn = document.querySelector('.download-toggle-btn');
-                            if (panel && btn && !panel.contains(event.target) && !btn.contains(event.target)) {
-                                panel.style.display = 'none';
-                            }
-                        });
-                    </script>
-
                     <button class="chatbot-toggle" onclick="openChatbotModal()"
                         style="width: 44px; height: 44px; font-size: 18px;">
                         <i class="fas fa-robot"></i>
                     </button>
-                    <a href="{{ url_for('auth.logout') }}"
-                        style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <a href="{{ url_for('auth.logout') }}" class="logout-link">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
                 </div>
@@ -438,8 +334,7 @@
                             </div>
                             <div class="card-body">
                                 {% if user and user.district %}
-                                <div
-                                    style="font-size: 12px; color: #374151; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                                <div class="commodity-location-header">
                                     <i class="fas fa-map-marker-alt"></i> {{ user.district }}, {{ user.state }}
                                 </div>
                                 {% endif %}
@@ -512,7 +407,7 @@
                                                 {% elif pred.trend == 'decrease' %}
                                                 <i class="fas fa-arrow-down"></i> {{ pred.change_percent }}%
                                                 {% else %}
-                                                <span style="color: #374151;">↔ {{ pred.change_percent
+                                                <span class="price-change-neutral">↔ {{ pred.change_percent
                                                     }}%</span>
                                                 {% endif %}
                                             </div>
@@ -547,11 +442,11 @@
                                     </div>
                                     {% endfor %}
                                     {% else %}
-                                    <div style="text-align: center; padding: 20px; color: #374151;">
+                                    <div class="empty-state-message">
                                         <i class="fas fa-chart-bar"
-                                            style="font-size: 32px; margin-bottom: 12px; opacity: 0.7; color: #374151;"></i>
-                                        <p style="margin: 0; color: #0f172a;">No market data available for your district yet.</p>
-                                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #374151;">Update your profile with your
+                                            style="font-size: 32px; margin-bottom: 12px; opacity: 0.7;"></i>
+                                        <p style="margin: 0;">No market data available for your district yet.</p>
+                                        <p style="margin: 4px 0 0 0; font-size: 12px;">Update your profile with your
                                             district to see live prices.</p>
                                     </div>
                                     {% endif %}
@@ -641,19 +536,16 @@
                             <div class="card-body">
                                 {% if saved_fertilizers %}
                                 {% for fertilizer in saved_fertilizers[:3] %}
-                                <div class="fertilizer-card"
-                                    style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px;">
-                                    <div
-                                        style="width: 50px; height: 50px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; flex-shrink: 0;">
+                                <div class="fertilizer-card">
+                                    <div class="fertilizer-icon">
                                         🧪
                                     </div>
                                     <div style="flex: 1;">
-                                        <div
-                                            style="font-weight: 700; color: #1e293b; font-size: 16px; margin-bottom: 4px;">
+                                        <div class="fertilizer-name">
                                             {{ fertilizer.name or fertilizer.fertilizer_name or
                                             fertilizer.recommendation or 'Fertilizer' }}
                                         </div>
-                                        <div style="font-size: 13px; color: #64748b; margin-bottom: 6px;">
+                                        <div class="fertilizer-meta">
                                             <i class="fas fa-seedling" style="color: #10b981; margin-right: 4px;"></i>
                                             <span style="font-weight: 600;">{{ fertilizer.crop_type or fertilizer.crop
                                                 or 'General' }}</span>
@@ -667,14 +559,11 @@
                                         <div style="font-size: 12px; color: #475569;">
                                             {% if fertilizer.nitrogen or fertilizer.phosphorus or fertilizer.potassium
                                             %}
-                                            <span
-                                                style="background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 4px; margin-right: 4px;">N:
+                                            <span class="npk-badge n">N:
                                                 {{ fertilizer.nitrogen or '0' }}</span>
-                                            <span
-                                                style="background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 4px; margin-right: 4px;">P:
+                                            <span class="npk-badge p">P:
                                                 {{ fertilizer.phosphorus or '0' }}</span>
-                                            <span
-                                                style="background: #dcfce7; color: #14532d; padding: 3px 8px; border-radius: 4px;">K:
+                                            <span class="npk-badge k">K:
                                                 {{ fertilizer.potassium or '0' }}</span>
                                             {% endif %}
                                         </div>
@@ -720,7 +609,7 @@
                                     <i class="fas fa-sync-alt" onclick="refreshWeather()"
                                         style="cursor: pointer; font-size: 14px; opacity: 0.7;"
                                         title="Refresh Weather"></i>
-                                    <span class="card-badge" style="background: #10b981;">Live</span>
+                                    <span class="card-badge badge-green">Live</span>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -764,19 +653,16 @@
 
                                 <!-- 7-Day Forecast -->
                                 {% if weather_data.forecast %}
-                                <div id="weather-forecast-section"
-                                    style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px;">
+                                <div id="weather-forecast-section" class="forecast-section">
                                     <div
                                         style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                                        <h4
-                                            style="margin: 0; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9);">
+                                        <h4 class="forecast-title">
                                             <i class="fas fa-calendar-alt"></i> 7-Day Forecast
                                         </h4>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 8px;">
                                         {% for day in weather_data.forecast[:7] %}
-                                        <div
-                                            style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 12px;">
+                                        <div class="forecast-row">
                                             <div style="flex: 1; font-weight: 600; color: rgba(255,255,255,0.9);">{{
                                                 day.day }}</div>
                                             <div style="flex: 0 0 30px; text-align: center; font-size: 18px;">{{
@@ -904,8 +790,7 @@
             <div class="card-header" style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
                 <div class="card-title" style="color: white;"><i class="fas fa-truck-pickup"></i> Equipment Sharing
                     Platform</div>
-                <button onclick="closeEquipmentModal()"
-                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: white;">×</button>
+                <button onclick="closeEquipmentModal()" class="modal-close-btn">×</button>
             </div>
             <div class="card-body" style="padding: 24px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -1009,8 +894,7 @@
             <div class="card-header" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white;">
                 <div class="card-title" style="color: white;"><i class="fas fa-cloud-sun"></i> Weather Forecast
                 </div>
-                <button onclick="closeWeatherModal()"
-                    style="background: none; border: none; font-size: 20px; cursor: pointer; color: white;">×</button>
+                <button onclick="closeWeatherModal()" class="modal-close-btn">×</button>
             </div>
             <div class="card-body" style="padding: 20px;">
                 <!-- Search Section -->
@@ -1056,8 +940,7 @@
                         style="font-size: 14px; font-weight: 500; background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 4px 12px; border-radius: 20px; margin-left: 8px;">{{
                         notifications|length if notifications else 0 }} New</span>
                 </div>
-                <button onclick="closeNotificationModal()"
-                    style="background: rgba(255,255,255,0.1); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">×</button>
+                <button onclick="closeNotificationModal()" class="modal-close-btn-round">×</button>
             </div>
             <div class="card-body" style="padding: 25px; background: #f8fafc;">
                 {% if notifications %}

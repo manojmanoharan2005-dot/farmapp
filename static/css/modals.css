@@ -1,0 +1,208 @@
+/* ============================================
+   Modal Styles
+   Used by: buyer_marketplace, equipment_marketplace
+   ============================================ */
+
+/* Overlay */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Modal (equipment style) */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* Content */
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+    padding: 32px;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal .modal-content {
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    padding: 0;
+}
+
+/* Close Button */
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: var(--bg-secondary, #f1f5f9);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--text-secondary, #64748b);
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    background: #e2e8f0;
+    color: var(--text-primary, #0f172a);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Title */
+.modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary, #0f172a);
+    margin-bottom: 8px;
+}
+
+/* Header (equipment modal) */
+.modal-header {
+    background: #10b981;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+/* Body */
+.modal-body {
+    padding: 24px;
+}
+
+/* Purchase Details */
+.purchase-details {
+    background: var(--bg-secondary, #f1f5f9);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+/* Warning Message */
+.validation-message.warning {
+    background: #fffbeb;
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 13px;
+    color: #92400e;
+}
+
+/* Purchase Detail Items */
+.purchase-detail-label {
+    font-size: 12px;
+    color: var(--text-secondary, #64748b);
+    margin-bottom: 4px;
+}
+
+.purchase-detail-value {
+    font-weight: 600;
+    color: var(--text-primary, #0f172a);
+}
+
+.purchase-detail-price {
+    font-weight: 700;
+    color: var(--success, #10b981);
+    font-size: 18px;
+}
+
+/* Equipment Details (in booking modal) */
+.equipment-detail-box {
+    background: #f9fafb;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.equipment-info-note {
+    background: #fffbeb;
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #92400e;
+}
+
+/* Booking Message */
+.booking-message {
+    display: none;
+    margin-bottom: 16px;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.booking-message.success {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.booking-message.error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Dark Mode */
+[data-theme="dark"] .modal-content {
+    background: #1e293b;
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .modal-close {
+    background: #334155;
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .modal-close:hover {
+    background: #475569;
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .purchase-details,
+[data-theme="dark"] .equipment-detail-box {
+    background: #0f172a;
+}
+
+[data-theme="dark"] .validation-message.warning,
+[data-theme="dark"] .equipment-info-note {
+    background: #422006;
+    border-color: #92400e;
+    color: #fbbf24;
+}

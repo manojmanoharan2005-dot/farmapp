@@ -120,3 +120,55 @@ document.addEventListener('DOMContentLoaded', function () {
     window.toggleSidebar = toggleSidebar;
     window.updateDistricts = updateDistricts;
 });
+
+// ============================================
+// Extracted from inline <script> in market_watch.html
+// ============================================
+
+// Horizontal scroll functionality for category sections
+function scrollCategory(category, direction) {
+    const container = document.getElementById(category + '-grid');
+    if (!container) return;
+
+    const scrollAmount = 300;
+    const currentScroll = container.parentElement.scrollLeft;
+
+    if (direction === 'left') {
+        container.parentElement.scrollLeft = currentScroll - scrollAmount;
+    } else {
+        container.parentElement.scrollLeft = currentScroll + scrollAmount;
+    }
+
+    setTimeout(() => updateScrollButtons(category), 100);
+}
+
+// Update scroll button states based on scroll position
+function updateScrollButtons(category) {
+    const container = document.getElementById(category + '-grid');
+    if (!container) return;
+
+    const scrollContainer = container.parentElement;
+    const leftBtn = document.querySelector(`button[onclick="scrollCategory('${category}', 'left')"]`);
+    const rightBtn = document.querySelector(`button[onclick="scrollCategory('${category}', 'right')"]`);
+
+    if (leftBtn && rightBtn) {
+        leftBtn.disabled = scrollContainer.scrollLeft <= 0;
+
+        const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+        rightBtn.disabled = scrollContainer.scrollLeft >= maxScroll - 1;
+    }
+}
+
+// Initialize scroll button states on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const categories = ['vegetables', 'fruits', 'cereals', 'pulses', 'oilseeds', 'spices', 'commercial', 'dry_fruits', 'animal'];
+
+    categories.forEach(category => {
+        updateScrollButtons(category);
+
+        const container = document.getElementById(category + '-grid');
+        if (container && container.parentElement) {
+            container.parentElement.addEventListener('scroll', () => updateScrollButtons(category));
+        }
+    });
+});

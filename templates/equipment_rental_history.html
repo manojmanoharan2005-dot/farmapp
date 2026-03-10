@@ -5,6 +5,7 @@
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_connect.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/listings.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -80,12 +81,15 @@
             <p class="page-subtitle">View your equipment rental and lending transaction history</p>
         </div>
 
+        <!-- Tab Config -->
+        <div id="tab-config" data-tab1="rented" data-tab2="given" style="display:none;"></div>
+
         <!-- Tabs -->
-        <div style="display: flex; gap: 12px; margin-top: 24px; margin-bottom: 24px;">
-            <button onclick="showTab('rented')" id="tab-rented" class="btn-submit" style="flex: 1; padding: 14px;">
+        <div class="tab-row">
+            <button onclick="showTab('rented')" id="tab-rented" class="tab-btn active">
                 <i class="fas fa-tractor"></i> Equipment I Rented ({{ rented|length }})
             </button>
-            <button onclick="showTab('given')" id="tab-given" style="flex: 1; padding: 14px; background: #e2e8f0; color: #475569; border: 2px solid #cbd5e1; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px;">
+            <button onclick="showTab('given')" id="tab-given" class="tab-btn inactive">
                 <i class="fas fa-hand-holding-usd"></i> Equipment I Gave on Rent ({{ given|length }})
             </button>
         </div>
@@ -93,54 +97,52 @@
         <!-- Rented Tab -->
         <div id="section-rented">
             {% if rented %}
-            <div style="display: grid; gap: 20px;">
+            <div class="grid-gap-20">
                 {% for item in rented %}
-                <div style="background: white; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); overflow: hidden; border-left: 5px solid #3b82f6;">
-                    <div style="padding: 24px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;">
-                        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-                            🚜
-                        </div>
+                <div class="history-card blue-border">
+                    <div class="history-card-inner">
+                        <div class="history-icon-box blue">🚜</div>
                         <div>
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-                                <h3 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;">{{ item.equipment_name }}</h3>
+                            <div class="history-title-row">
+                                <h3 class="history-title">{{ item.equipment_name }}</h3>
                                 {% if item.status == 'booked' %}
-                                <span style="background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">BOOKED</span>
+                                <span class="status-badge status-badge-booked">BOOKED</span>
                                 {% else %}
-                                <span style="background: #dbeafe; color: #1d4ed8; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">COMPLETED</span>
+                                <span class="status-badge status-badge-completed">COMPLETED</span>
                                 {% endif %}
                             </div>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                            <div class="history-detail-grid">
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Daily Rent</span>
-                                    <div style="font-weight: 800; color: #16a34a; font-size: 18px;">₹{{ "%.2f"|format(item.owner_rent) }}/day</div>
+                                    <span class="history-detail-label">Daily Rent</span>
+                                    <div class="history-detail-value price">₹{{ "%.2f"|format(item.owner_rent) }}/day</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Total Rent</span>
-                                    <div style="font-weight: 800; color: #1e293b; font-size: 18px;">₹{{ "%.2f"|format(item.total_rent) }}</div>
+                                    <span class="history-detail-label">Total Rent</span>
+                                    <div class="history-detail-value large">₹{{ "%.2f"|format(item.total_rent) }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Rental Period</span>
-                                    <div style="font-weight: 600; color: #1e293b;">{{ item.rental_from }} to {{ item.rental_to }}</div>
+                                    <span class="history-detail-label">Rental Period</span>
+                                    <div class="history-detail-value">{{ item.rental_from }} to {{ item.rental_to }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Duration</span>
-                                    <div style="font-weight: 700; color: #1e293b;">{{ item.rental_days }} days</div>
+                                    <span class="history-detail-label">Duration</span>
+                                    <div class="history-detail-value">{{ item.rental_days }} days</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Owner</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-user" style="color: #22c55e;"></i> {{ item.owner_name }}</div>
+                                    <span class="history-detail-label">Owner</span>
+                                    <div class="history-detail-value"><i class="fas fa-user icon-green"></i> {{ item.owner_name }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Owner Phone</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-phone" style="color: #3b82f6;"></i> {{ item.owner_phone }}</div>
+                                    <span class="history-detail-label">Owner Phone</span>
+                                    <div class="history-detail-value"><i class="fas fa-phone icon-blue"></i> {{ item.owner_phone }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Location</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-map-marker-alt" style="color: #ef4444;"></i> {{ item.district }}, {{ item.state }}</div>
+                                    <span class="history-detail-label">Location</span>
+                                    <div class="history-detail-value"><i class="fas fa-map-marker-alt icon-red"></i> {{ item.district }}, {{ item.state }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Booked On</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-calendar-check" style="color: #8b5cf6;"></i> {{ item.booked_at[:10] if item.booked_at else 'N/A' }}</div>
+                                    <span class="history-detail-label">Booked On</span>
+                                    <div class="history-detail-value"><i class="fas fa-calendar-check icon-purple"></i> {{ item.booked_at[:10] if item.booked_at else 'N/A' }}</div>
                                 </div>
                             </div>
                         </div>
@@ -149,11 +151,11 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div style="text-align: center; padding: 60px 20px;">
-                <div style="font-size: 64px; margin-bottom: 16px;">🚜</div>
-                <h3 style="font-size: 20px; color: #1e293b; margin-bottom: 8px;">No Rentals Yet</h3>
-                <p style="color: #64748b;">You haven't rented any equipment yet. Browse the marketplace to find available equipment!</p>
-                <a href="{{ url_for('equipment_sharing.marketplace') }}" class="btn-submit" style="display: inline-flex; margin-top: 16px;">
+            <div class="empty-state">
+                <div class="empty-state-icon">🚜</div>
+                <h3>No Rentals Yet</h3>
+                <p>You haven't rented any equipment yet. Browse the marketplace to find available equipment!</p>
+                <a href="{{ url_for('equipment_sharing.marketplace') }}" class="btn-submit">
                     <i class="fas fa-store"></i> Browse Equipment
                 </a>
             </div>
@@ -163,54 +165,52 @@
         <!-- Given on Rent Tab -->
         <div id="section-given" style="display: none;">
             {% if given %}
-            <div style="display: grid; gap: 20px;">
+            <div class="grid-gap-20">
                 {% for item in given %}
-                <div style="background: white; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); overflow: hidden; border-left: 5px solid #22c55e;">
-                    <div style="padding: 24px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;">
-                        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-                            💰
-                        </div>
+                <div class="history-card green-border">
+                    <div class="history-card-inner">
+                        <div class="history-icon-box green">💰</div>
                         <div>
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-                                <h3 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;">{{ item.equipment_name }}</h3>
+                            <div class="history-title-row">
+                                <h3 class="history-title">{{ item.equipment_name }}</h3>
                                 {% if item.status == 'booked' %}
-                                <span style="background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">BOOKED</span>
+                                <span class="status-badge status-badge-booked">BOOKED</span>
                                 {% else %}
-                                <span style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">COMPLETED</span>
+                                <span class="status-badge status-badge-active">COMPLETED</span>
                                 {% endif %}
                             </div>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                            <div class="history-detail-grid">
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Daily Rent</span>
-                                    <div style="font-weight: 800; color: #16a34a; font-size: 18px;">₹{{ "%.2f"|format(item.owner_rent) }}/day</div>
+                                    <span class="history-detail-label">Daily Rent</span>
+                                    <div class="history-detail-value price">₹{{ "%.2f"|format(item.owner_rent) }}/day</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Total Earned</span>
-                                    <div style="font-weight: 800; color: #16a34a; font-size: 18px;">₹{{ "%.2f"|format(item.total_rent) }}</div>
+                                    <span class="history-detail-label">Total Earned</span>
+                                    <div class="history-detail-value price">₹{{ "%.2f"|format(item.total_rent) }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Rental Period</span>
-                                    <div style="font-weight: 600; color: #1e293b;">{{ item.rental_from }} to {{ item.rental_to }}</div>
+                                    <span class="history-detail-label">Rental Period</span>
+                                    <div class="history-detail-value">{{ item.rental_from }} to {{ item.rental_to }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Duration</span>
-                                    <div style="font-weight: 700; color: #1e293b;">{{ item.rental_days }} days</div>
+                                    <span class="history-detail-label">Duration</span>
+                                    <div class="history-detail-value">{{ item.rental_days }} days</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Renter</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-user" style="color: #3b82f6;"></i> {{ item.renter_name }}</div>
+                                    <span class="history-detail-label">Renter</span>
+                                    <div class="history-detail-value"><i class="fas fa-user icon-blue"></i> {{ item.renter_name }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Renter Phone</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-phone" style="color: #3b82f6;"></i> {{ item.renter_phone }}</div>
+                                    <span class="history-detail-label">Renter Phone</span>
+                                    <div class="history-detail-value"><i class="fas fa-phone icon-blue"></i> {{ item.renter_phone }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Location</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-map-marker-alt" style="color: #ef4444;"></i> {{ item.district }}, {{ item.state }}</div>
+                                    <span class="history-detail-label">Location</span>
+                                    <div class="history-detail-value"><i class="fas fa-map-marker-alt icon-red"></i> {{ item.district }}, {{ item.state }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Booked On</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-calendar-check" style="color: #8b5cf6;"></i> {{ item.booked_at[:10] if item.booked_at else 'N/A' }}</div>
+                                    <span class="history-detail-label">Booked On</span>
+                                    <div class="history-detail-value"><i class="fas fa-calendar-check icon-purple"></i> {{ item.booked_at[:10] if item.booked_at else 'N/A' }}</div>
                                 </div>
                             </div>
                         </div>
@@ -219,11 +219,11 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div style="text-align: center; padding: 60px 20px;">
-                <div style="font-size: 64px; margin-bottom: 16px;">💰</div>
-                <h3 style="font-size: 20px; color: #1e293b; margin-bottom: 8px;">No Rentals Given Yet</h3>
-                <p style="color: #64748b;">None of your equipment has been rented yet. List your equipment to start earning!</p>
-                <a href="{{ url_for('equipment_sharing.create_listing') }}" class="btn-submit" style="display: inline-flex; margin-top: 16px;">
+            <div class="empty-state">
+                <div class="empty-state-icon">💰</div>
+                <h3>No Rentals Given Yet</h3>
+                <p>None of your equipment has been rented yet. List your equipment to start earning!</p>
+                <a href="{{ url_for('equipment_sharing.create_listing') }}" class="btn-submit">
                     <i class="fas fa-plus-circle"></i> List Equipment
                 </a>
             </div>
@@ -232,33 +232,5 @@
     </div>
 </div>
 
-<script>
-function showTab(tab) {
-    document.getElementById('section-rented').style.display = tab === 'rented' ? 'block' : 'none';
-    document.getElementById('section-given').style.display = tab === 'given' ? 'block' : 'none';
-    
-    const rentedBtn = document.getElementById('tab-rented');
-    const givenBtn = document.getElementById('tab-given');
-    
-    if (tab === 'rented') {
-        rentedBtn.style.background = '';
-        rentedBtn.style.color = '';
-        rentedBtn.style.border = '';
-        rentedBtn.className = 'btn-submit';
-        givenBtn.style.background = '#e2e8f0';
-        givenBtn.style.color = '#475569';
-        givenBtn.style.border = '2px solid #cbd5e1';
-        givenBtn.className = '';
-    } else {
-        givenBtn.style.background = '';
-        givenBtn.style.color = '';
-        givenBtn.style.border = '';
-        givenBtn.className = 'btn-submit';
-        rentedBtn.style.background = '#e2e8f0';
-        rentedBtn.style.color = '#475569';
-        rentedBtn.style.border = '2px solid #cbd5e1';
-        rentedBtn.className = '';
-    }
-}
-</script>
+<script src="{{ url_for('static', filename='js/tab_switcher.js') }}"></script>
 {% endblock %}

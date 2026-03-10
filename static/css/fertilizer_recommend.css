@@ -708,3 +708,333 @@
         padding: 16px;
     }
 }
+
+/* ============================================
+   EXTRACTED INLINE STYLES
+   ============================================ */
+
+/* --- Sidebar --- */
+.user-info-clickable {
+    cursor: pointer;
+}
+
+.sidebar-chevron {
+    margin-left: auto;
+    opacity: 0.5;
+    font-size: 12px;
+}
+
+/* --- Stats Bar --- */
+.stats-bar-actions {
+    margin-left: auto;
+}
+
+.logout-btn {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+}
+
+/* --- Results Section --- */
+.results-section {
+    margin-top: 30px;
+}
+
+.results-header {
+    padding: 16px 24px;
+    border-radius: 16px 16px 0 0;
+    color: white;
+}
+
+.results-header--padded {
+    padding: 24px;
+}
+
+.results-header-title {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 20px;
+}
+
+.results-header-subtitle {
+    margin: 8px 0 0 0;
+    opacity: 0.9;
+}
+
+.emoji-icon-lg {
+    font-size: 32px;
+}
+
+/* --- Recommendations Grid --- */
+.recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    padding: 24px;
+    background: var(--bg-white, white);
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Recommendation Card --- */
+.recommendation-card {
+    background: linear-gradient(135deg, #f8fafc, white);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+}
+
+.rec-top-pick-badge {
+    position: absolute;
+    top: -10px;
+    right: 16px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.rec-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.rec-card-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+}
+
+.rec-card-name {
+    margin: 0;
+    font-size: 16px;
+    color: #1e293b;
+}
+
+.rec-priority-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* --- Rec Stats --- */
+.rec-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.rec-stat-box {
+    background: var(--bg-white, white);
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+}
+
+.rec-stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.rec-stat-value--blue {
+    font-size: 14px;
+    font-weight: 600;
+    color: #3b82f6;
+}
+
+.rec-stat-label {
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* --- Rec Usage / Note --- */
+.rec-usage-box {
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.rec-usage-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 6px;
+}
+
+.rec-usage-text {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.rec-note {
+    font-size: 12px;
+    color: #64748b;
+    font-style: italic;
+}
+
+.rec-note--spaced {
+    margin-bottom: 16px;
+}
+
+/* --- Rec Action Buttons --- */
+.rec-save-form {
+    margin-top: 16px;
+}
+
+.rec-save-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.rec-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.rec-action-form {
+    flex: 1;
+}
+
+.rec-buy-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    background: #059669;
+    color: white;
+    border: none;
+}
+
+.rec-buy-btn:hover {
+    background: #047857;
+}
+
+.rec-new-analysis-wrapper {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.rec-new-analysis-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--bg-white, white);
+    color: #475569;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.rec-new-analysis-btn:hover {
+    border-color: var(--accent-green, #10b981);
+    color: var(--accent-green, #10b981);
+}
+
+.action-btn-full {
+    width: 100%;
+}
+
+/* ============================================
+   DARK MODE — Extracted Inline Styles
+   ============================================ */
+[data-theme="dark"] .logout-btn {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+[data-theme="dark"] .recommendations-grid {
+    background: var(--card-bg, #1e293b);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .recommendation-card {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+}
+
+[data-theme="dark"] .rec-card-name {
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .rec-stat-box {
+    background: var(--card-bg, #1e293b);
+    border-color: #334155;
+}
+
+[data-theme="dark"] .rec-stat-label {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .rec-usage-box {
+    background: #0f172a;
+}
+
+[data-theme="dark"] .rec-usage-label {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .rec-usage-text {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .rec-note {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .rec-new-analysis-btn {
+    background: var(--card-bg, #1e293b);
+    color: #94a3b8;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .rec-new-analysis-btn:hover {
+    border-color: #10b981;
+    color: #10b981;
+}

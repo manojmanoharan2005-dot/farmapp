@@ -2,8 +2,11 @@
 
 {% block title %}Register - Smart Farming Assistant{% endblock %}
 
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
 {% block content %}
-<style>
     /* Enhanced Registration Form Styles */
     .register-section {
         min-height: 100vh;
@@ -608,11 +611,6 @@
     .password-requirements .req-item.met {
         color: #22c55e;
     }
-
-    .password-requirements .req-item.unmet {
-        color: #ef4444;
-    }
-</style>
 
 <section class="register-section">
     <div class="register-container">

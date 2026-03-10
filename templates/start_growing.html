@@ -21,7 +21,7 @@
             <h1 class="page-title">Growing Guide: {{ crop_name }}</h1>
             <div class="crop-match">
                 <span>Food Crop:</span>
-                <div style="width: 100px; height: 6px; background: #10b981; border-radius: 3px;"></div>
+                <div class="match-bar"></div>
                 <span>{{ probability }}% Match</span>
             </div>
         </div>
@@ -97,8 +97,8 @@
                 <span class="section-number">2</span>
                 <span>Seed Selection & Sowing</span>
             </div>
-            <div style="margin-bottom: 16px;">
-                <strong style="font-size: 14px; color: #1e293b;">Recommended Varieties</strong>
+            <div class="varieties-heading">
+                <strong class="varieties-title">Recommended Varieties</strong>
             </div>
             <div class="variety-grid">
                 <div class="variety-card">
@@ -111,25 +111,25 @@
                 </div>
             </div>
 
-            <div style="margin-top: 20px;">
-                <div style="display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 150px;">
-                        <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">
+            <div class="sowing-details">
+                <div class="sowing-row">
+                    <div class="sowing-item">
+                        <div class="sowing-label">
                             <i class="fas fa-calendar"></i> Sowing Rate
                         </div>
-                        <div style="font-weight: 600;">25 kg/hectare</div>
+                        <div class="sowing-value">25 kg/hectare</div>
                     </div>
-                    <div style="flex: 1; min-width: 150px;">
-                        <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">
+                    <div class="sowing-item">
+                        <div class="sowing-label">
                             <i class="fas fa-sun"></i> Sowing Season
                         </div>
-                        <div style="font-weight: 600;">June-July</div>
+                        <div class="sowing-value">June-July</div>
                     </div>
-                    <div style="flex: 1; min-width: 150px;">
-                        <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">
+                    <div class="sowing-item">
+                        <div class="sowing-label">
                             <i class="fas fa-seedling"></i> Sowing Method
                         </div>
-                        <div style="font-weight: 600;">Row sowing</div>
+                        <div class="sowing-value">Row sowing</div>
                     </div>
                 </div>
             </div>
@@ -178,17 +178,16 @@
                     <input type="number" id="plannerDuration" class="form-input" value="90" min="1" max="365" required>
                 </div>
             </div>
-            <button class="btn btn-primary btn-icon" style="margin-top: 12px;" onclick="generateHarvestPlan()">
+            <button class="btn btn-primary btn-icon harvest-plan-btn" onclick="generateHarvestPlan()">
                 <i class="fas fa-calculator"></i> Generate Harvest Plan
             </button>
 
             <!-- Harvest Plan Result -->
-            <div id="harvestPlanResult"
-                style="display: none; margin-top: 20px; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
-                <div style="font-weight: 600; color: #166534; margin-bottom: 8px;">
+            <div id="harvestPlanResult" class="harvest-plan-result" style="display: none;">
+                <div class="harvest-plan-title">
                     <i class="fas fa-check-circle"></i> Harvest Plan Generated
                 </div>
-                <div id="harvestPlanDetails" style="font-size: 14px; color: #166534;"></div>
+                <div id="harvestPlanDetails" class="harvest-plan-details"></div>
             </div>
         </div>
 
@@ -200,33 +199,33 @@
             </div>
             <div class="timeline-section">
                 <form id="taskForm" onsubmit="addTask(event)">
-                    <div class="form-group" style="margin-bottom: 12px;">
+                    <div class="form-group form-group-compact">
                         <label class="form-label">Task Type</label>
                         <select id="taskType" class="form-input" required>
                             <option value="">Select Task Type</option>
                             <!-- Options will be populated dynamically based on crop category -->
                         </select>
                     </div>
-                    <div class="form-group" style="margin-bottom: 12px;">
+                    <div class="form-group form-group-compact">
                         <label class="form-label">Scheduled Date</label>
                         <input type="date" id="taskDate" class="form-input" required>
                     </div>
-                    <div class="form-group" style="margin-bottom: 12px;">
+                    <div class="form-group form-group-compact">
                         <label class="form-label">Task Description (Optional)</label>
                         <textarea id="taskDescription" class="form-input" rows="2"
                             placeholder="Add any additional notes..."></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-icon" style="width: 100%;">
+                    <button type="submit" class="btn btn-primary btn-icon btn-full-width">
                         <i class="fas fa-plus"></i> Add Task
                     </button>
                 </form>
 
                 <!-- Task List Display -->
-                <div id="taskList" style="margin-top: 20px;">
-                    <div style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 12px;">
+                <div id="taskList" class="task-list-section">
+                    <div class="task-list-heading">
                         Scheduled Tasks
                     </div>
-                    <div id="taskItems" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div id="taskItems" class="task-items-container">
                         <!-- Tasks will be added here dynamically -->
                     </div>
                 </div>

@@ -445,3 +445,245 @@ body {
     .tab, .add-task-btn, .start-growing-btn, .task-delete, .action-btn { min-height: 44px; }
     .task-item:hover, .param-item:hover, .timeline-item:hover, .tab:hover, .btn:hover { transform: none; box-shadow: inherit; }
 }
+
+/* ============================================
+   EXTRACTED INLINE STYLES
+   ============================================ */
+
+.match-bar {
+    width: 100px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 3px;
+}
+
+.varieties-heading {
+    margin-bottom: 16px;
+}
+
+.varieties-title {
+    font-size: 14px;
+    color: #1e293b;
+}
+
+.sowing-details {
+    margin-top: 20px;
+}
+
+.sowing-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.sowing-item {
+    flex: 1;
+    min-width: 150px;
+}
+
+.sowing-label {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.sowing-value {
+    font-weight: 600;
+}
+
+.harvest-plan-btn {
+    margin-top: 12px;
+}
+
+.harvest-plan-result {
+    margin-top: 20px;
+    padding: 16px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+}
+
+.harvest-plan-title {
+    font-weight: 600;
+    color: #166534;
+    margin-bottom: 8px;
+}
+
+.harvest-plan-details {
+    font-size: 14px;
+    color: #166534;
+}
+
+.form-group-compact {
+    margin-bottom: 12px;
+}
+
+.btn-full-width {
+    width: 100%;
+}
+
+.task-list-section {
+    margin-top: 20px;
+}
+
+.task-list-heading {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+.task-items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* ============================================
+   DARK MODE
+   ============================================ */
+
+[data-theme="dark"] body {
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .container {
+    background: #1e293b;
+}
+
+[data-theme="dark"] .back-link {
+    color: #60a5fa;
+}
+
+[data-theme="dark"] .page-title {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .crop-match {
+    background: #064e3b;
+    color: #6ee7b7;
+}
+
+[data-theme="dark"] .stat-box {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .stat-label {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .stat-value {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .section-header {
+    color: #f1f5f9;
+    border-bottom-color: #334155;
+}
+
+[data-theme="dark"] .step-text {
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .variety-card {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .variety-name {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .variety-detail {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .varieties-title {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .sowing-label {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .sowing-value {
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .param-box {
+    background: #064e3b;
+    border-color: #065f46;
+}
+
+[data-theme="dark"] .param-label {
+    color: #6ee7b7;
+}
+
+[data-theme="dark"] .param-value {
+    color: #34d399;
+}
+
+[data-theme="dark"] .harvest-plan-result {
+    background: #064e3b;
+    border-color: #065f46;
+}
+
+[data-theme="dark"] .harvest-plan-title {
+    color: #6ee7b7;
+}
+
+[data-theme="dark"] .harvest-plan-details {
+    color: #6ee7b7;
+}
+
+[data-theme="dark"] .task-list-heading {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .timeline-section {
+    background: #0f172a;
+}
+
+[data-theme="dark"] .form-label {
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .form-input {
+    background: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .task-item {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .task-type {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .task-date {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .task-desc {
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .btn-secondary {
+    background: #1e293b;
+    color: #34d399;
+    border-color: #10b981;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background: #064e3b;
+}
+
+[data-theme="dark"] .empty-tasks {
+    color: #64748b;
+}

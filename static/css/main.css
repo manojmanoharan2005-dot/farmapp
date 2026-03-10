@@ -1805,3 +1805,204 @@ select.form-control option:checked {
     background: var(--primary-light);
     color: var(--text-primary);
 }
+
+/* ===== E-Commerce Feature Card & Promotion Section ===== */
+
+/* Highlighted feature card (Agri E-Commerce) */
+.ecommerce-card {
+    background: linear-gradient(135deg, #059669, #047857);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.ecommerce-card .feature-icon {
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.ecommerce-card .feature-title {
+    color: white;
+}
+
+.ecommerce-card .feature-description {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 16px;
+}
+
+.ecommerce-card-decoration {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    opacity: 0.7;
+}
+
+.ecommerce-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    color: #059669;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.ecommerce-card-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Promotion section */
+.promo-section {
+    background: linear-gradient(135deg, #059669, #047857);
+    padding: 60px 0;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.promo-section-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/></svg>');
+    opacity: 0.3;
+}
+
+.promo-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.promo-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.promo-emoji {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.promo-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+}
+
+.promo-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.promo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.promo-card {
+    text-align: center;
+    padding: 20px;
+}
+
+.promo-card-emoji {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.promo-card h4 {
+    font-size: 1.3rem;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.promo-card p {
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.promo-cta {
+    text-align: center;
+}
+
+.promo-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    color: #059669;
+    padding: 16px 32px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.promo-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark mode support for promo elements */
+[data-theme="dark"] .ecommerce-card {
+    background: linear-gradient(135deg, #047857, #065f46);
+}
+
+[data-theme="dark"] .promo-section {
+    background: linear-gradient(135deg, #047857, #065f46);
+}
+
+/* ===== Common Utility Classes ===== */
+.about-heading-icon {
+    color: var(--primary);
+    margin-right: 10px;
+}
+
+.mt-30 {
+    margin-top: 30px;
+}
+
+.sidebar-user-clickable {
+    cursor: pointer;
+}
+
+.sidebar-chevron {
+    margin-left: auto;
+    opacity: 0.5;
+    font-size: 12px;
+}
+
+.stats-bar-right {
+    margin-left: auto;
+}
+
+.logout-link {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

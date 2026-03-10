@@ -5,6 +5,7 @@
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_connect.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/listings.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -80,12 +81,15 @@
             <p class="page-subtitle">View your buying and selling transaction history</p>
         </div>
 
+        <!-- Tab Config -->
+        <div id="tab-config" data-tab1="bought" data-tab2="sold" style="display:none;"></div>
+
         <!-- Tabs -->
-        <div style="display: flex; gap: 12px; margin-top: 24px; margin-bottom: 24px;">
-            <button onclick="showTab('bought')" id="tab-bought" class="btn-submit" style="flex: 1; padding: 14px;">
+        <div class="tab-row">
+            <button onclick="showTab('bought')" id="tab-bought" class="tab-btn active">
                 <i class="fas fa-shopping-cart"></i> Crops I Bought ({{ bought|length }})
             </button>
-            <button onclick="showTab('sold')" id="tab-sold" style="flex: 1; padding: 14px; background: #e2e8f0; color: #475569; border: 2px solid #cbd5e1; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 15px;">
+            <button onclick="showTab('sold')" id="tab-sold" class="tab-btn inactive">
                 <i class="fas fa-hand-holding-usd"></i> Crops I Sold ({{ sold|length }})
             </button>
         </div>
@@ -93,42 +97,40 @@
         <!-- Bought Tab -->
         <div id="section-bought">
             {% if bought %}
-            <div style="display: grid; gap: 20px;">
+            <div class="grid-gap-20">
                 {% for item in bought %}
-                <div style="background: white; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); overflow: hidden; border-left: 5px solid #3b82f6;">
-                    <div style="padding: 24px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;">
-                        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-                            🛒
-                        </div>
+                <div class="history-card blue-border">
+                    <div class="history-card-inner">
+                        <div class="history-icon-box blue">🛒</div>
                         <div>
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-                                <h3 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;">{{ item.crop }}</h3>
-                                <span style="background: #dbeafe; color: #1d4ed8; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">PURCHASED</span>
+                            <div class="history-title-row">
+                                <h3 class="history-title">{{ item.crop }}</h3>
+                                <span class="status-badge status-badge-purchased">PURCHASED</span>
                             </div>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                            <div class="history-detail-grid">
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Quantity</span>
-                                    <div style="font-weight: 700; color: #1e293b;">{{ item.quantity }} {{ item.unit }}</div>
+                                    <span class="history-detail-label">Quantity</span>
+                                    <div class="history-detail-value">{{ item.quantity }} {{ item.unit }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Price Paid</span>
-                                    <div style="font-weight: 800; color: #16a34a; font-size: 18px;">₹{{ "%.2f"|format(item.farmer_price) }}/kg</div>
+                                    <span class="history-detail-label">Price Paid</span>
+                                    <div class="history-detail-value price">₹{{ "%.2f"|format(item.farmer_price) }}/kg</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Farmer</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-user" style="color: #22c55e;"></i> {{ item.farmer_name }}</div>
+                                    <span class="history-detail-label">Farmer</span>
+                                    <div class="history-detail-value"><i class="fas fa-user icon-green"></i> {{ item.farmer_name }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Farmer Phone</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-phone" style="color: #3b82f6;"></i> {{ item.farmer_phone }}</div>
+                                    <span class="history-detail-label">Farmer Phone</span>
+                                    <div class="history-detail-value"><i class="fas fa-phone icon-blue"></i> {{ item.farmer_phone }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Location</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-map-marker-alt" style="color: #ef4444;"></i> {{ item.district }}, {{ item.state }}</div>
+                                    <span class="history-detail-label">Location</span>
+                                    <div class="history-detail-value"><i class="fas fa-map-marker-alt icon-red"></i> {{ item.district }}, {{ item.state }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Purchased On</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-calendar-check" style="color: #8b5cf6;"></i> {{ item.sold_at[:10] if item.sold_at else 'N/A' }}</div>
+                                    <span class="history-detail-label">Purchased On</span>
+                                    <div class="history-detail-value"><i class="fas fa-calendar-check icon-purple"></i> {{ item.sold_at[:10] if item.sold_at else 'N/A' }}</div>
                                 </div>
                             </div>
                         </div>
@@ -137,11 +139,11 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div style="text-align: center; padding: 60px 20px;">
-                <div style="font-size: 64px; margin-bottom: 16px;">🛒</div>
-                <h3 style="font-size: 20px; color: #1e293b; margin-bottom: 8px;">No Purchases Yet</h3>
-                <p style="color: #64748b;">You haven't bought any crops yet. Visit the marketplace to find fresh produce!</p>
-                <a href="{{ url_for('buyer_connect.marketplace') }}" class="btn-submit" style="display: inline-flex; margin-top: 16px;">
+            <div class="empty-state">
+                <div class="empty-state-icon">🛒</div>
+                <h3>No Purchases Yet</h3>
+                <p>You haven't bought any crops yet. Visit the marketplace to find fresh produce!</p>
+                <a href="{{ url_for('buyer_connect.marketplace') }}" class="btn-submit">
                     <i class="fas fa-store"></i> Go to Marketplace
                 </a>
             </div>
@@ -151,42 +153,40 @@
         <!-- Sold Tab -->
         <div id="section-sold" style="display: none;">
             {% if sold %}
-            <div style="display: grid; gap: 20px;">
+            <div class="grid-gap-20">
                 {% for item in sold %}
-                <div style="background: white; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); overflow: hidden; border-left: 5px solid #22c55e;">
-                    <div style="padding: 24px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;">
-                        <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 36px;">
-                            💰
-                        </div>
+                <div class="history-card green-border">
+                    <div class="history-card-inner">
+                        <div class="history-icon-box green">💰</div>
                         <div>
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
-                                <h3 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;">{{ item.crop }}</h3>
-                                <span style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">SOLD</span>
+                            <div class="history-title-row">
+                                <h3 class="history-title">{{ item.crop }}</h3>
+                                <span class="status-badge status-badge-active">SOLD</span>
                             </div>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                            <div class="history-detail-grid">
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Quantity</span>
-                                    <div style="font-weight: 700; color: #1e293b;">{{ item.quantity }} {{ item.unit }}</div>
+                                    <span class="history-detail-label">Quantity</span>
+                                    <div class="history-detail-value">{{ item.quantity }} {{ item.unit }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Price</span>
-                                    <div style="font-weight: 800; color: #16a34a; font-size: 18px;">₹{{ "%.2f"|format(item.farmer_price) }}/kg</div>
+                                    <span class="history-detail-label">Price</span>
+                                    <div class="history-detail-value price">₹{{ "%.2f"|format(item.farmer_price) }}/kg</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Buyer</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-user" style="color: #3b82f6;"></i> {{ item.buyer_name }}</div>
+                                    <span class="history-detail-label">Buyer</span>
+                                    <div class="history-detail-value"><i class="fas fa-user icon-blue"></i> {{ item.buyer_name }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Buyer Phone</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-phone" style="color: #3b82f6;"></i> {{ item.buyer_phone }}</div>
+                                    <span class="history-detail-label">Buyer Phone</span>
+                                    <div class="history-detail-value"><i class="fas fa-phone icon-blue"></i> {{ item.buyer_phone }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Location</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-map-marker-alt" style="color: #ef4444;"></i> {{ item.district }}, {{ item.state }}</div>
+                                    <span class="history-detail-label">Location</span>
+                                    <div class="history-detail-value"><i class="fas fa-map-marker-alt icon-red"></i> {{ item.district }}, {{ item.state }}</div>
                                 </div>
                                 <div>
-                                    <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Sold On</span>
-                                    <div style="font-weight: 600; color: #1e293b;"><i class="fas fa-calendar-check" style="color: #8b5cf6;"></i> {{ item.sold_at[:10] if item.sold_at else 'N/A' }}</div>
+                                    <span class="history-detail-label">Sold On</span>
+                                    <div class="history-detail-value"><i class="fas fa-calendar-check icon-purple"></i> {{ item.sold_at[:10] if item.sold_at else 'N/A' }}</div>
                                 </div>
                             </div>
                         </div>
@@ -195,11 +195,11 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div style="text-align: center; padding: 60px 20px;">
-                <div style="font-size: 64px; margin-bottom: 16px;">💰</div>
-                <h3 style="font-size: 20px; color: #1e293b; margin-bottom: 8px;">No Sales Yet</h3>
-                <p style="color: #64748b;">None of your listings have been sold yet. Keep your listings active!</p>
-                <a href="{{ url_for('buyer_connect.my_listings') }}" class="btn-submit" style="display: inline-flex; margin-top: 16px;">
+            <div class="empty-state">
+                <div class="empty-state-icon">💰</div>
+                <h3>No Sales Yet</h3>
+                <p>None of your listings have been sold yet. Keep your listings active!</p>
+                <a href="{{ url_for('buyer_connect.my_listings') }}" class="btn-submit">
                     <i class="fas fa-list-alt"></i> View My Listings
                 </a>
             </div>
@@ -208,33 +208,5 @@
     </div>
 </div>
 
-<script>
-function showTab(tab) {
-    document.getElementById('section-bought').style.display = tab === 'bought' ? 'block' : 'none';
-    document.getElementById('section-sold').style.display = tab === 'sold' ? 'block' : 'none';
-    
-    const boughtBtn = document.getElementById('tab-bought');
-    const soldBtn = document.getElementById('tab-sold');
-    
-    if (tab === 'bought') {
-        boughtBtn.style.background = '';
-        boughtBtn.style.color = '';
-        boughtBtn.style.border = '';
-        boughtBtn.className = 'btn-submit';
-        soldBtn.style.background = '#e2e8f0';
-        soldBtn.style.color = '#475569';
-        soldBtn.style.border = '2px solid #cbd5e1';
-        soldBtn.className = '';
-    } else {
-        soldBtn.style.background = '';
-        soldBtn.style.color = '';
-        soldBtn.style.border = '';
-        soldBtn.className = 'btn-submit';
-        boughtBtn.style.background = '#e2e8f0';
-        boughtBtn.style.color = '#475569';
-        boughtBtn.style.border = '2px solid #cbd5e1';
-        boughtBtn.className = '';
-    }
-}
-</script>
+<script src="{{ url_for('static', filename='js/tab_switcher.js') }}"></script>
 {% endblock %}

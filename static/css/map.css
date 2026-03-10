@@ -1,0 +1,172 @@
+/* ============================================
+   Map Component Styles
+   Used by: create_listing, equipment_create_listing
+   ============================================ */
+
+/* Map Container */
+#mapContainer {
+    position: relative;
+}
+
+#map {
+    height: 500px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    margin-bottom: 12px;
+    cursor: crosshair;
+}
+
+/* Fullscreen Button */
+.map-fullscreen-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background: white;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    font-size: 16px;
+    color: #333;
+}
+
+.map-fullscreen-btn:hover {
+    background: #f4f4f4;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.map-fullscreen-btn:active {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Fullscreen State */
+#mapContainer.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: white;
+}
+
+#mapContainer.fullscreen #map {
+    height: 100% !important;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+/* Map Info Box */
+.map-info-hint {
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.map-info-hint i {
+    color: #3b82f6;
+}
+
+/* Map Control Buttons Row */
+.map-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.map-controls .btn-submit,
+.map-controls .btn-cancel {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Search Box */
+.map-search-box {
+    display: none;
+    margin-bottom: 12px;
+}
+
+.map-search-box .form-input {
+    margin-bottom: 8px;
+}
+
+.map-search-box .btn-submit {
+    width: 100%;
+}
+
+/* Selected Location Display */
+.selected-location-box {
+    padding: 12px;
+    background: #f0fdf4;
+    border-radius: 8px;
+    border-left: 4px solid #10b981;
+    display: none;
+}
+
+.selected-location-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #047857;
+    margin-bottom: 4px;
+}
+
+.selected-location-details {
+    font-size: 13px;
+    color: #064e3b;
+}
+
+/* Location Details Grid */
+.location-detail-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+    font-size: 12px;
+    color: #047857;
+}
+
+.location-detail-grid strong + span {
+    font-weight: 600;
+    color: #065f46;
+}
+
+/* Dark Mode */
+[data-theme="dark"] .map-fullscreen-btn {
+    background: #1e293b;
+    color: #f1f5f9;
+    border-color: #475569;
+}
+
+[data-theme="dark"] .map-fullscreen-btn:hover {
+    background: #334155;
+}
+
+[data-theme="dark"] #mapContainer.fullscreen {
+    background: #0f172a;
+}
+
+[data-theme="dark"] .map-info-hint {
+    background: #1e293b;
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .selected-location-box {
+    background: #064e3b;
+    border-left-color: #10b981;
+}
+
+[data-theme="dark"] .selected-location-title {
+    color: #34d399;
+}
+
+[data-theme="dark"] .selected-location-details {
+    color: #a7f3d0;
+}

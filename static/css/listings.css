@@ -1,0 +1,629 @@
+/* ============================================
+   Listing Card Styles  
+   Used by: my_listings, equipment_my_listings,
+   purchase_history, equipment_rental_history
+   ============================================ */
+
+/* Icon color utilities */
+.icon-green { color: #22c55e; }
+.icon-blue { color: #3b82f6; }
+.icon-red { color: #ef4444; }
+.icon-purple { color: #8b5cf6; }
+.icon-amber { color: #f59e0b; }
+
+/* Listings Grid */
+.listings-grid {
+    display: grid;
+    gap: 24px;
+    margin-top: 32px;
+}
+
+/* Listing Card */
+.listing-card {
+    background: white;
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: var(--shadow-md, 0 4px 16px rgba(0, 0, 0, 0.06));
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border-left: 4px solid var(--text-muted, #94a3b8);
+}
+
+.listing-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Status Borders */
+.listing-card.status-active,
+.listing-card.status-available {
+    border-left-color: var(--accent-green, #22c55e);
+}
+
+.listing-card.status-sold {
+    border-left-color: var(--accent-red, #ef4444);
+}
+
+.listing-card.status-booked {
+    border-left-color: #f59e0b;
+}
+
+.listing-card.status-completed {
+    border-left-color: var(--accent-blue, #3b82f6);
+}
+
+.listing-card.status-cancelled {
+    border-left-color: var(--text-muted, #94a3b8);
+}
+
+/* Listing Card Inner Layout */
+.listing-card-inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 24px;
+    padding: 28px;
+    align-items: center;
+}
+
+/* Icon Box */
+.listing-icon-box {
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(135deg, var(--accent-green, #22c55e), #059669);
+    border-radius: var(--radius-lg, 12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+
+.listing-icon-box.blue {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.listing-icon-box.green {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+
+/* Listing Details */
+.listing-details {
+    flex: 1;
+}
+
+.listing-title-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.listing-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-primary, #0f172a);
+    margin: 0;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge-active,
+.status-badge-available {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge-sold {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-badge-booked {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge-completed {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-badge-cancelled {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.status-badge-purchased {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.status-badge-sold {
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* Detail Grid */
+.listing-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
+    margin-bottom: 12px;
+}
+
+/* Detail Label */
+.detail-label {
+    font-size: 12px;
+    color: var(--text-secondary, #64748b);
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Detail Values */
+.detail-value {
+    font-weight: 600;
+    color: var(--text-primary, #0f172a);
+    font-size: 15px;
+}
+
+.detail-value-large {
+    font-weight: 800;
+    color: var(--accent-green, #22c55e);
+    font-size: 22px;
+}
+
+.detail-value-price {
+    font-weight: 700;
+    color: var(--text-primary, #0f172a);
+    font-size: 16px;
+}
+
+.detail-value-muted {
+    font-weight: 600;
+    color: var(--text-secondary, #64748b);
+    font-size: 16px;
+}
+
+/* Sold/Booked Info Box */
+.transaction-info-box {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: var(--radius-md, 8px);
+    border-left: 4px solid #f59e0b;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
+    font-size: 14px;
+    color: #92400e;
+    font-weight: 600;
+}
+
+.transaction-info-box .sub-detail {
+    font-size: 13px;
+    color: #92400e;
+    margin-top: 6px;
+}
+
+/* Description Box */
+.listing-description-box {
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: var(--bg-secondary, #f1f5f9);
+    border-radius: var(--radius-md, 8px);
+    font-size: 14px;
+    color: var(--text-secondary, #64748b);
+    line-height: 1.6;
+}
+
+/* Action Buttons Column */
+.listing-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Delete/Cancel Button */
+.btn-delete {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #dc2626;
+    border: 2px solid #fca5a5;
+    border-radius: var(--radius-md, 8px);
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+}
+
+.btn-delete:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+    background: linear-gradient(135deg, #fca5a5, #f87171) !important;
+}
+
+/* Disabled Action Buttons */
+.btn-action-disabled {
+    padding: 12px 24px;
+    border-radius: var(--radius-md, 8px);
+    font-weight: 600;
+    cursor: not-allowed;
+    white-space: nowrap;
+    border: 2px solid;
+}
+
+.btn-action-disabled.cancelled {
+    background: #f1f5f9;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+}
+
+.btn-action-disabled.sold {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #86efac;
+}
+
+.btn-action-disabled.completed {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #93c5fd;
+}
+
+.btn-action-disabled.booked {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fcd34d;
+}
+
+/* Complete Button */
+.btn-complete {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: 2px solid #60a5fa;
+    border-radius: var(--radius-md, 8px);
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-complete:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* History Card (purchase/rental history) */
+.history-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.history-card.blue-border {
+    border-left: 5px solid #3b82f6;
+}
+
+.history-card.green-border {
+    border-left: 5px solid #22c55e;
+}
+
+.history-card-inner {
+    padding: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: center;
+}
+
+.history-icon-box {
+    width: 70px;
+    height: 70px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+}
+
+.history-icon-box.blue {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.history-icon-box.green {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+/* History Header */
+.history-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.history-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+/* History Detail Grid */
+.history-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.history-detail-label {
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.history-detail-value {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.history-detail-value.price {
+    font-weight: 800;
+    color: #16a34a;
+    font-size: 18px;
+}
+
+.history-detail-value.large {
+    font-weight: 800;
+    color: #1e293b;
+    font-size: 18px;
+}
+
+/* Tab Buttons */
+.tab-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 15px;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    background: var(--accent-green, #22c55e);
+    color: white;
+    border-color: transparent;
+}
+
+.tab-btn.inactive {
+    background: #e2e8f0;
+    color: #475569;
+    border-color: #cbd5e1;
+}
+
+/* Tab Row */
+.tab-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.empty-state h3 {
+    font-size: 20px;
+    color: var(--text-primary, #1e293b);
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    color: var(--text-secondary, #64748b);
+    margin-bottom: 24px;
+}
+
+/* Filter Row */
+.filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    align-items: end;
+}
+
+/* Flex helpers */
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-gap-12 {
+    display: flex;
+    gap: 12px;
+}
+
+/* Listing count */
+.listings-count {
+    margin: 24px 0 16px 0;
+    color: var(--text-secondary, #64748b);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* Page header flex layout */
+.page-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Marketplace Grid */
+.marketplace-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 24px;
+}
+
+/* Listing header green */
+.listing-header-green {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 20px;
+}
+
+.listing-header-green h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+}
+
+.listing-header-green p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* Rent display */
+.rent-display {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.rent-label {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.rent-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #10b981;
+}
+
+/* Grid list display */
+.grid-gap-20 {
+    display: grid;
+    gap: 20px;
+}
+
+/* Existing listings card */
+.existing-listing-card {
+    padding: 16px;
+    background: var(--bg-secondary, #f1f5f9);
+    border-radius: 8px;
+}
+
+.existing-listing-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary, #0f172a);
+}
+
+.existing-listing-card .sub-text {
+    color: var(--text-secondary, #64748b);
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* Dark Mode */
+[data-theme="dark"] .listing-card,
+[data-theme="dark"] .history-card {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .listing-title,
+[data-theme="dark"] .history-title,
+[data-theme="dark"] .history-detail-value {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .history-detail-value.large {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .detail-label,
+[data-theme="dark"] .history-detail-label {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .detail-value {
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .tab-btn.inactive {
+    background: #334155;
+    color: #94a3b8;
+    border-color: #475569;
+}
+
+[data-theme="dark"] .empty-state h3 {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .empty-state p {
+    color: #94a3b8;
+}
+
+[data-theme="dark"] .transaction-info-box {
+    background: linear-gradient(135deg, #422006, #451a03);
+    border-left-color: #f59e0b;
+}
+
+[data-theme="dark"] .listing-description-box {
+    background: #0f172a;
+}
+
+@media (max-width: 768px) {
+    .listing-card-inner {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .listing-icon-box {
+        width: 60px;
+        height: 60px;
+        font-size: 32px;
+    }
+
+    .listing-title {
+        font-size: 20px;
+    }
+
+    .listing-detail-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .marketplace-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .history-detail-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
