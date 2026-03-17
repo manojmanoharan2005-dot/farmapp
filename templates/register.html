@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block content %}
+<style>
     /* Enhanced Registration Form Styles */
     .register-section {
         min-height: 100vh;
@@ -611,6 +612,7 @@
     .password-requirements .req-item.met {
         color: #22c55e;
     }
+</style>
 
 <section class="register-section">
     <div class="register-container">
@@ -784,23 +786,28 @@
 <script>
     // Restore state/district/village selection from form_data on page load
     document.addEventListener('DOMContentLoaded', function() {
-        {% if form_data and form_data.state %}
-        var savedState = "{{ form_data.state }}";
-        var savedDistrict = "{{ form_data.district }}";
-        var savedVillage = "{{ form_data.village }}";
+        var savedState = "{{ form_data.state if form_data and form_data.state else '' }}";
+        var savedDistrict = "{{ form_data.district if form_data and form_data.district else '' }}";
+        var savedVillage = "{{ form_data.village if form_data and form_data.village else '' }}";
         
         if (savedState) {
             var stateSelect = document.getElementById('state');
-            stateSelect.value = savedState;
-            updateDistricts();
+            if (stateSelect) {
+                stateSelect.value = savedState;
+                if (typeof updateDistricts === 'function') {
+                    updateDistricts();
+                }
+            }
             
             if (savedDistrict) {
                 setTimeout(function() {
-                    document.getElementById('district').value = savedDistrict;
+                    var distSelect = document.getElementById('district');
+                    if (distSelect) {
+                        distSelect.value = savedDistrict;
+                    }
                 }, 100);
             }
         }
-        {% endif %}
     });
 </script>
 
