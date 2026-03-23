@@ -23,23 +23,21 @@ DISTRICT_COORDS_FILE = 'data/district_coordinates.json'
 STATES_DISTRICTS_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'states_districts.json')
 
 def load_states_districts():
-    """Load all Indian states and districts from JSON file"""
+    """Load all Indian states and districts from MongoDB static configs"""
     try:
-        if os.path.exists(STATES_DISTRICTS_FILE):
-            with open(STATES_DISTRICTS_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {}
+        from utils.db import get_static_config
+        states_districts = get_static_config('states_districts')
+        return states_districts if states_districts else {}
     except Exception as e:
-        print(f"Error loading states_districts.json: {str(e)}")
+        print(f"Error loading states_districts: {str(e)}")
         return {}
 
 def load_district_coordinates():
-    """Load district coordinates mapping"""
+    """Load district coordinates mapping from MongoDB"""
     try:
-        if os.path.exists(DISTRICT_COORDS_FILE):
-            with open(DISTRICT_COORDS_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return {}
+        from utils.db import get_static_config
+        coords = get_static_config('district_coordinates')
+        return coords if coords else {}
     except Exception as e:
         print(f"Error loading district coordinates: {str(e)}")
         return {}
@@ -54,13 +52,26 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     km = 6371 * c
     return km
 
-def load_daily_market_data():
+from utils.db import get_db
+
+def load_daily_market_data(state=None):
     """Load market data from daily scheduled updates"""
     try:
-        if os.path.exists(MARKET_DATA_FILE):
-            with open(MARKET_DATA_FILE, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                return data.get('data', []), data.get('last_updated')
+        db = get_db()
+        if db is not None and hasattr(db, 'market_prices'):
+            metadata = db.collection_metadata.find_one({"collection": "market_prices"})
+            last_updated = metadata.get("last_updated") if metadata else None
+            
+            # Use MongoDB query to filter by state if provided to prevent loading 30MB of data
+            query = {}
+            if state and state != 'All States':
+                query['state'] = {'$regex': f"^{state}$", '$options': 'i'}
+            
+            # Explicitly project out the _id
+            data = list(db.market_prices.find(query, {'_id': 0}))
+            if data:
+                return data, last_updated
+                
         return [], None
     except Exception as e:
         print(f"Error loading market data: {str(e)}")
@@ -121,14 +132,10 @@ def fetch_mandi_prices(state=None, limit=None):
     """Fetch mandi prices - first try scheduled data, then fallback to API"""
     try:
         # First, try to load from scheduled daily updates
-        scheduled_data, last_updated = load_daily_market_data()
+        scheduled_data, last_updated = load_daily_market_data(state)
         
         if scheduled_data:
-            print(f"[INFO] Using scheduled market data from: {last_updated}")
-            
-            # Pre-filter by state BEFORE formatting to avoid processing all 72K records
-            if state and state != 'All States':
-                scheduled_data = [d for d in scheduled_data if d.get('state') == state]
+            print(f"[INFO] Using scheduled market data (MongoDB) from: {last_updated}. Fetched {len(scheduled_data)} records for {state}")
             
             formatted_data = format_scheduled_data_for_display(scheduled_data)
             

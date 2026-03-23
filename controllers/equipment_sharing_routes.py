@@ -43,9 +43,10 @@ def create_listing():
         ]
         
         # Load states and districts
-        states_file = os.path.join(os.path.dirname(__file__), '..', 'data', 'states_districts.json')
-        with open(states_file, 'r') as f:
-            states_districts = json.load(f)
+        from utils.db import get_static_config
+        states_districts = get_static_config('states_districts')
+        if not states_districts:
+            states_districts = {}
         
         return render_template('equipment_create_listing.html',
                              user=user,

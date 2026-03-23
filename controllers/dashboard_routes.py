@@ -6,6 +6,7 @@ import json
 import os
 import random
 import requests
+import re
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
@@ -51,17 +52,16 @@ def get_price_predictions(user_district, user_state):
         if (current_time - cache_time).total_seconds() < CACHE_DURATION:
             return cached_data
     
-    # Load market data
-    market_file = 'data/market_prices.json'
-    if not os.path.exists(market_file):
+    # Load market data from MongoDB
+    from utils.db import get_db
+    db = get_db()
+    if db is None or not hasattr(db, 'market_prices'):
         return []
     
-    with open(market_file, 'r', encoding='utf-8') as f:
-        market_data = json.load(f)
-    
-    # Get commodities for user's district
-    district_data = [item for item in market_data['data'] 
-                     if item['state'] == user_state and item['district'] == user_district]
+    district_data = list(db.market_prices.find({
+        'state': {'$regex': f"^{user_state}$", '$options': 'i'},
+        'district': {'$regex': f"^{user_district}$", '$options': 'i'}
+    }))
     
     if not district_data:
         return []
@@ -458,44 +458,45 @@ def dashboard():
     # Get market prices for dashboard
     market_prices = []
     try:
-        market_file = 'data/market_prices.json'
-        if os.path.exists(market_file):
-            with open(market_file, 'r', encoding='utf-8') as f:
-                market_data = json.load(f)
-                all_market_data = market_data.get('data', [])
-                
-                # Get district and state for matching
-                u_dist = user.get('district', session.get('user_district'))
-                u_state = user.get('state', session.get('user_state'))
-                
-                # Filter for local or relevant data
-                relevant = [i for i in all_market_data if i.get('district') == u_dist]
-                if not relevant:
-                    relevant = [i for i in all_market_data if i.get('state') == u_state]
-                if not relevant:
-                    relevant = all_market_data
-                
-                # Ensure mix including fruits
-                f_list = ['Apple', 'Banana', 'Mango', 'Orange', 'Grapes', 'Papaya', 'Pineapple', 
-                         'Guava', 'Watermelon', 'Muskmelon', 'Pomegranate', 'Strawberry', 
-                         'Cherry', 'Kiwi', 'Lemon', 'Pear', 'Peach', 'Plum', 'Coconut']
-                
-                veggies = [i for i in relevant if not any(f.lower() in i.get('commodity', '').lower() for f in f_list)]
-                fruit_items = [i for i in relevant if any(f.lower() in i.get('commodity', '').lower() for f in f_list)]
-                
-                # If local fruits missing, get from state
-                if not fruit_items and u_state:
-                     fruit_items = [i for i in all_market_data if i.get('state') == u_state and any(f.lower() in i.get('commodity', '').lower() for f in f_list)]
-                
-                display_items = veggies[:6] + fruit_items[:4]
-                
-                for item in display_items:
-                    market_prices.append({
-                        'commodity': item.get('commodity', ''),
-                        'district': item.get('district', ''),
-                        'price': round(item.get('modal_price', 0) / 100, 2),  # Convert to per kg
-                        'change': round(random.uniform(-5, 5), 1)
-                    })
+        from utils.db import get_db
+        db_conn = get_db()
+        if db_conn is not None and hasattr(db_conn, 'market_prices'):
+            # Get district and state for matching
+            u_dist = user.get('district', session.get('user_district'))
+            u_state = user.get('state', session.get('user_state'))
+            
+            # Filter for local or relevant data
+            relevant = list(db_conn.market_prices.find({'district': {'$regex': f"^{u_dist}$", '$options': 'i'}})) if u_dist else []
+            if not relevant and u_state:
+                relevant = list(db_conn.market_prices.find({'state': {'$regex': f"^{u_state}$", '$options': 'i'}}).limit(100))
+            if not relevant:
+                relevant = list(db_conn.market_prices.find().limit(50))
+            
+            # Ensure mix including fruits
+            f_list = ['Apple', 'Banana', 'Mango', 'Orange', 'Grapes', 'Papaya', 'Pineapple', 
+                     'Guava', 'Watermelon', 'Muskmelon', 'Pomegranate', 'Strawberry', 
+                     'Cherry', 'Kiwi', 'Lemon', 'Pear', 'Peach', 'Plum', 'Coconut']
+            
+            veggies = [i for i in relevant if not any(f.lower() in i.get('commodity', '').lower() for f in f_list)]
+            fruit_items = [i for i in relevant if any(f.lower() in i.get('commodity', '').lower() for f in f_list)]
+            
+            # If local fruits missing, get from state directly
+            if not fruit_items and u_state:
+                state_fruits = list(db_conn.market_prices.find({
+                    'state': {'$regex': f"^{u_state}$", '$options': 'i'},
+                    'commodity': {'$in': [re.compile(f, re.IGNORECASE) for f in f_list]}
+                }).limit(20))
+                fruit_items = state_fruits
+
+            display_items = veggies[:6] + fruit_items[:4]
+            
+            for item in display_items:
+                market_prices.append({
+                    'commodity': item.get('commodity', ''),
+                    'district': item.get('district', ''),
+                    'price': round(item.get('modal_price', 0) / 100, 2),  # Convert to per kg
+                    'change': round(random.uniform(-5, 5), 1)
+                })
     except Exception as e:
         print(f"Error loading market prices: {e}")
     

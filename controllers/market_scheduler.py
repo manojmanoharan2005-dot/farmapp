@@ -127,13 +127,13 @@ Keep prices realistic for December 2025."""
         return generate_fallback_prices()
 
 def load_states_districts():
-    """Load all states and districts from states_districts.json"""
+    """Load all states and districts from MongoDB static configs"""
     try:
-        filepath = os.path.join(os.path.dirname(__file__), '..', 'data', 'states_districts.json')
-        with open(filepath, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        from utils.db import get_static_config
+        states = get_static_config('states_districts')
+        return states if states else {}
     except Exception as e:
-        print(f"Error loading states_districts.json: {str(e)}")
+        print(f"Error loading states_districts: {str(e)}")
         return {}
 
 def generate_fallback_prices():
@@ -303,24 +303,46 @@ def generate_fallback_prices():
     print(f"[SUCCESS] Generated {len(market_data)} records covering 50 commodities for {len(states_districts)} states and all districts")
     return market_data
 
+from utils.db import get_db
+
 def save_market_data(data):
-    """Save market data to JSON file"""
+    """Save market data to JSON file or MongoDB"""
     try:
-        os.makedirs('data', exist_ok=True)
-        with open(MARKET_DATA_FILE, 'w', encoding='utf-8') as f:
-            json.dump({
-                'last_updated': datetime.now().isoformat(),
-                'data': data
-            }, f, indent=2, ensure_ascii=False)
-        print(f"[SUCCESS] Market data saved: {len(data)} records")
-        return True
+        db = get_db()
+        if db is not None and hasattr(db, 'market_prices'):
+            db.market_prices.drop()
+            
+            # Insert in chunks of 5000 to avoid document size limits and timeouts
+            chunk_size = 5000
+            for i in range(0, len(data), chunk_size):
+                chunk = data[i:i + chunk_size]
+                db.market_prices.insert_many(chunk)
+                
+            db.collection_metadata.update_one(
+                {"collection": "market_prices"}, 
+                {"$set": {"last_updated": datetime.now().isoformat()}}, 
+                upsert=True
+            )
+            print(f"[SUCCESS] Market data saved to MongoDB: {len(data)} records in {len(range(0, len(data), chunk_size))} batches")
+            return True
+        else:
+            print("[ERROR] MongoDB not connected, unable to save market data")
+            return False
     except Exception as e:
         print(f"Error saving market data: {str(e)}")
         return False
 
 def load_market_data():
-    """Load market data from JSON file"""
+    """Load market data from JSON file or MongoDB"""
     try:
+        db = get_db()
+        if db is not None and hasattr(db, 'market_prices'):
+            metadata = db.collection_metadata.find_one({"collection": "market_prices"})
+            last_updated = metadata.get("last_updated") if metadata else None
+            data = list(db.market_prices.find({}, {'_id': 0}))
+            if data:
+                return data, last_updated
+                
         if os.path.exists(MARKET_DATA_FILE):
             with open(MARKET_DATA_FILE, 'r', encoding='utf-8') as f:
                 data = json.load(f)

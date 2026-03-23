@@ -400,6 +400,25 @@ class MockCollection:
 def get_db():
     return db
 
+def get_static_config(config_id):
+    """Get a static config document from MongoDB"""
+    try:
+        if db is not None:
+            doc = db.static_configs.find_one({"_id": config_id})
+            if doc and "data" in doc:
+                return doc["data"]
+        
+        # Fallback for legacy local JSON
+        import json
+        fallback_file = os.path.join(DATA_DIR, f"{config_id}.json")
+        if os.path.exists(fallback_file):
+            with open(fallback_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"[ERROR] Error loading static config {config_id}: {e}")
+    return {}
+
+
 # User model functions
 def create_user(name, email, password, phone, state, district, pincode='', village=''):
     """Create a new user and save to MongoDB database"""
@@ -582,23 +601,27 @@ def save_crop_recommendation(user_id, crop_data, timeline_data=None):
             try:
                 db.crops.insert_one(crop_record.copy())
                 print(f"🌱 Crop saved to MongoDB: {crop_record['crop_name']}")
+                return type('MockResult', (), {'inserted_id': crop_id})()
             except Exception as e:
                 print(f"[MongoDB] Could not save crop: {e}")
-        
-        # Also save to file storage
-        with open(CROPS_FILE, 'r') as f:
-            crops_db = json.load(f)
-        
-        if user_id not in crops_db:
-            crops_db[user_id] = []
-        
-        crops_db[user_id].append(crop_record)
-        
-        with open(CROPS_FILE, 'w') as f:
-            json.dump(crops_db, f, indent=2)
-        
-        print(f"🌱 Crop recommendation saved for user {user_id}: {crop_record['crop_name']}")
-        return type('MockResult', (), {'inserted_id': crop_id})()
+        else:
+            # Fallback to save to file storage if MongoDB is unavailable
+            try:
+                with open(CROPS_FILE, 'r') as f:
+                    crops_db = json.load(f)
+            except:
+                crops_db = {}
+            
+            if user_id not in crops_db:
+                crops_db[user_id] = []
+            
+            crops_db[user_id].append(crop_record)
+            
+            with open(CROPS_FILE, 'w') as f:
+                json.dump(crops_db, f, indent=2)
+            
+            print(f"🌱 Crop recommendation saved for user {user_id}: {crop_record['crop_name']}")
+            return type('MockResult', (), {'inserted_id': crop_id})()
     except Exception as e:
         print(f"Error saving crop: {e}")
         return None
@@ -631,21 +654,23 @@ def delete_crop(crop_id):
         if db is not None and hasattr(db, 'crops'):
             try:
                 db.crops.delete_one({'_id': crop_id})
+                print(f"🗑️ Crop deleted from MongoDB: {crop_id}")
+                return type('MockResult', (), {'deleted_count': 1})()
             except:
                 pass
-        
-        # Delete from file storage
-        with open(CROPS_FILE, 'r') as f:
-            crops_db = json.load(f)
-        
-        for user_id in crops_db:
-            crops_db[user_id] = [c for c in crops_db[user_id] if c.get('_id') != crop_id]
-        
-        with open(CROPS_FILE, 'w') as f:
-            json.dump(crops_db, f, indent=2)
-        
-        print(f"🗑️ Crop deleted: {crop_id}")
-        return type('MockResult', (), {'deleted_count': 1})()
+        else:
+            # Delete from file storage
+            with open(CROPS_FILE, 'r') as f:
+                crops_db = json.load(f)
+            
+            for user_id in crops_db:
+                crops_db[user_id] = [c for c in crops_db[user_id] if c.get('_id') != crop_id]
+            
+            with open(CROPS_FILE, 'w') as f:
+                json.dump(crops_db, f, indent=2)
+            
+            print(f"🗑️ Crop deleted from local files: {crop_id}")
+            return type('MockResult', (), {'deleted_count': 1})()
     except Exception as e:
         print(f"Error deleting crop: {e}")
         return None
@@ -665,25 +690,29 @@ def save_fertilizer_recommendation(user_id, fertilizer_data):
             try:
                 db.fertilizers.insert_one(fertilizer_data.copy())
                 print(f"🧪 Fertilizer saved to MongoDB: {fertilizer_data.get('name')}")
+                return type('MockResult', (), {'inserted_id': fertilizer_id})()
             except Exception as e:
                 print(f"[MongoDB] Could not save fertilizer: {e}")
-        
-        # Also save to file storage
-        with open(FERTILIZERS_FILE, 'r') as f:
-            fertilizer_db = json.load(f)
-        
-        # Save fertilizer
-        if user_id not in fertilizer_db:
-            fertilizer_db[user_id] = []
-        
-        fertilizer_db[user_id].append(fertilizer_data)
-        
-        # Write back to file
-        with open(FERTILIZERS_FILE, 'w') as f:
-            json.dump(fertilizer_db, f, indent=2)
-        
-        print(f"🧪 Fertilizer recommendation saved for user {user_id}: {fertilizer_data.get('name')}")
-        return type('MockResult', (), {'inserted_id': fertilizer_id})()
+        else:
+            # Also save to file storage
+            try:
+                with open(FERTILIZERS_FILE, 'r') as f:
+                    fertilizer_db = json.load(f)
+            except:
+                fertilizer_db = {}
+            
+            # Save fertilizer
+            if user_id not in fertilizer_db:
+                fertilizer_db[user_id] = []
+            
+            fertilizer_db[user_id].append(fertilizer_data)
+            
+            # Write back to file
+            with open(FERTILIZERS_FILE, 'w') as f:
+                json.dump(fertilizer_db, f, indent=2)
+            
+            print(f"🧪 Fertilizer recommendation saved from local files for user {user_id}: {fertilizer_data.get('name')}")
+            return type('MockResult', (), {'inserted_id': fertilizer_id})()
     except Exception as e:
         print(f"Error saving fertilizer: {e}")
         return None
@@ -743,27 +772,30 @@ def delete_fertilizer_recommendation(fertilizer_id, user_id):
             if result.deleted_count > 0:
                 print(f"[SUCCESS] Deleted fertilizer {fertilizer_id} from MongoDB for user {user_id}")
                 deleted = True
+                return deleted
+        else:
+            # Also delete from JSON file
+            try:
+                with open(FERTILIZERS_FILE, 'r') as f:
+                    fertilizer_db = json.load(f)
+                
+                user_fertilizers = fertilizer_db.get(user_id, [])
+                initial_count = len(user_fertilizers)
+                user_fertilizers = [f for f in user_fertilizers if f.get('_id') != fertilizer_id]
+                
+                if len(user_fertilizers) < initial_count:
+                    fertilizer_db[user_id] = user_fertilizers
+                    with open(FERTILIZERS_FILE, 'w') as f:
+                        json.dump(fertilizer_db, f, indent=2)
+                    print(f"[SUCCESS] Deleted fertilizer {fertilizer_id} from JSON for user {user_id}")
+                    deleted = True
+                    return deleted
+                    
+            except Exception as e:
+                print(f"[WARNING] JSON delete error: {e}")
+                
     except Exception as e:
-        print(f"[WARNING] MongoDB delete error: {e}")
-    
-    # Also delete from JSON file
-    try:
-        with open(FERTILIZERS_FILE, 'r') as f:
-            fertilizer_db = json.load(f)
-        
-        user_fertilizers = fertilizer_db.get(user_id, [])
-        initial_count = len(user_fertilizers)
-        user_fertilizers = [f for f in user_fertilizers if f.get('_id') != fertilizer_id]
-        
-        if len(user_fertilizers) < initial_count:
-            fertilizer_db[user_id] = user_fertilizers
-            with open(FERTILIZERS_FILE, 'w') as f:
-                json.dump(fertilizer_db, f, indent=2)
-            print(f"[SUCCESS] Deleted fertilizer {fertilizer_id} from JSON for user {user_id}")
-            deleted = True
-            
-    except Exception as e:
-        print(f"[WARNING] JSON delete error: {e}")
+        print(f"[WARNING] Delete error: {e}")
     
     return deleted
 
@@ -1412,49 +1444,43 @@ def get_user_expenses(user_id):
 # BUYER CONNECT - Direct Buyer-Farmer Connect
 # ============================================
 
-LISTINGS_FILE = os.path.join(DATA_DIR, 'crop_listings.json')
-MARKET_PRICES_FILE = os.path.join(DATA_DIR, 'market_prices.json')
 
-# Initialize listings file
-if not os.path.exists(LISTINGS_FILE):
-    with open(LISTINGS_FILE, 'w') as f:
-        json.dump([], f)
 
 
 def get_live_market_price(crop, district, state):
-    """Fetch live market price for a crop from market_prices.json"""
+    """Fetch live market price for a crop from MongoDB market_prices collection"""
     try:
-        if not os.path.exists(MARKET_PRICES_FILE):
-            return None
+        from bson import Regex
         
-        with open(MARKET_PRICES_FILE, 'r', encoding='utf-8') as f:
-            market_data = json.load(f)
+        if db is None or not hasattr(db, 'market_prices'):
+            return None
+            
+        crop_regex = {"$regex": f"^{crop}$", "$options": "i"}
+        district_regex = {"$regex": f"^{district}$", "$options": "i"}
+        state_regex = {"$regex": f"^{state}$", "$options": "i"}
         
         # Search for crop in user's district first
-        matching_items = [
-            item for item in market_data.get('data', [])
-            if item['commodity'].lower() == crop.lower() 
-            and item['district'].lower() == district.lower()
-            and item['state'].lower() == state.lower()
-        ]
+        item = db.market_prices.find_one({
+            "commodity": crop_regex,
+            "district": district_regex,
+            "state": state_regex
+        })
         
         # If not found in exact district, search in same state
-        if not matching_items:
-            matching_items = [
-                item for item in market_data.get('data', [])
-                if item['commodity'].lower() == crop.lower()
-                and item['state'].lower() == state.lower()
-            ]
-        
+        if not item:
+            item = db.market_prices.find_one({
+                "commodity": crop_regex,
+                "state": state_regex
+            })
+            
         # If still not found, search nationwide
-        if not matching_items:
-            matching_items = [
-                item for item in market_data.get('data', [])
-                if item['commodity'].lower() == crop.lower()
-            ]
+        if not item:
+            item = db.market_prices.find_one({
+                "commodity": crop_regex
+            })
+
         
-        if matching_items:
-            item = matching_items[0]
+        if item:
             modal_price_quintal = item['modal_price']  # Price per quintal
             price_per_kg = round(modal_price_quintal / 100, 2)  # Convert to per kg
             

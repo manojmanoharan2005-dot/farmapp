@@ -219,12 +219,11 @@ def login():
 def register():
     # Load states and districts
     try:
-        # Load from data directory
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        filepath = os.path.join(script_dir, '..', 'data', 'states_districts.json')
-        with open(filepath, 'r', encoding='utf-8') as f:
-            states_districts = json.load(f)
-    except FileNotFoundError as e:
+        from utils.db import get_static_config
+        states_districts = get_static_config('states_districts')
+        if not states_districts:
+            raise FileNotFoundError("Static config states_districts not found")
+    except Exception as e:
         print(f"Warning: states_districts.json not found: {e}")
         # Fallback states and districts
         states_districts = {

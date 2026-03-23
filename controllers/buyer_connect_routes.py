@@ -93,15 +93,12 @@ def create_listing():
         }
         
         try:
-            states_file = os.path.join(os.path.dirname(__file__), '..', 'data', 'states_districts.json')
-            if os.path.exists(states_file):
-                with open(states_file, 'r', encoding='utf-8') as f:
-                    states_districts = json.load(f)
-            else:
-                print(f"[WARNING] States file not found at {states_file}")
+            from utils.db import get_static_config
+            states_districts = get_static_config('states_districts')
+            if not states_districts:
                 states_districts = {}
         except Exception as e:
-            print(f"[ERROR] Failed to load states: {e}")
+            print(f"[ERROR] Failed to load states from MongoDB: {e}")
             states_districts = {}
         
         return render_template('create_listing.html', 
