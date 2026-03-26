@@ -519,7 +519,7 @@ def update_user_password(email, new_password):
 def find_user_by_id(user_id):
     print(f"[DEBUG find_user_by_id] Searching for user_id: {user_id}", flush=True)
     try:
-        if hasattr(db, 'users') and db:
+        if db is not None and hasattr(db, 'users'):
             users = db.users
             
             # Try with ObjectId first (for MongoDB native ObjectIds)
@@ -627,22 +627,23 @@ def save_crop_recommendation(user_id, crop_data, timeline_data=None):
         return None
 
 def get_user_crops(user_id):
-    """Get user's saved crops from file and MongoDB"""
+    """Get user's saved crops from MongoDB or file fallback"""
     try:
         # Try MongoDB first
-        if db is not None and hasattr(db, 'crops'):
+        if db is not None:
             try:
                 crops = list(db.crops.find({'user_id': user_id}))
-                if crops:
-                    return crops
+                return crops # Return result (even if empty) if DB query worked
             except Exception as e:
                 print(f"[MongoDB] Could not fetch crops: {e}")
         
-        # Fallback to file storage
-        with open(CROPS_FILE, 'r') as f:
-            crops_db = json.load(f)
-        
-        return crops_db.get(user_id, [])
+        # Fallback to file storage ONLY if MongoDB fails or is unavailable
+        if os.path.exists(CROPS_FILE):
+             with open(CROPS_FILE, 'r') as f:
+                crops_db = json.load(f)
+             return crops_db.get(user_id, [])
+             
+        return []
     except Exception as e:
         print(f"Error fetching crops: {e}")
         return []
@@ -718,11 +719,10 @@ def save_fertilizer_recommendation(user_id, fertilizer_data):
         return None
 
 def get_user_fertilizers(user_id):
-    """Get user's saved fertilizers from MongoDB and file"""
-    import uuid
+    """Get user's saved fertilizers from MongoDB or file fallback"""
     try:
         # Try MongoDB first
-        if db is not None and hasattr(db, 'fertilizers'):
+        if db is not None:
             try:
                 fertilizers = list(db.fertilizers.find({'user_id': user_id}))
                 if fertilizers:
@@ -730,26 +730,15 @@ def get_user_fertilizers(user_id):
             except Exception as e:
                 print(f"[MongoDB] Could not fetch fertilizers: {e}")
         
-        # Fallback to file storage
+        # Fallback to file storage ONLY if MongoDB fails or has no data
+        if not os.path.exists(FERTILIZERS_FILE):
+            return []
+            
         with open(FERTILIZERS_FILE, 'r') as f:
             fertilizer_db = json.load(f)
         
         # Get user's fertilizers
         user_fertilizers = fertilizer_db.get(user_id, [])
-        
-        # Add _id to fertilizers that don't have one
-        needs_save = False
-        for fert in user_fertilizers:
-            if '_id' not in fert:
-                fert['_id'] = str(uuid.uuid4())
-                needs_save = True
-        
-        # Save back if we added any IDs
-        if needs_save:
-            fertilizer_db[user_id] = user_fertilizers
-            with open(FERTILIZERS_FILE, 'w') as f:
-                json.dump(fertilizer_db, f, indent=2)
-        
         return user_fertilizers
     except Exception as e:
         print(f"Error loading fertilizers: {e}")

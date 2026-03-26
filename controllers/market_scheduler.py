@@ -1,4 +1,5 @@
 from flask import Blueprint
+from pymongo import ReplaceOne
 import google.generativeai as genai
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
@@ -306,24 +307,38 @@ def generate_fallback_prices():
 from utils.db import get_db
 
 def save_market_data(data):
-    """Save market data to JSON file or MongoDB"""
+    """Overwrite market data in MongoDB using ReplaceOne with upsert (no drop)"""
     try:
         db = get_db()
         if db is not None and hasattr(db, 'market_prices'):
-            db.market_prices.drop()
+            # Prepare bulk write operations for overwrite (upsert=True)
+            # This identifies a unique record by its commodity, market, state, and district
+            # and overwrites the prices and other fields.
             
-            # Insert in chunks of 5000 to avoid document size limits and timeouts
-            chunk_size = 5000
+            chunk_size = 1000 # Smaller chunk size for complex bulk writes
             for i in range(0, len(data), chunk_size):
                 chunk = data[i:i + chunk_size]
-                db.market_prices.insert_many(chunk)
+                operations = []
+                for record in chunk:
+                    # Define the matching filter (unique key for overwriting)
+                    filter_query = {
+                        "commodity": record.get("commodity"),
+                        "market": record.get("market"),
+                        "state": record.get("state"),
+                        "district": record.get("district")
+                    }
+                    # ReplaceOne with upsert=True will update existing or insert new
+                    operations.append(ReplaceOne(filter_query, record, upsert=True))
+                
+                # Execute bulk operation
+                db.market_prices.bulk_write(operations, ordered=False)
                 
             db.collection_metadata.update_one(
                 {"collection": "market_prices"}, 
                 {"$set": {"last_updated": datetime.now().isoformat()}}, 
                 upsert=True
             )
-            print(f"[SUCCESS] Market data saved to MongoDB: {len(data)} records in {len(range(0, len(data), chunk_size))} batches")
+            print(f"[SUCCESS] Market data overwritten in MongoDB: {len(data)} records processed")
             return True
         else:
             print("[ERROR] MongoDB not connected, unable to save market data")
