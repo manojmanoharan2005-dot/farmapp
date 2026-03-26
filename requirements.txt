@@ -30,8 +30,9 @@ requests>=2.31.0
 # Email - Brevo (formerly Sendinblue)
 sib-api-v3-sdk>=7.6.0
 
-# PDF Generation (reportlab is easier to install on Render)
+# PDF Generation (using xhtml2pdf for HTML-to-PDF conversion)
 reportlab>=4.0.0
+xhtml2pdf>=0.2.11
 
 # Compression
 flask-compress>=1.13
