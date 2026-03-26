@@ -11,28 +11,32 @@
     const setTheme = (theme) => {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
-        updateThemeButton(theme);
+        updateThemeButtons(theme);
     };
 
-    // Update theme toggle button icon
-    const updateThemeButton = (theme) => {
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
+    // Update theme toggle buttons icons and text
+    const updateThemeButtons = (theme) => {
+        const themeToggles = document.querySelectorAll('.theme-toggle');
+        themeToggles.forEach(themeToggle => {
             const icon = themeToggle.querySelector('i');
             const text = themeToggle.querySelector('span');
             
             if (theme === 'dark') {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
+                if (icon) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
                 themeToggle.setAttribute('title', 'Toggle Light Mode');
                 if (text) text.textContent = 'Light Mode';
             } else {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
+                if (icon) {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
                 themeToggle.setAttribute('title', 'Toggle Dark Mode');
                 if (text) text.textContent = 'Dark Mode';
             }
-        }
+        });
     };
 
     // Toggle between light and dark themes
@@ -45,14 +49,14 @@
     // Initialize theme on page load
     const initTheme = () => {
         const savedTheme = getTheme();
-        // Just update the button, theme is already applied
-        updateThemeButton(savedTheme);
+        // Just update the buttons, theme is already applied in <head>
+        updateThemeButtons(savedTheme);
 
-        // Add click event listener to theme toggle button
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
+        // Add click event listener to all theme toggle buttons
+        const themeToggles = document.querySelectorAll('.theme-toggle');
+        themeToggles.forEach(themeToggle => {
             themeToggle.addEventListener('click', toggleTheme);
-        }
+        });
     };
 
     // Run on DOMContentLoaded

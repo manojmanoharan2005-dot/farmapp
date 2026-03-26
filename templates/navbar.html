@@ -13,7 +13,7 @@
                 class="nav-link {% if request.endpoint == 'features' %}active{% endif %}">Features</a>
         </div>
         <div class="navbar-actions">
-            <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+            <button class="theme-toggle" title="Toggle Dark Mode">
                 <i class="fas fa-moon"></i>
             </button>
             <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">

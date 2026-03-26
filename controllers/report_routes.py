@@ -104,6 +104,9 @@ def get_harvest_data():
         STAGE_NAMES = ['Seed Sowing', 'Germination', 'Seedling', 'Vegetative Growth', 
                        'Flowering', 'Fruit Development', 'Maturity', 'Harvest Ready']
         
+        # Fetch user growing activities
+        activities = get_user_growing_activities(user_id)
+        
         now = datetime.now()
         processed_activities = []
         for activity in activities:
@@ -315,28 +318,27 @@ def get_market_report_data():
                 'data': None
             })
         
-        # Load market data
-        market_file = 'data/market_prices.json'
-        if not os.path.exists(market_file):
-            return jsonify({'success': False, 'message': 'Market data file missing'})
-            
-        with open(market_file, 'r', encoding='utf-8') as f:
-            market_data = json.load(f)
-            
-        # Filter for user's district
-        all_data = market_data.get('data', [])
-        district_prices = [item for item in all_data if item.get('district') == district]
+        # Load market data from MongoDB
+        db = get_db()
+        district_prices = []
+        if db is not None:
+             # Find district prices from MongoDB specifically
+             district_prices = list(db.market_prices.find({'district': district}, {'_id': 0}).limit(100))
+             
+             # Fallback to state data if district is empty
+             if not district_prices and state:
+                 district_prices = list(db.market_prices.find({'state': state}, {'_id': 0}).limit(100))
         
         if not district_prices:
-            # Fallback to state data if district is empty
-            district_prices = [item for item in all_data if item.get('state') == state][:100]
+            return jsonify({'success': False, 'message': 'Market data not available for your region yet. Please wait for the daily update.'})
+            
+        all_data = district_prices # Use these for subsequent fruit processing if needed
         
         # Smart selection: ensure fruits are included
         fruits_list = ['Apple', 'Banana', 'Mango', 'Orange', 'Grapes', 'Papaya', 'Pineapple', 
                       'Guava', 'Watermelon', 'Muskmelon', 'Pomegranate', 'Strawberry', 
                       'Cherry', 'Kiwi', 'Lemon', 'Pear', 'Peach', 'Plum', 'Coconut']
         
-        selected_prices = []
         vegetables = []
         fruits = []
         
@@ -469,23 +471,26 @@ def download_market_prices_pdf():
         user_id = session.get('user_id')
         user = find_user_by_id(user_id)
         
-        # Get market prices from data file
-        market_file = os.path.join('data', 'market_prices.json')
-        with open(market_file, 'r', encoding='utf-8') as f:
-            market_data = json.load(f)
-        
-        # Filter by user's district if available
+        # Get market prices from MongoDB
+        db = get_db()
+        prices = []
         user_district = user.get('district', '') if user else session.get('user_district', '')
-        prices = market_data.get('data', [])
         
-        if user_district:
-            filtered_prices = [p for p in prices if p.get('district') == user_district]
-            if filtered_prices:
-                prices = filtered_prices[:50]
-            else:
-                prices = prices[:50]
-        else:
-            prices = prices[:50]
+        if db is not None:
+            # Filter by user's district if available
+            query = {}
+            if user_district:
+                query['district'] = user_district
+            
+            # Fetch prices (limited for PDF size)
+            prices = list(db.market_prices.find(query, {'_id': 0}).limit(50))
+            
+            # If no district results, fetch any state data or general data
+            if not prices:
+                prices = list(db.market_prices.find({}, {'_id': 0}).limit(50))
+        
+        if not prices:
+            return jsonify({'success': False, 'message': 'No market data available to generate PDF.'}), 404
         
         # Render HTML template
         html = render_template('pdf/market_prices.html',

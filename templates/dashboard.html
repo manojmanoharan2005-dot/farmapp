@@ -111,12 +111,6 @@
             </div>
         </nav>
 
-        <div class="sidebar-footer">
-            <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
-                <i class="fas fa-moon"></i>
-                <span>Dark Mode</span>
-            </button>
-        </div>
 
         <div class="sidebar-user">
             <div class="user-info sidebar-clickable" onclick="openProfileModal()">
@@ -192,6 +186,11 @@
                     </div>
                 </div>
                 <div class="stats-bar-actions">
+                    <!-- Theme Toggle -->
+                    <button class="theme-toggle panel-toggle-btn theme" title="Toggle Dark Mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+
                     <!-- Notification Button -->
                     <button class="notification-toggle-btn panel-toggle-btn notif" onclick="toggleNotificationPanel()">
                         <i class="fas fa-bell"></i>
