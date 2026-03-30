@@ -143,6 +143,21 @@ class MockDatabase:
         return MockCollection('otps', OTPS_FILE)
 
     @property
+    def market_prices(self):
+        MARKET_FILE = os.path.join(DATA_DIR, 'market_prices.json')
+        return MockCollection('market_prices', MARKET_FILE)
+
+    @property
+    def growing_activities(self):
+        GROWING_FILE = os.path.join(DATA_DIR, 'growing_activities.json')
+        return MockCollection('growing_activities', GROWING_FILE)
+
+    @property
+    def static_configs(self):
+        CONFIGS_FILE = os.path.join(DATA_DIR, 'static_configs.json')
+        return MockCollection('static_configs', CONFIGS_FILE, is_dict=True)
+
+    @property
     def password_reset_tokens(self):
         TOKENS_FILE = os.path.join(DATA_DIR, 'reset_tokens.json')
         return MockCollection('password_reset_tokens', TOKENS_FILE)
@@ -270,9 +285,12 @@ class MockCollection:
 
         class SortableList(list):
             def sort(self, key_name, direction=-1):
-                # Handle direction (1 for ASC, -1 for DESC)
-                super().sort(key=lambda x: x.get(key_name, ''), reverse=(direction == -1))
+                # Mock behavior: sort by key_name
+                super().sort(key=lambda x: x.get(key_name, '') if x.get(key_name) is not None else '', reverse=(direction == -1))
                 return self
+            
+            def limit(self, count):
+                return self[:count]
         
         result_list = SortableList(items)
         if sort:

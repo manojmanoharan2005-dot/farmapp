@@ -2,189 +2,240 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Market Prices Report - {{ date }}</title>
+    <title>Market Analysis Report - {{ date }}</title>
     <style>
         @page {
             size: A4;
-            margin: 1.2cm;
+            margin: 1.5cm;
         }
+        
         * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
+
         body {
-            font-family: Helvetica, Arial, sans-serif;
+            font-family: 'Helvetica', 'Arial', sans-serif;
             color: #1e293b;
             font-size: 10pt;
-            line-height: 1.4;
+            line-height: 1.5;
+            background-color: #ffffff;
         }
-        .header {
-            background-color: #2563eb;
-            color: white;
-            padding: 0;
-            text-align: center;
-            margin-bottom: 0;
+
+        .report-header {
+            border-bottom: 2px solid #166534;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
-        .header-main {
-            padding: 30px 25px 20px 25px;
-        }
-        .header h1 {
-            font-size: 28pt;
-            margin: 0;
+
+        .company-name {
+            font-size: 22pt;
             font-weight: bold;
-            letter-spacing: 1pt;
+            color: #166534;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .header-subtitle {
-            background-color: #1e40af;
-            padding: 12px 25px;
-            font-size: 13pt;
-            font-weight: 300;
+
+        .report-title {
+            font-size: 14pt;
+            color: #64748b;
+            margin-top: 5px;
         }
-        .info-bar {
-            background-color: #eff6ff;
-            padding: 18px 20px;
-            margin-bottom: 25px;
-            margin-top: 0;
-            border-left: 5px solid #2563eb;
+
+        .meta-section {
+            display: table;
+            width: 100%;
+            margin-bottom: 40px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
         }
-        .info-row {
-            margin-bottom: 8px;
+
+        .meta-column {
+            display: table-cell;
+            width: 33%;
+            vertical-align: top;
+        }
+
+        .meta-label {
+            font-size: 8pt;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .meta-value {
             font-size: 10pt;
-        }
-        .info-label {
-            font-weight: bold;
-            color: #1e40af;
-            display: inline-block;
-            width: 100px;
-        }
-        .info-value {
-            color: #334155;
-        }
-        .content {
-            padding: 5px 0;
-        }
-        h2 {
             color: #1e293b;
-            font-size: 18pt;
-            margin-bottom: 18px;
-            border-bottom: 4px solid #2563eb;
-            padding-bottom: 10px;
-            font-weight: bold;
+            font-weight: 600;
         }
+
+        h2.section-title {
+            font-size: 16pt;
+            color: #1e293b;
+            margin-bottom: 20px;
+            padding-left: 10px;
+            border-left: 4px solid #166534;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
         }
-        thead {
-            background-color: #1e40af;
-        }
+
         th {
-            padding: 12px 10px;
-            text-align: left;
+            background-color: #1e293b;
+            color: #ffffff;
+            font-size: 9pt;
             font-weight: bold;
-            color: white;
-            font-size: 10pt;
-            border: 1px solid #1e3a8a;
+            text-transform: uppercase;
+            padding: 12px 8px;
+            text-align: left;
+            border: 1px solid #1e293b;
         }
+
         td {
-            padding: 11px 10px;
+            padding: 10px 8px;
             border: 1px solid #e2e8f0;
-            font-size: 10pt;
+            font-size: 9pt;
+            color: #334155;
+            vertical-align: middle;
         }
-        tbody tr:nth-child(odd) {
+
+        .row-even {
             background-color: #ffffff;
         }
-        tbody tr:nth-child(even) {
-            background-color: #f8fafc;
+
+        .row-odd {
+            background-color: #f1f5f9;
         }
-        .price {
+
+        .price-cell {
             font-weight: bold;
-            color: #059669;
-            font-size: 11pt;
-            background-color: #d1fae5;
-            padding: 4px 8px;
-            border-radius: 3px;
+            color: #166534;
+            white-space: nowrap;
         }
-        .commodity-name {
-            font-weight: bold;
-            color: #0f172a;
-            font-size: 10.5pt;
-        }
-        .location {
+
+        .variety-cell {
             color: #64748b;
-            font-size: 9pt;
             font-style: italic;
         }
-        .footer {
-            background-color: #f1f5f9;
-            padding: 18px;
-            text-align: center;
-            color: #64748b;
-            font-size: 9pt;
-            border-top: 3px solid #cbd5e1;
-            margin-top: 25px;
-            border-radius: 4px;
+
+        .commodity-cell {
+            font-weight: 700;
+            color: #0f172a;
         }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 8pt;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        .disclaimer {
+            font-size: 7pt;
+            color: #94a3b8;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        {% if not is_pdf %}
+        /* Styles only for HTML version */
+        body {
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+        .download-notice {
+            background: #fffbeb;
+            color: #92400e;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 9pt;
+        }
+        {% endif %}
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-main">
-            <h1>MARKET PRICES REPORT</h1>
-        </div>
-        <div class="header-subtitle">Today's Commodity Prices</div>
+    {% if not is_pdf %}
+    <div class="download-notice">
+        This is an offline HTML report version. Print (Ctrl+P) to save as PDF if needed.
     </div>
-    
-    <div class="info-bar">
-        <div class="info-row">
-            <span class="info-label">Farmer:</span>
-            <span class="info-value">{{ user.name }}</span>
+    {% endif %}
+
+    <div class="report-header">
+        <div class="company-name">Smart Farming Assistant</div>
+        <div class="report-title">Market Analysis & Commodity Valuation Report</div>
+    </div>
+
+    <div class="meta-section">
+        <div class="meta-column">
+            <span class="meta-label">Prepared For</span>
+            <span class="meta-value">{{ user.name }}</span>
         </div>
-        <div class="info-row">
-            <span class="info-label">Date:</span>
-            <span class="info-value">{{ date }}</span>
+        <div class="meta-column">
+            <span class="meta-label">Region of Analysis</span>
+            <span class="meta-value">{{ user.district or 'All Districts' }}, {{ user.state or 'India' }}</span>
         </div>
-        <div class="info-row">
-            <span class="info-label">Location:</span>
-            <span class="info-value">{{ user.district or 'All Districts' }}</span>
+        <div class="meta-column">
+            <span class="meta-label">Date of Issue</span>
+            <span class="meta-value">{{ date }}</span>
         </div>
     </div>
-    
+
     <div class="content">
-        <h2>Commodity Prices</h2>
+        <h2 class="section-title">Market Intelligence Data</h2>
         
         {% if prices %}
         <table>
             <thead>
                 <tr>
-                    <th>Commodity</th>
-                    <th>Variety</th>
-                    <th>Market Location</th>
-                    <th>Price (Rs/Quintal)</th>
-                    <th>Arrival</th>
+                    <th width="20%">Commodity</th>
+                    <th width="20%">Variety</th>
+                    <th width="30%">Market Hub</th>
+                    <th width="15%">Valuation (Rs/Q)</th>
+                    <th width="15%">Arrival Data</th>
                 </tr>
             </thead>
             <tbody>
                 {% for price in prices %}
-                <tr>
-                    <td class="commodity-name">{{ price.commodity }}</td>
-                    <td>{{ price.variety }}</td>
-                    <td>{{ price.market }}<br/><span class="location">{{ price.district }}, {{ price.state }}</span></td>
-                    <td class="price">Rs {{ price.modal_price }}</td>
+                <tr class="{{ loop.cycle('row-even', 'row-odd') }}">
+                    <td class="commodity-cell">{{ price.commodity }}</td>
+                    <td class="variety-cell">{{ price.variety }}</td>
+                    <td>
+                        {{ price.market }}<br/>
+                        <span style="font-size: 8pt; color: #94a3b8;">{{ price.district }}, {{ price.state }}</span>
+                    </td>
+                    <td class="price-cell">₹ {{ price.modal_price }}</td>
                     <td>{{ price.arrival }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         {% else %}
-        <p style="text-align: center; padding: 40px; color: #64748b;">No market data available.</p>
+        <div style="text-align: center; padding: 60px; border: 1px dashed #cbd5e1; color: #94a3b8;">
+            No market data entries found for the selected period.
+        </div>
         {% endif %}
     </div>
-    
+
     <div class="footer">
-        <p>Smart Farming Assistant | Generated on {{ date }} | For reference only</p>
+        <p>Generated by Smart Farming Assistant - Decision Support System v2.0</p>
+        <p>© 2026 Smart Farming Initiative. All proprietary rights acknowledged.</p>
+        <div class="disclaimer">
+            Disclaimer: The data presented is sourced from administrative records and is subject to local market variations. 
+            Smart Farming Assistant does not guarantee real-time accuracy and recommends independent verification before major transactions.
+        </div>
     </div>
 </body>
 </html>

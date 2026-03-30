@@ -130,6 +130,11 @@ function handleFertilizerView(btn) {
     openFertilizerViewModal(d.id, d.fertilizer, d.crop, d.date, d.soil, d.n, d.p, d.k);
 }
 
+function handleFertilizerDetailView(btn) {
+    const d = btn.dataset;
+    viewFertilizerDetails(d.id, d.name, d.crop, d.n, d.p, d.k, d.soil, d.date);
+}
+
 /**
  * Crop Modal Functions
  */
@@ -1048,6 +1053,8 @@ function openCalculatorModal() {
     if (input && !input.value) {
         input.value = new Date().toISOString().split('T')[0];
     }
+    // Calculate total on modal open to initialize chart
+    calculateTotal();
 }
 
 function closeCalculatorModal() {
@@ -1287,7 +1294,10 @@ function loadBenchmarkData() {
 }
 
 function calculateTotal() {
-    const getVal = id => parseFloat(document.getElementById(id)?.value) || 0;
+    const getVal = id => {
+        const val = parseFloat(document.getElementById(id)?.value);
+        return isNaN(val) ? 0 : val;
+    };
     const expenses = {
         seed: getVal('seedCost'),
         fertilizer: getVal('fertilizerCost'),
@@ -1319,7 +1329,9 @@ function calculateTotal() {
     const area = getVal('landArea');
     if (area > 0) {
         const perAcre = total / area;
-        setTxt('costPerAcre', '₹' + perAcre.toLocaleString('en-IN', { maximumFractionDigits: 2 }) + ' per acre');
+        setTxt('costPerAcre', '₹' + perAcre.toLocaleString('en-IN', { maximumFractionDigits: 0 }) + ' / acre');
+    } else {
+        setTxt('costPerAcre', '₹0 / acre');
     }
 
     const qty = getVal('expectedYield');
@@ -1328,12 +1340,34 @@ function calculateTotal() {
     const profit = revenue - total;
 
     setTxt('totalRevenue', '₹' + revenue.toLocaleString('en-IN'));
-    setTxt('netProfit', '₹' + profit.toLocaleString('en-IN'));
+    const profitEl = document.getElementById('netProfit');
+    if (profitEl) {
+        profitEl.textContent = '₹' + profit.toLocaleString('en-IN');
+        profitEl.style.color = profit >= 0 ? '#16a34a' : '#dc2626';
+    }
 }
 
 function updateExpenseChart(data) {
     const ctx = document.getElementById('expenseChart');
-    if (!ctx || typeof Chart === 'undefined') return;
+    if (!ctx) return;
+
+    if (typeof Chart === 'undefined') {
+        ctx.parentElement.innerHTML = '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#94a3b8; font-size:13px; text-align:center;">' +
+            '<div><i class="fas fa-chart-pie" style="font-size:24px; margin-bottom:8px; opacity:0.5;"></i><br>Charts library is loading...</div></div>';
+        return;
+    }
+
+    // Check if data is all zeros
+    const allZeros = data.every(v => v === 0);
+    if (allZeros) {
+        // Clear existing chart if any
+        if (expenseChart) {
+            expenseChart.destroy();
+            expenseChart = null;
+        }
+        // Could show a placeholder but doughnut looks better with data
+        return;
+    }
 
     if (expenseChart) expenseChart.destroy();
 
@@ -1343,10 +1377,42 @@ function updateExpenseChart(data) {
             labels: ['Seeds', 'Fertilizers', 'Pesticides', 'Irrigation', 'Labor', 'Machinery', 'Other'],
             datasets: [{
                 data: data,
-                backgroundColor: ['#4caf50', '#2196f3', '#ff9800', '#00bcd4', '#9c27b0', '#f44336', '#607d8b']
+                backgroundColor: [
+                    '#4caf50', // Seeds - Green
+                    '#2196f3', // Fertilizers - Blue
+                    '#ff9800', // Pesticides - Orange
+                    '#00bcd4', // Irrigation - Cyan
+                    '#9c27b0', // Labor - Purple
+                    '#f44336', // Machinery - Red
+                    '#607d8b'  // Other - Blue Grey
+                ],
+                hoverOffset: 15,
+                borderWidth: 2,
+                borderColor: '#ffffff'
             }]
         },
-        options: { responsive: true, plugins: { legend: { display: false } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            let label = context.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed !== null) label += '₹' + context.parsed.toLocaleString('en-IN');
+                            return label;
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeOutQuart'
+            }
+        }
     });
 }
 
@@ -1365,10 +1431,29 @@ function calculateLoan() {
 }
 
 async function saveExpenseEntry() {
-    const getVal = id => parseFloat(document.getElementById(id)?.value) || 0;
+    const getVal = id => {
+        const val = parseFloat(document.getElementById(id)?.value);
+        return isNaN(val) ? 0 : val;
+    };
+    
+    const entryDate = document.getElementById('entryDate')?.value;
+    const cropType = document.getElementById('cropType')?.value;
+    
+    if (!entryDate) {
+        showToast('Please select a date', 'warning');
+        return;
+    }
+
+    const saveBtn = document.querySelector('button[onclick="saveExpenseEntry()"]');
+    const originalText = saveBtn ? saveBtn.innerHTML : '';
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    }
+
     const entry = {
-        date: document.getElementById('entryDate')?.value,
-        cropType: document.getElementById('cropType')?.value,
+        date: entryDate,
+        cropType: cropType,
         expenses: {
             seed: getVal('seedCost'),
             fertilizer: getVal('fertilizerCost'),
@@ -1380,10 +1465,17 @@ async function saveExpenseEntry() {
         },
         landArea: getVal('landArea'),
         expectedYield: getVal('expectedYield'),
-        marketPrice: getVal('marketPrice')
+        marketPrice: getVal('marketPrice'),
+        total_expense: Object.values({
+            seed: getVal('seedCost'),
+            fertilizer: getVal('fertilizerCost'),
+            pesticide: getVal('pesticideCost'),
+            irrigation: getVal('irrigationCost'),
+            labor: getVal('laborCost'),
+            machinery: getVal('machineryCost'),
+            other: getVal('otherCost')
+        }).reduce((a, b) => a + b, 0)
     };
-
-    if (!entry.date) return alert('Date required');
 
     try {
         const res = await fetch('/api/expenses', {
@@ -1391,9 +1483,24 @@ async function saveExpenseEntry() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(entry)
         });
-        const data = await res.json();
-        if (data.success) alert('Saved!');
-    } catch (e) { alert('Error saving.'); }
+        const result = await res.json();
+        
+        if (result.success) {
+            showToast('Expense entry saved successfully!', 'success');
+            // Optional: close modal after save? User didn't request but it's good practice
+            // closeCalculatorModal();
+        } else {
+            showToast('Failed to save: ' + (result.message || 'Unknown error'), 'error');
+        }
+    } catch (e) {
+        console.error('Error saving expense:', e);
+        showToast('Network error while saving.', 'error');
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
+        }
+    }
 }
 
 /**

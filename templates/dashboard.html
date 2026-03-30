@@ -258,53 +258,85 @@
                                 <p>Export your farming data</p>
                             </div>
                             <div class="dl-panel-body">
-                                <a href="{{ url_for('report.download_market_prices_pdf') }}" class="download-item"
-                                    style="--hover-bg: rgba(14, 165, 233, 0.15); --hover-border: #0ea5e9;">
-                                    <div class="dl-icon" style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">
-                                        📊
+                                <div class="download-item-container">
+                                    <div class="download-item" style="--hover-bg: rgba(14, 165, 233, 0.05); cursor: default;">
+                                        <div class="dl-icon" style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">
+                                            📊
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div class="dl-title">Market Prices</div>
+                                            <div class="dl-subtitle">Today's commodity prices</div>
+                                        </div>
+                                        <div class="dl-actions">
+                                            <a href="{{ url_for('report.download_market_prices_pdf') }}" class="dl-btn pdf" title="Download PDF">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                            <a href="{{ url_for('report.download_market_prices_html') }}" class="dl-btn html" title="Download HTML">
+                                                <i class="fas fa-code"></i>
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div style="flex: 1;">
-                                        <div class="dl-title">Market Prices</div>
-                                        <div class="dl-subtitle">Today's commodity prices</div>
-                                    </div>
-                                    <i class="fas fa-chevron-right dl-chevron"></i>
-                                </a>
+                                </div>
 
-                                <a href="{{ url_for('report.download_weather_pdf') }}" class="download-item"
-                                    style="--hover-bg: rgba(245, 158, 11, 0.15); --hover-border: #f59e0b;">
-                                    <div class="dl-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                                        ☁️
+                                <div class="download-item-container">
+                                    <div class="download-item" style="--hover-bg: rgba(245, 158, 11, 0.05); cursor: default;">
+                                        <div class="dl-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                                            ☁️
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div class="dl-title">Weather Forecast</div>
+                                            <div class="dl-subtitle">7-day weather data</div>
+                                        </div>
+                                        <div class="dl-actions">
+                                            <a href="{{ url_for('report.download_weather_pdf') }}" class="dl-btn pdf" title="Download PDF">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                            <a href="{{ url_for('report.download_weather_html') }}" class="dl-btn html" title="Download HTML">
+                                                <i class="fas fa-code"></i>
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div style="flex: 1;">
-                                        <div class="dl-title">Weather Forecast</div>
-                                        <div class="dl-subtitle">7-day weather data</div>
-                                    </div>
-                                    <i class="fas fa-chevron-right dl-chevron"></i>
-                                </a>
+                                </div>
 
-                                <a href="{{ url_for('report.download_expense_pdf') }}" class="download-item"
-                                    style="--hover-bg: rgba(236, 72, 153, 0.15); --hover-border: #ec4899;">
-                                    <div class="dl-icon" style="background: linear-gradient(135deg, #ec4899, #db2777);">
-                                        🧮
+                                <div class="download-item-container">
+                                    <div class="download-item" style="--hover-bg: rgba(236, 72, 153, 0.05); cursor: default;">
+                                        <div class="dl-icon" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+                                            🧮
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div class="dl-title">Expense Calculator</div>
+                                            <div class="dl-subtitle">Last calculation</div>
+                                        </div>
+                                        <div class="dl-actions">
+                                            <a href="{{ url_for('report.download_expense_pdf') }}" class="dl-btn pdf" title="Download PDF">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                            <a href="{{ url_for('report.download_expense_html') }}" class="dl-btn html" title="Download HTML">
+                                                <i class="fas fa-code"></i>
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div style="flex: 1;">
-                                        <div class="dl-title">Expense Calculator</div>
-                                        <div class="dl-subtitle">Last calculation</div>
-                                    </div>
-                                    <i class="fas fa-chevron-right dl-chevron"></i>
-                                </a>
+                                </div>
 
-                                <a href="{{ url_for('report.download_crop_progress_pdf') }}" class="download-item"
-                                    style="--hover-bg: rgba(34, 197, 94, 0.15); --hover-border: #22c55e;">
-                                    <div class="dl-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
-                                        🌱
+                                <div class="download-item-container">
+                                    <div class="download-item" style="--hover-bg: rgba(34, 197, 94, 0.05); cursor: default;">
+                                        <div class="dl-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                                            🌱
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div class="dl-title">Crop Progress</div>
+                                            <div class="dl-subtitle">Active crops status</div>
+                                        </div>
+                                        <div class="dl-actions">
+                                            <a href="{{ url_for('report.download_crop_progress_pdf') }}" class="dl-btn pdf" title="Download PDF">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </a>
+                                            <a href="{{ url_for('report.download_crop_progress_html') }}" class="dl-btn html" title="Download HTML">
+                                                <i class="fas fa-code"></i>
+                                            </a>
+                                        </div>
                                     </div>
-                                    <div style="flex: 1;">
-                                        <div class="dl-title">Crop Progress</div>
-                                        <div class="dl-subtitle">Active crops status</div>
-                                    </div>
-                                    <i class="fas fa-chevron-right dl-chevron"></i>
-                                </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -569,10 +601,15 @@
                                     </div>
                                     <div style="display: flex; gap: 8px;">
                                         <button class="crop-action-btn view-btn" title="View Details"
-                                            onclick="viewFertilizerDetails('{{ fertilizer._id or loop.index }}', '{{ fertilizer.name or fertilizer.fertilizer_name or fertilizer.recommendation }}', '{{ fertilizer.crop_type or fertilizer.crop }}', '{{ fertilizer.nitrogen }}', '{{ fertilizer.phosphorus or fertilizer.phosphorous }}', '{{ fertilizer.potassium }}', '{{ fertilizer.soil_type or "
-                                            Neutral Soil"
-                                            }}', '{{ fertilizer.saved_at[:10] if fertilizer.saved_at else fertilizer.date or "" }}'
-                                            )">
+                                            data-id="{{ fertilizer._id or loop.index }}"
+                                            data-name="{{ fertilizer.name or fertilizer.fertilizer_name or fertilizer.recommendation or 'Fertilizer' }}"
+                                            data-crop="{{ fertilizer.crop_type or fertilizer.crop or 'General' }}"
+                                            data-n="{{ fertilizer.nitrogen or '0' }}"
+                                            data-p="{{ fertilizer.phosphorus or fertilizer.phosphorous or fertilizer.phosphoric or '0' }}"
+                                            data-k="{{ fertilizer.potassium or '0' }}"
+                                            data-soil="{{ fertilizer.soil_type or 'Neutral Soil' }}"
+                                            data-date="{{ fertilizer.saved_at[:10] if fertilizer.saved_at else fertilizer.date or '' }}"
+                                            onclick="handleFertilizerDetailView(this)">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         <button class="crop-action-btn delete-btn" title="Delete"
@@ -1238,18 +1275,15 @@
                                 oninput="calculateTotal()">
                         </div>
 
-                        <div
-                            style="background: linear-gradient(135deg, #06d6a0, #118ab2); padding: 16px; border-radius: 12px; color: white; margin-bottom: 16px;">
-                            <h3 style="margin: 0 0 8px 0; color: white; font-size: 14px;">Total Revenue</h3>
-                            <h2 style="margin: 0; font-size: 28px; color: white;" id="totalRevenue">₹0</h2>
+                        <div class="revenue-card-container">
+                            <h3 class="revenue-label">Total Revenue</h3>
+                            <h2 class="revenue-value" id="totalRevenue">₹0</h2>
                         </div>
 
-                        <div id="profitCard"
-                            style="background: linear-gradient(135deg, #4caf50, #2e7d32); padding: 16px; border-radius: 12px; color: white; margin-bottom: 16px;">
-                            <h3 style="margin: 0 0 8px 0; color: white; font-size: 14px;">Net Profit</h3>
-                            <h2 style="margin: 0; font-size: 28px; color: white;" id="netProfit">₹0</h2>
-                            <p style="margin: 8px 0 0 0; font-size: 12px; opacity: 0.9;" id="profitMargin">Profit
-                                Margin: 0%</p>
+                        <div id="profitCard" class="profit-card-container">
+                            <h3 class="profit-label">Net Profit</h3>
+                            <h2 class="profit-value" id="netProfit">₹0</h2>
+                            <p class="profit-margin" id="profitMargin">Profit Margin: 0%</p>
                         </div>
 
                         <div

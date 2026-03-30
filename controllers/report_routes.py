@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, session
+from flask import Blueprint, jsonify, session, render_template, make_response
 from utils.auth import login_required
 from utils.db import (
     get_user_crops, 
@@ -475,19 +475,22 @@ def download_market_prices_pdf():
         db = get_db()
         prices = []
         user_district = user.get('district', '') if user else session.get('user_district', '')
+        user_state = user.get('state', '') if user else session.get('user_state', '')
         
         if db is not None:
             # Filter by user's district if available
             query = {}
             if user_district:
                 query['district'] = user_district
+            elif user_state:
+                query['state'] = user_state
             
-            # Fetch prices (limited for PDF size)
-            prices = list(db.market_prices.find(query, {'_id': 0}).limit(50))
+            # Fetch prices (increased limit for "all records" request)
+            prices = list(db.market_prices.find(query, {'_id': 0}).sort('commodity', 1).limit(500))
             
-            # If no district results, fetch any state data or general data
+            # If no specific results, fetch any general data
             if not prices:
-                prices = list(db.market_prices.find({}, {'_id': 0}).limit(50))
+                prices = list(db.market_prices.find({}, {'_id': 0}).sort('commodity', 1).limit(500))
         
         if not prices:
             return jsonify({'success': False, 'message': 'No market data available to generate PDF.'}), 404
@@ -495,8 +498,9 @@ def download_market_prices_pdf():
         # Render HTML template
         html = render_template('pdf/market_prices.html',
                              prices=prices,
-                             user=user or {'name': session.get('user_name', 'Farmer'), 'district': user_district or 'All Districts'},
-                             date=datetime.now().strftime('%B %d, %Y'))
+                             user=user or {'name': session.get('user_name', 'Farmer'), 'district': user_district or 'All Districts', 'state': user_state},
+                             date=datetime.now().strftime('%B %d, %Y'),
+                             is_pdf=True)
         
         # Convert HTML to PDF
         pdf_file = BytesIO()
@@ -510,6 +514,55 @@ def download_market_prices_pdf():
         response = make_response(pdf_file.read())
         response.headers['Content-Type'] = 'application/pdf'
         response.headers['Content-Disposition'] = f'attachment; filename=market_prices_{datetime.now().strftime("%Y%m%d")}.pdf'
+        
+        return response
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error generating report: {str(e)}'}), 500
+
+
+@report_bp.route('/download/market-prices-html', methods=['GET'], endpoint='download_market_prices_html')
+@login_required
+def download_market_prices_html():
+    """Download today's market prices as HTML"""
+    try:
+        from flask import make_response, render_template
+        
+        user_id = session.get('user_id')
+        user = find_user_by_id(user_id)
+        
+        # Get market prices from MongoDB
+        db = get_db()
+        prices = []
+        user_district = user.get('district', '') if user else session.get('user_district', '')
+        user_state = user.get('state', '') if user else session.get('user_state', '')
+        
+        if db is not None:
+            print(f"[DEBUG] Market Route - db: {type(db)}, district: {user_district}, state: {user_state}")
+            query = {}
+            if user_district:
+                query['district'] = user_district
+            elif user_state:
+                query['state'] = user_state
+                
+            prices = list(db.market_prices.find(query, {'_id': 0}).sort('commodity', 1).limit(1000))
+            
+            if not prices:
+                prices = list(db.market_prices.find({}, {'_id': 0}).sort('commodity', 1).limit(1000))
+        
+        if not prices:
+            return jsonify({'success': False, 'message': 'No market data available to generate report.'}), 404
+        
+        # Render HTML template
+        html = render_template('pdf/market_prices.html',
+                             prices=prices,
+                             user=user or {'name': session.get('user_name', 'Farmer'), 'district': user_district or 'All Districts', 'state': user_state},
+                             date=datetime.now().strftime('%B %d, %Y'),
+                             is_pdf=False)
+        
+        response = make_response(html)
+        response.headers['Content-Type'] = 'text/html'
+        response.headers['Content-Disposition'] = f'attachment; filename=market_prices_{datetime.now().strftime("%Y%m%d")}.html'
         
         return response
         
@@ -534,27 +587,21 @@ def download_weather_pdf():
         user_district = user.get('district', '') if user else session.get('user_district', '')
         user_state = user.get('state', '') if user else session.get('user_state', '')
         
-        cache_key = f"{user_state}_{user_district}".replace(' ', '_')
-        weather_data = weather_cache.get(cache_key, {})
+        weather_data = get_weather_notifications(user_district, user_state)
+        print(f"[DEBUG] Weather Route - data: {type(weather_data)}")
         
-        # If no cached data, provide default structure
+        # If no data, provide default structure
         if not weather_data or not weather_data.get('current'):
             weather_data = {
-                'current': {
-                    'temperature': 25,
-                    'condition': 'Clear',
-                    'icon': '☀️',
-                    'humidity': 65,
-                    'wind_speed': 15,
-                    'visibility': 10
-                },
+                'current': {'temperature': 25, 'condition': 'Clear', 'icon': '☀️', 'humidity': 65, 'wind_speed': 15, 'location': user_district},
                 'forecast': []
             }
         
         html = render_template('pdf/weather_forecast.html',
                              weather=weather_data,
                              user=user or {'name': session.get('user_name', 'Farmer'), 'district': user_district, 'state': user_state},
-                             date=datetime.now().strftime('%B %d, %Y'))
+                             date=datetime.now().strftime('%B %d, %Y'),
+                             is_pdf=True)
         
         # Convert HTML to PDF
         pdf_file = BytesIO()
@@ -575,6 +622,36 @@ def download_weather_pdf():
         return jsonify({'success': False, 'message': f'Error generating report: {str(e)}'}), 500
 
 
+@report_bp.route('/download/weather-html', methods=['GET'], endpoint='download_weather_html')
+@login_required
+def download_weather_html():
+    """Download weather forecast as HTML"""
+    try:
+        from flask import make_response, render_template
+        
+        user_id = session.get('user_id')
+        user = find_user_by_id(user_id)
+        user_district = user.get('district', '') if user else session.get('user_district', '')
+        user_state = user.get('state', '') if user else session.get('user_state', '')
+        
+        weather_data = get_weather_notifications(user_district, user_state)
+        
+        html = render_template('pdf/weather_forecast.html',
+                             weather=weather_data,
+                             user=user or {'name': session.get('user_name', 'Farmer'), 'district': user_district, 'state': user_state},
+                             date=datetime.now().strftime('%B %d, %Y'),
+                             is_pdf=False)
+        
+        response = make_response(html)
+        response.headers['Content-Type'] = 'text/html'
+        response.headers['Content-Disposition'] = f'attachment; filename=weather_forecast_{datetime.now().strftime("%Y%m%d")}.html'
+        
+        return response
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error generating report: {str(e)}'}), 500
+
+
 @report_bp.route('/download/expense-pdf', methods=['GET'])
 @login_required
 def download_expense_pdf():
@@ -588,35 +665,36 @@ def download_expense_pdf():
         user_id = session.get('user_id')
         user = find_user_by_id(user_id)
         
-        # Get expense data
+        # Get expense data - include all records
         expenses = get_user_expenses(user_id)
+        print(f"[DEBUG] Expense Route - expenses: {type(expenses)}")
         
-        # Create sample data if no expenses exist
-        if not expenses:
-            expenses = [{
-                'crop': 'Sample Crop',
-                'category': 'Seeds',
-                'description': 'No expense data recorded yet',
-                'total_cost': 0,
-                'amount': 0,
-                'date': datetime.now().strftime('%Y-%m-%d')
-            }]
-            total_expense = 0
-            total_revenue = 0
-            total_profit = 0
-        else:
-            # Calculate totals
-            total_expense = sum(e.get('total_cost', 0) or e.get('amount', 0) for e in expenses)
-            total_revenue = sum(e.get('revenue', 0) for e in expenses)
+        total_expense = 0
+        total_revenue = 0
+        total_profit = 0
+        
+        if expenses:
+            # Calculate totals for all records
+            for e in expenses:
+                # Support multiple field names for backward compatibility
+                amt = float(e.get('total_expense', e.get('total_cost', e.get('amount', 0))) or 0)
+                total_expense += amt
+                
+                # Robust revenue calculation
+                expected_yield = float(e.get('expected_yield', e.get('expectedYield', 0)) or 0)
+                market_price = float(e.get('market_price', e.get('marketPrice', 0)) or 0)
+                total_revenue += (expected_yield * market_price)
+            
             total_profit = total_revenue - total_expense
         
         html = render_template('pdf/expense_calculator.html',
-                             expenses=expenses,
-                             total_expense=total_expense,
-                             total_revenue=total_revenue,
-                             total_profit=total_profit,
+                             expenses=expenses or [],
+                             total_expense=round(total_expense, 2),
+                             total_revenue=round(total_revenue, 2),
+                             total_profit=round(total_profit, 2),
                              user=user or {'name': session.get('user_name', 'Farmer')},
-                             date=datetime.now().strftime('%B %d, %Y'))
+                             date=datetime.now().strftime('%B %d, %Y'),
+                             is_pdf=True)
         
         # Convert HTML to PDF
         pdf_file = BytesIO()
@@ -629,7 +707,40 @@ def download_expense_pdf():
         
         response = make_response(pdf_file.read())
         response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = f'attachment; filename=expense_calculator_{datetime.now().strftime("%Y%m%d")}.pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename=expense_report_{datetime.now().strftime("%Y%m%d")}.pdf'
+        
+        return response
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error generating report: {str(e)}'}), 500
+
+
+@report_bp.route('/download/expense-html', methods=['GET'], endpoint='download_expense_html')
+@login_required
+def download_expense_html():
+    """Download expense calculator report as HTML"""
+    try:
+        from flask import make_response, render_template
+        
+        user_id = session.get('user_id')
+        user = find_user_by_id(user_id)
+        expenses = get_user_expenses(user_id)
+        
+        total_expense = sum(float(e.get('total_expense', e.get('total_cost', e.get('amount', 0))) or 0) for e in (expenses or []))
+        total_revenue = sum(float(e.get('expected_yield', e.get('expectedYield', 0)) or 0) * float(e.get('market_price', e.get('marketPrice', 0)) or 0) for e in (expenses or []))
+        
+        html = render_template('pdf/expense_calculator.html',
+                             expenses=expenses or [],
+                             total_expense=round(total_expense, 2),
+                             total_revenue=round(total_revenue, 2),
+                             total_profit=round(total_revenue - total_expense, 2),
+                             user=user or {'name': session.get('user_name', 'Farmer')},
+                             date=datetime.now().strftime('%B %d, %Y'),
+                             is_pdf=False)
+        
+        response = make_response(html)
+        response.headers['Content-Type'] = 'text/html'
+        response.headers['Content-Disposition'] = f'attachment; filename=expense_report_{datetime.now().strftime("%Y%m%d")}.html'
         
         return response
         
@@ -650,45 +761,39 @@ def download_crop_progress_pdf():
         user_id = session.get('user_id')
         user = find_user_by_id(user_id)
         
-        # Get growing activities
+        # Get all growing activities
         activities = get_user_growing_activities(user_id)
+        print(f"[DEBUG] Crop Progress Route - activities: {type(activities)}")
         
-        # Create sample data if no crops exist
-        if not activities:
-            activities = [{
-                'crop': 'No Active Crops',
-                'current_stage': 'Start growing',
-                'progress': 0,
-                'current_day': 0,
-                'started': 'N/A',
-                'notes': 'Start by getting a crop recommendation from the dashboard'
-            }]
-        else:
-            # Process activities to add progress calculations
-            STAGE_NAMES = ['Seed Sowing', 'Germination', 'Seedling', 'Vegetative Growth', 
-                           'Flowering', 'Fruit Development', 'Maturity', 'Harvest Ready']
-            
-            now = datetime.now()
-            for activity in activities:
-                try:
-                    start_date = activity.get('start_date', '')
-                    if start_date:
-                        start = datetime.strptime(start_date, '%Y-%m-%d')
-                        days_since = (now - start).days
-                        activity['current_day'] = days_since
-                        activity['started'] = start.strftime('%b %d, %Y')
-                    
-                    # Get stage name
-                    current_stage = activity.get('current_stage', 'Growing')
-                    if isinstance(current_stage, int) and current_stage < len(STAGE_NAMES):
-                        activity['current_stage'] = STAGE_NAMES[current_stage]
-                except:
-                    pass
+        # Process activities to add progress calculations
+        STAGE_NAMES = ['Seed Sowing', 'Germination', 'Seedling', 'Vegetative Growth', 
+                       'Flowering', 'Fruit Development', 'Maturity', 'Harvest Ready']
+        
+        now = datetime.now()
+        processed_activities = []
+        for activity in (activities or []):
+            try:
+                act = activity.copy()
+                start_date = act.get('start_date', '')
+                if start_date:
+                    start = datetime.strptime(start_date, '%Y-%m-%d')
+                    days_since = (now - start).days
+                    act['current_day'] = days_since
+                    act['started'] = start.strftime('%b %d, %Y')
+                
+                # Get stage name
+                current_stage = act.get('current_stage', 'Growing')
+                if isinstance(current_stage, int) and current_stage < len(STAGE_NAMES):
+                    act['current_stage'] = STAGE_NAMES[current_stage]
+                processed_activities.append(act)
+            except:
+                continue
         
         html = render_template('pdf/crop_progress.html',
-                             activities=activities,
+                             activities=processed_activities,
                              user=user or {'name': session.get('user_name', 'Farmer')},
-                             date=datetime.now().strftime('%B %d, %Y'))
+                             date=datetime.now().strftime('%B %d, %Y'),
+                             is_pdf=True)
         
         # Convert HTML to PDF
         pdf_file = BytesIO()
@@ -702,6 +807,33 @@ def download_crop_progress_pdf():
         response = make_response(pdf_file.read())
         response.headers['Content-Type'] = 'application/pdf'
         response.headers['Content-Disposition'] = f'attachment; filename=crop_progress_{datetime.now().strftime("%Y%m%d")}.pdf'
+        
+        return response
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error generating report: {str(e)}'}), 500
+
+
+@report_bp.route('/download/crop-progress-html', methods=['GET'], endpoint='download_crop_progress_html')
+@login_required
+def download_crop_progress_html():
+    """Download crop progress report as HTML"""
+    try:
+        from flask import make_response, render_template
+        
+        user_id = session.get('user_id')
+        user = find_user_by_id(user_id)
+        activities = get_user_growing_activities(user_id)
+        
+        html = render_template('pdf/crop_progress.html',
+                             activities=activities or [],
+                             user=user or {'name': session.get('user_name', 'Farmer')},
+                             date=datetime.now().strftime('%B %d, %Y'),
+                             is_pdf=False)
+        
+        response = make_response(html)
+        response.headers['Content-Type'] = 'text/html'
+        response.headers['Content-Disposition'] = f'attachment; filename=crop_progress_{datetime.now().strftime("%Y%m%d")}.html'
         
         return response
         

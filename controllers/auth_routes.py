@@ -78,57 +78,109 @@ def send_reset_email(to_email, reset_link):
     Best regards,
     Farming Assistant Team
     """
-    
-    # HTML version with farmer-friendly green theme
+       # HTML version with high-end professional aesthetic
     html = f"""
+    <!DOCTYPE html>
     <html>
-    <body style="font-family: Arial, sans-serif; background: #f0f9ff; margin: 0; padding: 40px;">
-        <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <!-- Header -->
-            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 28px;">🌾 Farming Assistant</h1>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body {{
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background-color: #f9fafb;
+                margin: 0; padding: 0;
+            }}
+            .container {{
+                max-width: 600px;
+                margin: 40px auto;
+                background-color: #ffffff;
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                overflow: hidden;
+            }}
+            .header {{
+                background-color: #111827;
+                padding: 32px;
+                text-align: center;
+            }}
+            .header h1 {{
+                color: #ffffff;
+                font-size: 24px;
+                margin: 0;
+                font-weight: 700;
+            }}
+            .content {{
+                padding: 48px;
+            }}
+            .title {{
+                font-size: 20px;
+                font-weight: 700;
+                color: #111827;
+                margin-bottom: 24px;
+            }}
+            .text {{
+                font-size: 16px;
+                color: #4b5563;
+                line-height: 1.6;
+                margin-bottom: 32px;
+            }}
+            .button-container {{
+                text-align: center;
+                margin: 40px 0;
+            }}
+            .button {{
+                background-color: #111827;
+                color: #ffffff !important;
+                padding: 16px 32px;
+                text-decoration: none;
+                border-radius: 6px;
+                font-weight: 600;
+                display: inline-block;
+            }}
+            .notice {{
+                font-size: 14px;
+                color: #92400e;
+                background-color: #fffbeb;
+                padding: 16px;
+                border-left: 4px solid #f59e0b;
+                border-radius: 4px;
+                margin: 32px 0;
+            }}
+            .footer {{
+                padding: 32px;
+                background-color: #f9fafb;
+                text-align: center;
+                border-top: 1px solid #e5e7eb;
+            }}
+            .footer p {{
+                font-size: 12px;
+                color: #9ca3af;
+                margin: 4px 0;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Smart Farming Assistant</h1>
             </div>
-            
-            <!-- Content -->
-            <div style="padding: 40px;">
-                <h2 style="color: #1f2937; margin: 0 0 20px 0;">Password Reset Request</h2>
-                <p style="color: #4b5563; line-height: 1.6; font-size: 16px;">
-                    Hello,
-                </p>
-                <p style="color: #4b5563; line-height: 1.6; font-size: 16px;">
-                    We received a request to reset your password. Click the button below to create a new password:
+            <div class="content">
+                <p class="title">Secure Password Reset</p>
+                <p class="text">
+                    We received a request to reset your password. To ensure the security of your account, please click the button below to choose a new password. This link is unique and will expire shortly.
                 </p>
                 
-                <!-- Reset Button -->
-                <div style="text-align: center; margin: 35px 0;">
-                    <a href="{reset_link}" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px; display: inline-block; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);">
-                        Reset Password
-                    </a>
+                <div class="button-container">
+                    <a href="{reset_link}" class="button">Reset Your Password</a>
                 </div>
                 
-                <!-- Security Notice -->
-                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 25px 0; border-radius: 4px;">
-                    <p style="color: #92400e; margin: 0; font-size: 14px;">
-                        <strong>⏰ Important:</strong> This link will expire in 15 minutes for your security.
-                    </p>
+                <div class="notice">
+                    <strong>Security Reminder:</strong> This link is active for <strong>15 minutes</strong>. If you did not initiate this request, please disregard this email.
                 </div>
-                
-                <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
-                    If you didn't request this password reset, please ignore this email. Your password will remain unchanged.
-                </p>
-                
-                <!-- Alternative Link -->
-                <p style="color: #9ca3af; font-size: 12px; margin-top: 30px;">
-                    If the button doesn't work, copy and paste this link into your browser:<br>
-                    <span style="color: #10b981; word-break: break-all;">{reset_link}</span>
-                </p>
             </div>
-            
-            <!-- Footer -->
-            <div style="background: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
-                <p style="color: #6b7280; font-size: 12px; margin: 0;">
-                    © 2026 Farming Assistant | Helping Farmers Grow Better
-                </p>
+            <div class="footer">
+                <p>&copy; 2026 Smart Farming Assistant Inc. All rights reserved.</p>
+                <p>123 Agri-Tech Square, Bangalore, KA, India</p>
             </div>
         </div>
     </body>

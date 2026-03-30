@@ -2,232 +2,287 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Weather Forecast - {{ date }}</title>
+    <title>Meteorological Bulletin - {{ date }}</title>
     <style>
         @page {
             size: A4;
-            margin: 1.2cm;
+            margin: 1.5cm;
         }
+        
         * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
+
         body {
-            font-family: Helvetica, Arial, sans-serif;
+            font-family: 'Helvetica', 'Arial', sans-serif;
             color: #1e293b;
             font-size: 10pt;
-            line-height: 1.4;
+            line-height: 1.5;
+            background-color: #ffffff;
         }
-        .header {
-            background-color: #f59e0b;
-            color: white;
-            padding: 0;
-            text-align: center;
-            margin-bottom: 0;
+
+        .report-header {
+            border-bottom: 2px solid #0369a1;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
-        .header-main {
-            padding: 30px 25px 20px 25px;
+
+        .category-label {
+            font-size: 9pt;
+            font-weight: 700;
+            color: #0369a1;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            display: block;
         }
-        .header h1 {
-            font-size: 28pt;
-            margin: 0;
-            font-weight: bold;
-            letter-spacing: 1pt;
-        }
-        .header-subtitle {
-            background-color: #d97706;
-            padding: 12px 25px;
-            font-size: 13pt;
-            font-weight: 300;
-        }
-        .info-bar {
-            background-color: #fffbeb;
-            padding: 18px 20px;
-            margin-bottom: 25px;
-            margin-top: 0;
-            border-left: 5px solid #f59e0b;
-        }
-        .info-row {
-            margin-bottom: 8px;
-            font-size: 10pt;
-        }
-        .info-label {
-            font-weight: bold;
-            color: #92400e;
-            display: inline-block;
-            width: 100px;
-        }
-        .info-value {
-            color: #334155;
-        }
-        .content {
-            padding: 5px 0;
-        }
-        .current-weather {
-            background-color: #dbeafe;
-            border: 3px solid #3b82f6;
-            padding: 25px;
-            margin-bottom: 25px;
-            text-align: center;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-        }
-        .temp {
-            font-size: 42pt;
+
+        .company-name {
+            font-size: 22pt;
             font-weight: bold;
             color: #0c4a6e;
-            margin: 12px 0;
+            text-transform: uppercase;
         }
-        .condition {
-            font-size: 15pt;
-            color: #475569;
-            margin-bottom: 18px;
-            font-weight: 500;
-        }
-        .weather-details {
-            margin-top: 18px;
-            padding-top: 18px;
-            border-top: 2px solid #93c5fd;
-        }
-        .detail-row {
-            display: inline-block;
-            width: 30%;
-            text-align: center;
-            margin: 12px 1%;
-        }
-        .detail-value {
-            font-size: 15pt;
-            font-weight: bold;
-            color: #0f172a;
-        }
-        .detail-label {
-            font-size: 9pt;
+
+        .report-title {
+            font-size: 14pt;
             color: #64748b;
             margin-top: 5px;
+        }
+
+        .meta-section {
+            display: table;
+            width: 100%;
+            margin-bottom: 40px;
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            padding: 15px;
+        }
+
+        .meta-column {
+            display: table-cell;
+            width: 33%;
+            vertical-align: top;
+        }
+
+        .meta-label {
+            font-size: 8pt;
             text-transform: uppercase;
-            letter-spacing: 0.5pt;
-        }
-        h2 {
-            color: #1e293b;
-            font-size: 18pt;
-            margin: 22px 0 18px 0;
-            border-bottom: 4px solid #f59e0b;
-            padding-bottom: 10px;
+            color: #0369a1;
             font-weight: bold;
+            display: block;
+            margin-bottom: 3px;
         }
+
+        .meta-value {
+            font-size: 10pt;
+            color: #0c4a6e;
+            font-weight: 600;
+        }
+
+        .hero-stats {
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #0c4a6e, #0369a1);
+            color: white;
+            padding: 30px;
+            border-radius: 4px;
+        }
+
+        .current-temp-large {
+            font-size: 48pt;
+            font-weight: 800;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .current-condition-box {
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 30px;
+            border-left: 1px solid rgba(255,255,255,0.2);
+            padding-left: 30px;
+        }
+
+        .condition-text {
+            font-size: 18pt;
+            font-weight: 600;
+            display: block;
+        }
+
+        .sub-details {
+            margin-top: 25px;
+            display: table;
+            width: 100%;
+        }
+
+        .sub-stat {
+            display: table-cell;
+            width: 33%;
+        }
+
+        .stat-label {
+            font-size: 8pt;
+            text-transform: uppercase;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 14pt;
+            font-weight: 600;
+        }
+
+        h2.section-title {
+            font-size: 16pt;
+            color: #0c4a6e;
+            margin-bottom: 20px;
+            padding-left: 10px;
+            border-left: 4px solid #0369a1;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
         }
+
         th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-size: 8pt;
+            font-weight: bold;
+            text-transform: uppercase;
             padding: 12px 10px;
             text-align: center;
-            font-weight: bold;
-            color: #78350f;
-            background-color: #fbbf24;
-            border: 1px solid #f59e0b;
-            font-size: 10pt;
+            border: 1px solid #e2e8f0;
         }
+
         td {
-            padding: 13px 10px;
-            text-align: center;
+            padding: 12px 10px;
             border: 1px solid #e2e8f0;
             font-size: 10pt;
+            color: #1e293b;
+            text-align: center;
         }
-        tbody tr:nth-child(odd) {
-            background-color: #ffffff;
+
+        .day-cell {
+            font-weight: 700;
+            text-align: left;
+            color: #0c4a6e;
         }
-        tbody tr:nth-child(even) {
-            background-color: #fffbeb;
-        }
-        .forecast-high {
-            color: #dc2626;
+
+        .temp-high {
+            color: #ef4444;
             font-weight: bold;
-            font-size: 11pt;
         }
-        .forecast-low {
-            color: #2563eb;
+
+        .temp-low {
+            color: #3b82f6;
             font-weight: 600;
         }
-        .footer {
-            background-color: #f1f5f9;
-            padding: 18px;
-            text-align: center;
-            color: #64748b;
-            font-size: 9pt;
-            border-top: 3px solid #cbd5e1;
-            margin-top: 25px;
-            border-radius: 4px;
+
+        .rain-chance {
+            color: #0ea5e9;
+            font-weight: bold;
         }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 8pt;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        .disclaimer {
+            font-size: 7pt;
+            color: #94a3b8;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        {% if not is_pdf %}
+        body {
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+        {% endif %}
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-main">
-            <h1>WEATHER FORECAST</h1>
-        </div>
-        <div class="header-subtitle">7-Day Weather Outlook</div>
+    <div class="report-header">
+        <span class="category-label">Weather Intelligence Service</span>
+        <div class="company-name">Smart Farming Assistant</div>
+        <div class="report-title">Meteorological & Agrometeorological Bulletin</div>
     </div>
-    
-    <div class="info-bar">
-        <div class="info-row">
-            <span class="info-label">Farmer:</span>
-            <span class="info-value">{{ user.name }}</span>
+
+    <div class="meta-section">
+        <div class="meta-column">
+            <span class="meta-label">Station Region</span>
+            <span class="meta-value">{{ user.district }}, {{ user.state }}</span>
         </div>
-        <div class="info-row">
-            <span class="info-label">Date:</span>
-            <span class="info-value">{{ date }}</span>
+        <div class="meta-column">
+            <span class="meta-label">Observation Date</span>
+            <span class="meta-value">{{ date }}</span>
         </div>
-        <div class="info-row">
-            <span class="info-label">Location:</span>
-            <span class="info-value">{{ user.district }}, {{ user.state }}</span>
+        <div class="meta-column">
+            <span class="meta-label">Report Status</span>
+            <span class="meta-value">VALIDATED</span>
         </div>
     </div>
-    
+
     <div class="content">
+        <h2 class="section-title">Current Atmospheric Conditions</h2>
+        
         {% if weather and weather.current %}
-        <div class="current-weather">
-            <div class="temp">{{ weather.current.temperature }}°C</div>
-            <div class="condition">{{ weather.current.condition }}</div>
+        <div class="hero-stats">
+            <div class="current-temp-large">{{ weather.current.temperature }}°C</div>
+            <div class="current-condition-box">
+                <span class="condition-text">{{ weather.current.condition }}</span>
+                <span style="font-size: 10pt; opacity: 0.9;">Predominant Sky Condition</span>
+            </div>
             
-            <div class="weather-details">
-                <div class="detail-row">
-                    <div class="detail-value">{{ weather.current.humidity }}%</div>
-                    <div class="detail-label">Humidity</div>
+            <div class="sub-details">
+                <div class="sub-stat">
+                    <span class="stat-label">Relative Humidity</span>
+                    <span class="stat-value">{{ weather.current.humidity }}%</span>
                 </div>
-                <div class="detail-row">
-                    <div class="detail-value">{{ weather.current.wind_speed }} km/h</div>
-                    <div class="detail-label">Wind Speed</div>
+                <div class="sub-stat">
+                    <span class="stat-label">Wind Velocity</span>
+                    <span class="stat-value">{{ weather.current.wind_speed }} km/h</span>
                 </div>
-                <div class="detail-row">
-                    <div class="detail-value">{{ weather.current.visibility or '10' }} km</div>
-                    <div class="detail-label">Visibility</div>
+                <div class="sub-stat">
+                    <span class="stat-label">Visibility Index</span>
+                    <span class="stat-value">{{ weather.current.visibility or '10+' }} km</span>
                 </div>
             </div>
         </div>
-        
+
         {% if weather.forecast %}
-        <h2>7-Day Forecast</h2>
+        <h2 class="section-title">Syndicated 7-Day Outlook</h2>
         <table>
             <thead>
                 <tr>
-                    <th>Day</th>
-                    <th>Condition</th>
-                    <th>High Temp</th>
-                    <th>Low Temp</th>
-                    <th>Rain Chance</th>
+                    <th width="20%" style="text-align: left;">Forecasting Period</th>
+                    <th width="30%">Weather Phenomena</th>
+                    <th width="15%">High (°C)</th>
+                    <th width="15%">Low (°C)</th>
+                    <th width="20%">Precipitation %</th>
                 </tr>
             </thead>
             <tbody>
                 {% for day in weather.forecast[:7] %}
                 <tr>
-                    <td><strong>{{ day.day }}</strong></td>
-                    <td>{{ day.condition or 'Clear' }}</td>
-                    <td class="forecast-high">{{ day.high }}°C</td>
-                    <td class="forecast-low">{{ day.low }}°C</td>
-                    <td>{{ day.rain_chance }}%</td>
+                    <td class="day-cell">{{ day.day }}</td>
+                    <td>{{ day.condition or 'Variable' }}</td>
+                    <td class="temp-high">{{ day.high }}°</td>
+                    <td class="temp-low">{{ day.low }}°</td>
+                    <td class="rain-chance">{{ day.rain_chance }}%</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -235,12 +290,19 @@
         {% endif %}
         
         {% else %}
-        <p style="text-align: center; padding: 40px; color: #64748b;">Weather data not available.</p>
+        <div style="text-align: center; padding: 60px; border: 1px dashed #cbd5e1; color: #94a3b8;">
+            Unable to establish connection with meteorological API. Please verify network status.
+        </div>
         {% endif %}
     </div>
-    
+
     <div class="footer">
-        <p>Smart Farming Assistant | Generated on {{ date }} | For reference only</p>
+        <p>Generated by Smart Farming Assistant - Integrated Agromet System</p>
+        <p>© 2026 Smart Farming Initiative. Data provided by Global Meteorological Services.</p>
+        <div class="disclaimer">
+            Information provided is for strategic planning purposes only. Meteorological forecasts are probabilistic 
+            in nature. Smart Farming Assistant is not liable for outcomes based on weather variability.
+        </div>
     </div>
 </body>
 </html>

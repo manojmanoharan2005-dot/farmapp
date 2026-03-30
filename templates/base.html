@@ -22,8 +22,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <!-- Universal Mobile Responsive Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
-    <!-- Chart.js for data visualization (Local) -->
-    <script src="{{ url_for('static', filename='js/chart.umd.min.js') }}" defer></script>
+    <!-- Chart.js for data visualization (CDN fallback) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <!-- Theme Toggle -->
     <script src="{{ url_for('static', filename='js/theme-toggle.js') }}" defer></script>
     <!-- Mobile Navigation -->

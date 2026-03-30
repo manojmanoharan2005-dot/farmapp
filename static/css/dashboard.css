@@ -2988,15 +2988,21 @@ body {
 .floating-panel {
     display: none;
     position: absolute;
-    background: rgba(30, 41, 59, 0.98);
+    background: #ffffff; /* Default white for light mode */
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(51, 65, 85, 0.5);
+    border: 1px solid #e2e8f0;
     border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     z-index: 1000;
     overflow: hidden;
     transform-origin: top right;
     animation: panelSlide 0.2s ease;
+}
+
+[data-theme="dark"] .floating-panel {
+    background: rgba(30, 41, 59, 0.98);
+    border-color: rgba(51, 65, 85, 0.5);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
 .floating-panel.notification {
@@ -3023,7 +3029,7 @@ body {
 .floating-panel .panel-header h3 {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #f1f5f9;
+    color: var(--text-primary);
     margin: 0;
     display: flex;
     align-items: center;
@@ -3070,7 +3076,7 @@ body {
 
 .notif-item-panel p {
     margin: 0;
-    color: #f1f5f9;
+    color: var(--text-primary);
     font-size: 0.95rem;
     line-height: 1.5;
     font-weight: 500;
@@ -3133,7 +3139,7 @@ body {
 
 .download-item .dl-title {
     font-weight: 600;
-    color: #f1f5f9;
+    color: var(--text-primary);
     font-size: 0.9rem;
 }
 
@@ -3319,7 +3325,7 @@ body {
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
-    color: #f1f5f9;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -3339,3 +3345,160 @@ body {
     color: #64748b;
     font-size: 12px;
 }
+
+/* ============================================
+   REPORT DOWNLOAD PANEL - Professional Additions
+   ============================================ */
+.download-item-container {
+    margin-bottom: 12px;
+}
+
+.download-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--bg-white);
+    border: 1px solid #E2E8F0;
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+    text-decoration: none !important;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+[data-theme="dark"] .download-item {
+    background: var(--bg-secondary);
+    border-color: #334155;
+}
+
+.download-item:hover {
+    background: var(--hover-bg);
+    border-color: #CBD5E1;
+}
+
+.dl-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.dl-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.dl-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.dl-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 12px;
+}
+
+.dl-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white !important;
+    font-size: 14px;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-decoration: none !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.dl-btn.pdf {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.dl-btn.html {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+}
+
+.dl-btn:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.dl-btn:active {
+    transform: scale(0.95);
+}
+
+[data-theme="dark"] .dl-btn {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Profit Card Styles - Fixed Visibility */
+.profit-card-container {
+    background-color: #2e7d32; /* Fallback solid color */
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    padding: 16px;
+    border-radius: 12px;
+    color: #ffffff !important; /* Force white text */
+    margin: 0 0 16px 0 !important;
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+}
+
+.profit-label {
+    margin: 0 0 8px 0 !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 600;
+}
+
+.profit-value {
+    margin: 0 !important;
+    font-size: 28px !important;
+    color: #ffffff !important;
+    font-weight: 800;
+    display: block;
+}
+
+.profit-margin {
+    margin: 8px 0 0 0 !important;
+    font-size: 12px !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-weight: 500;
+}
+
+/* Revenue Card Styles - Fixed Visibility */
+.revenue-card-container {
+    background-color: #118ab2; /* Fallback solid color */
+    background: linear-gradient(135deg, #06d6a0, #118ab2) !important;
+    padding: 16px;
+    border-radius: 12px;
+    color: #ffffff !important; /* Force white text */
+    margin: 0 0 16px 0 !important;
+    box-shadow: 0 4px 12px rgba(17, 138, 178, 0.2);
+}
+
+.revenue-label {
+    margin: 0 0 8px 0 !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 600;
+}
+
+.revenue-value {
+    margin: 0 !important;
+    font-size: 28px !important;
+    color: #ffffff !important;
+    font-weight: 800;
+    display: block;
+}
+

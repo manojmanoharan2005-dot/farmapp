@@ -2,222 +2,274 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Expense Calculator - {{ date }}</title>
+    <title>Financial Analysis Report - {{ date }}</title>
     <style>
         @page {
             size: A4;
-            margin: 1.2cm;
+            margin: 1.5cm;
         }
+        
         * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
+
         body {
-            font-family: Helvetica, Arial, sans-serif;
+            font-family: 'Helvetica', 'Arial', sans-serif;
             color: #1e293b;
             font-size: 10pt;
-            line-height: 1.4;
-        }
-        .header {
-            background-color: #ec4899;
-            color: white;
-            padding: 35px 25px;
-            text-align: center;
-            margin-bottom: 0;
-        }
-        .header h1 {
-            font-size: 28pt;
-            margin: 0;
-            font-weight: bold;
-            letter-spacing: 1pt;
-        }
-        .info-bar {
-            background-color: #fdf2f8;
-            padding: 18px 20px;
-            margin-bottom: 25px;
-            margin-top: 0;
-            border-left: 5px solid #ec4899;
-        }
-        .info-row {
-            margin-bottom: 8px;
-            font-size: 10pt;
-        }
-        .info-label {
-            font-weight: bold;
-            color: #9f1239;
-            display: inline-block;
-            width: 100px;
-        }
-        .info-value {
-            color: #334155;
-        }
-        .content {
-            padding: 5px 0;
-        }
-        .summary-cards {
-            margin-bottom: 28px;
-        }
-        .summary-card {
+            line-height: 1.6;
             background-color: #ffffff;
-            border: 3px solid #e2e8f0;
-            padding: 20px;
-            margin-bottom: 16px;
-            text-align: center;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
         }
-        .summary-card .label {
-            font-size: 11pt;
-            color: #64748b;
-            margin-bottom: 8px;
-            font-weight: 600;
+
+        .report-header {
+            border-bottom: 2px solid #831843;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .category-label {
+            font-size: 9pt;
+            font-weight: 700;
+            color: #831843;
             text-transform: uppercase;
-            letter-spacing: 0.5pt;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            display: block;
         }
-        .summary-card .value {
-            font-size: 26pt;
+
+        .company-name {
+            font-size: 22pt;
             font-weight: bold;
-            color: #1e293b;
+            color: #500724;
+            text-transform: uppercase;
         }
-        .summary-card.expense {
-            border-color: #ef4444;
-            background-color: #fef2f2;
+
+        .report-title {
+            font-size: 14pt;
+            color: #64748b;
+            margin-top: 5px;
         }
-        .summary-card.expense .value {
-            color: #dc2626;
+
+        .meta-section {
+            display: table;
+            width: 100%;
+            margin-bottom: 40px;
+            background-color: #fdf2f8;
+            border: 1px solid #fbcfe8;
+            padding: 15px;
         }
-        .summary-card.revenue {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
+
+        .meta-column {
+            display: table-cell;
+            width: 33%;
+            vertical-align: top;
         }
-        .summary-card.revenue .value {
-            color: #2563eb;
+
+        .meta-label {
+            font-size: 8pt;
+            text-transform: uppercase;
+            color: #831843;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 3px;
         }
-        .summary-card.profit {
-            border-color: #10b981;
-            background-color: #f0fdf4;
+
+        .meta-value {
+            font-size: 10pt;
+            color: #500724;
+            font-weight: 600;
         }
-        .summary-card.profit .value {
-            color: #059669;
+
+        .financial-summary {
+            margin-bottom: 40px;
+            display: table;
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
         }
-        h2 {
-            color: #1e293b;
+
+        .summary-box {
+            display: table-cell;
+            width: 33.33%;
+            padding: 25px;
+            text-align: center;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .summary-box:last-child {
+            border-right: none;
+        }
+
+        .summary-label {
+            font-size: 8pt;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .summary-value {
             font-size: 18pt;
-            margin: 20px 0 18px 0;
-            border-bottom: 4px solid #ec4899;
-            padding-bottom: 10px;
-            font-weight: bold;
+            font-weight: 800;
+            color: #1e293b;
         }
+
+        .value-red { color: #be123c; }
+        .value-green { color: #15803d; }
+        .value-blue { color: #1d4ed8; }
+
+        h2.section-title {
+            font-size: 16pt;
+            color: #500724;
+            margin-bottom: 20px;
+            padding-left: 10px;
+            border-left: 4px solid #831843;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
         }
-        thead {
-            background-color: #db2777;
-        }
+
         th {
+            background-color: #500724;
+            color: #ffffff;
+            font-size: 8pt;
+            font-weight: bold;
+            text-transform: uppercase;
             padding: 12px 10px;
             text-align: left;
-            font-weight: bold;
-            color: white;
-            font-size: 10pt;
-            border: 1px solid #be185d;
+            border: 1px solid #500724;
         }
+
         td {
-            padding: 11px 10px;
+            padding: 12px 10px;
             border: 1px solid #e2e8f0;
-            font-size: 10pt;
-        }
-        tbody tr:nth-child(odd) {
-            background-color: #ffffff;
-        }
-        tbody tr:nth-child(even) {
-            background-color: #fef2f2;
-        }
-        .amount {
-            font-weight: bold;
-            text-align: right;
-            color: #0f172a;
-            background-color: #f1f5f9;
-            padding: 4px 8px;
-        }
-        .footer {
-            background-color: #f1f5f9;
-            padding: 18px;
-            text-align: center;
-            color: #64748b;
             font-size: 9pt;
-            border-top: 3px solid #cbd5e1;
-            margin-top: 25px;
-            border-radius: 4px;
+            color: #334155;
         }
+
+        .row-odd { background-color: #fff1f2; }
+        .row-even { background-color: #ffffff; }
+
+        .amount-cell {
+            font-weight: 700;
+            text-align: right;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 8pt;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        .disclaimer {
+            font-size: 7pt;
+            color: #94a3b8;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        {% if not is_pdf %}
+        body {
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+        {% endif %}
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>EXPENSE CALCULATOR</h1>
+    <div class="report-header">
+        <span class="category-label">Agro-Financial Intelligence Unit</span>
+        <div class="company-name">Smart Farming Assistant</div>
+        <div class="report-title">Consolidated Farm Operating Statement</div>
     </div>
-    
-    <div class="info-bar">
-        <div class="info-row">
-            <span class="info-label">Farmer:</span>
-            <span class="info-value">{{ user.name }}</span>
+
+    <div class="meta-section">
+        <div class="meta-column">
+            <span class="meta-label">Account Holder</span>
+            <span class="meta-value">{{ user.name }}</span>
         </div>
-        <div class="info-row">
-            <span class="info-label">Date:</span>
-            <span class="info-value">{{ date }}</span>
+        <div class="meta-column">
+            <span class="meta-label">Financial Quarter</span>
+            <span class="meta-value">Q1 2026 (Pro-rata)</span>
+        </div>
+        <div class="meta-column">
+            <span class="meta-label">Reporting Date</span>
+            <span class="meta-value">{{ date }}</span>
         </div>
     </div>
-    
+
     <div class="content">
-        <div class="summary-cards">
-            <div class="summary-card expense">
-                <div class="label">Total Expenses</div>
-                <div class="value">Rs {{ "%.2f"|format(total_expense) }}</div>
+        <h2 class="section-title">Investment & Yield Summary</h2>
+        <div class="financial-summary">
+            <div class="summary-box">
+                <span class="summary-label">Gross Expenditure</span>
+                <span class="summary-value value-red">₹{{ "%.2f"|format(total_expense) }}</span>
             </div>
-            <div class="summary-card revenue">
-                <div class="label">Total Revenue</div>
-                <div class="value">Rs {{ "%.2f"|format(total_revenue) }}</div>
+            <div class="summary-box" style="background-color: #f8fafc;">
+                <span class="summary-label">Estimated Revenue</span>
+                <span class="summary-value value-blue">₹{{ "%.2f"|format(total_revenue) }}</span>
             </div>
-            <div class="summary-card profit">
-                <div class="label">Net Profit</div>
-                <div class="value">Rs {{ "%.2f"|format(total_profit) }}</div>
+            <div class="summary-box">
+                <span class="summary-label">Projected Net ROI</span>
+                <span class="summary-value value-green">₹{{ "%.2f"|format(total_profit) }}</span>
             </div>
         </div>
+
+        <h2 class="section-title">Audit Log: Operational Expenses</h2>
         
-        <h2>Expense Details</h2>
         {% if expenses %}
         <table>
             <thead>
                 <tr>
-                    <th>Crop</th>
-                    <th>Category</th>
-                    <th>Description</th>
-                    <th>Date</th>
-                    <th style="text-align: right;">Amount (Rs)</th>
+                    <th width="15%">Transaction Date</th>
+                    <th width="20%">Resource Type</th>
+                    <th width="40%">Expense Breakdown</th>
+                    <th width="25%" style="text-align: right;">Financial Impact (₹)</th>
                 </tr>
             </thead>
             <tbody>
                 {% for expense in expenses %}
-                <tr>
-                    <td><strong>{{ expense.crop }}</strong></td>
-                    <td>{{ expense.category }}</td>
-                    <td>{{ expense.description }}</td>
-                    <td>{{ expense.date }}</td>
-                    <td class="amount">{{ "%.2f"|format(expense.total_cost or expense.amount or 0) }}</td>
+                <tr class="{{ loop.cycle('row-even', 'row-odd') }}">
+                    <td style="color: #64748b;">{{ expense.entry_date or expense.date or 'N/A' }}</td>
+                    <td style="font-weight: bold; color: #500724;">{{ expense.crop_type or expense.cropType or 'General' }}</td>
+                    <td>
+                        <div style="font-size: 8pt; color: #64748b;">
+                            Area: {{ expense.land_area or expense.landArea or 0 }} acre | 
+                            Yield: {{ expense.expected_yield or expense.expectedYield or 0 }} Qtl
+                        </div>
+                    </td>
+                    <td class="amount-cell">{{ "%.2f"|format(expense.total_expense or expense.total_cost or expense.amount or 0) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         {% else %}
-        <p style="text-align: center; padding: 40px; color: #64748b;">No expense data recorded.</p>
+        <div style="text-align: center; padding: 60px; border: 1px dashed #cbd5e1; color: #94a3b8;">
+            No audited expenses synchronized with this profile.
+        </div>
         {% endif %}
     </div>
-    
+
     <div class="footer">
-        <p>Smart Farming Assistant | Generated on {{ date }} | For reference only</p>
+        <p>Generated by Smart Farming Assistant - Financial Decision Support Module</p>
+        <p>© 2026 Smart Farming Initiative. Digital Ledger ID: {{ date|replace(' ', '')|replace(',', '') }}</p>
+        <div class="disclaimer">
+            The values reported are based on user input and prevailing market estimates. This statement 
+            should be treated as a strategic aid, not a certified accounting document.
+        </div>
     </div>
 </body>
 </html>
