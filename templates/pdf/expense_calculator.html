@@ -178,16 +178,17 @@
             margin-top: 10px;
             font-style: italic;
         }
-
-        {% if not is_pdf %}
+    </style>
+    {% if not is_pdf %}
+    <style>
         body {
             padding: 40px;
             max-width: 1000px;
             margin: 0 auto;
             box-shadow: 0 0 20px rgba(0,0,0,0.05);
         }
-        {% endif %}
     </style>
+    {% endif %}
 </head>
 <body>
     <div class="report-header">

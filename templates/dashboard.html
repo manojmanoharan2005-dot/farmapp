@@ -141,7 +141,8 @@
                         <p class="hero-subtitle">Your personalized agricultural assistant. Monitor crops, get
                             recommendations, and maximize your yields.</p>
                 </div>
-                <div class="hero-date">
+                <div class="hero-date" title="Live Clock" style="cursor: pointer;">
+                    <div id="liveClock" style="font-size: 14px; font-weight: 700; color: #10b981; margin-bottom: 4px;">{{ current_time }}</div>
                     <div class="day">{{ current_day }}</div>
                     <div class="month-year">{{ current_month }} {{ current_year }}</div>
                 </div>
@@ -149,7 +150,7 @@
 
             <!-- Stats Bar -->
             <div class="stats-bar">
-                <div class="stat-item">
+                <div class="stat-item" onclick="showToast('You have {{ stats.total_recommendations }} AI-generated recommendations.', 'info')" title="Click for summary">
                     <div class="stat-icon green">
                         <i class="fas fa-check-circle"></i>
                     </div>
@@ -158,7 +159,7 @@
                         <span>Recommendations</span>
                     </div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item" onclick="showToast('Currently tracking {{ stats.active_crops }} growing crops in your fields.', 'info')" title="Click for summary">
                     <div class="stat-icon blue">
                         <i class="fas fa-seedling"></i>
                     </div>
@@ -167,7 +168,7 @@
                         <span>Active Crops</span>
                     </div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item" onclick="showToast('Stored {{ stats.fertilizers_saved }} laboratory-tested fertilizer plans.', 'info')" title="Click for summary">
                     <div class="stat-icon purple">
                         <i class="fas fa-flask"></i>
                     </div>
@@ -176,7 +177,7 @@
                         <span>Fertilizers Saved</span>
                     </div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item" onclick="showToast('Your farming activity score is high this month!', 'success')" title="Click for summary">
                     <div class="stat-icon orange">
                         <i class="fas fa-chart-pie"></i>
                     </div>
@@ -202,32 +203,52 @@
 
                     <!-- Notification Panel -->
                     <div id="notificationPanel" class="notification-panel floating-panel notification">
-                        <div class="panel-header">
-                            <h3>
-                                <i class="fas fa-bell" style="color: #64748b; font-size: 0.9em;"></i> Notifications
-                            </h3>
-                            <button onclick="markAllRead()" class="mark-read-btn">
-                                Mark all read
-                            </button>
+                        <div class="panel-header" style="flex-direction: column; align-items: flex-start; gap: 12px; padding-bottom: 0;">
+                            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                                <h3 style="font-size: 1.25rem;">
+                                    <i class="fas fa-bell" style="color: #6366f1;"></i> Alerts Center
+                                </h3>
+                                <button onclick="markAllRead()" class="mark-read-btn" style="border: none; background: rgba(99, 102, 241, 0.1); color: #6366f1; border-radius: 6px; font-weight: 600;">
+                                    Clear all
+                                </button>
+                            </div>
+                            <!-- Notification Tabs -->
+                            <div class="notif-tabs" style="display: flex; gap: 16px; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                <div class="notif-tab active" data-filter="all" onclick="filterNotifs('all')">All</div>
+                                <div class="notif-tab" data-filter="market" onclick="filterNotifs('market')">Market</div>
+                                <div class="notif-tab" data-filter="warning" onclick="filterNotifs('warning')">Weather</div>
+                                <div class="notif-tab" data-filter="task" onclick="filterNotifs('task')">Tasks</div>
+                            </div>
                         </div>
                         <div class="panel-body">
                             {% if notifications %}
                             {% for notif in notifications %}
-                            <div class="notif-item-panel">
+                            <div class="notif-item-panel {{ notif.type }}">
                                 <div class="notif-icon">
-                                    {% if notif.type == 'success' %}<i class="fas fa-check-circle"
-                                        style="color: #10b981;"></i>
-                                    {% elif notif.type == 'warning' %}<i class="fas fa-exclamation-triangle"
-                                        style="color: #f59e0b;"></i>
+                                    {% if notif.type == 'market' %}<i class="fas fa-chart-line" style="color: #3b82f6;"></i>
+                                    {% elif notif.type == 'tip' %}<i class="fas fa-lightbulb" style="color: #8b5cf6;"></i>
+                                    {% elif notif.type == 'harvest' %}<i class="fas fa-seedling" style="color: #10b981;"></i>
+                                    {% elif notif.type == 'warning' %}<i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+                                    {% elif notif.type == 'task' %}<i class="fas fa-clipboard-check" style="color: #3b82f6;"></i>
                                     {% elif notif.type == 'alert' %}<i class="fas fa-bell" style="color: #ef4444;"></i>
-                                    {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                                    {% else %}<i class="fas fa-info-circle" style="color: #64748b;"></i>{% endif %}
                                 </div>
                                 <div style="flex: 1;">
-                                    <p>{{
-                                        notif.message }}</p>
-                                    <span class="notif-time">
-                                        <i class="far fa-clock" style="font-size: 10px;"></i> {{ notif.time_ago }}
-                                    </span>
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                                        <span class="notif-category {{ notif.type or 'default' }}">
+                                            {{ notif.type or 'Alert' }}
+                                        </span>
+                                        <span class="notif-time" style="font-size: 10px; opacity: 0.6;">
+                                            {{ notif.time_ago }}
+                                        </span>
+                                    </div>
+                                    <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: var(--text-primary);">{{ notif.title or 'Farming Update' }}</h4>
+                                    <p style="margin: 0 0 10px 0; font-size: 13px; line-height: 1.4; color: var(--text-secondary);">{{ notif.message }}</p>
+                                    
+                                    <div style="display: flex; gap: 8px;">
+                                        <button class="notif-action-btn" onclick="handleNotifAction('{{ notif.type }}', '{{ notif.title }}')" style="padding: 4px 10px; font-size: 11px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: var(--text-primary); cursor: pointer;">View</button>
+                                        <button class="notif-action-btn" onclick="this.closest('.notif-item-panel').style.opacity='0.5'" style="padding: 4px 10px; font-size: 11px; background: transparent; border: 1px solid transparent; color: var(--text-secondary); cursor: pointer;">Done</button>
+                                    </div>
                                 </div>
                             </div>
                             {% endfor %}
@@ -503,7 +524,7 @@
                             <div class="card-body">
                                 {% if growing_activities %}
                                 {% for activity in growing_activities[:3] %}
-                                <div class="crop-card">
+                                <div class="crop-card {% if activity.progress >= 95 %}harvest-ready-pulse{% endif %}">
                                     <div class="crop-progress-ring">
                                         <svg width="70" height="70">
                                             <circle class="progress-bg" cx="35" cy="35" r="30" />

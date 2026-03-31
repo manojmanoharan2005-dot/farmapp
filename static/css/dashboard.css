@@ -3037,19 +3037,79 @@ body {
 }
 
 .floating-panel .panel-body {
-    max-height: 400px;
+    max-height: 480px;
     overflow-y: auto;
+}
+
+/* Notification Category Colors */
+.notif-category.market { color: #3b82f6; }
+.notif-category.tip { color: #8b5cf6; }
+.notif-category.harvest { color: #10b981; }
+.notif-category.warning { color: #f59e0b; }
+.notif-category.task { color: #0ea5e9; }
+.notif-category.alert { color: #ef4444; }
+.notif-category.default { color: #64748b; }
+
+.notif-item-panel {
+    padding: 16px 20px;
+    display: flex;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.notif-item-panel:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.notif-item-panel:last-child {
+    border-bottom: none;
 }
 
 .mark-read-btn {
     background: transparent;
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 241, 0.3);
+    color: #6366f1;
     font-size: 0.85rem;
     cursor: pointer;
     padding: 6px 12px;
     border-radius: 6px;
     transition: all 0.2s;
+}
+
+/* Notification Tabs Styles */
+.notif-tabs {
+    user-select: none;
+}
+
+.notif-tab {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding-bottom: 8px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    opacity: 0.7;
+    text-transform: capitalize;
+}
+
+.notif-tab:hover {
+    opacity: 1;
+    color: var(--text-primary);
+}
+
+.notif-tab.active {
+    opacity: 1;
+    color: #6366f1;
+    border-bottom-color: #6366f1;
+}
+
+.notif-action-btn:hover {
+    background: rgba(99, 102, 241, 0.1) !important;
+    border-color: rgba(99, 102, 241, 0.4) !important;
+    color: #6366f1 !important;
 }
 
 .notif-item-panel {
@@ -3500,5 +3560,42 @@ body {
     color: #ffffff !important;
     font-weight: 800;
     display: block;
+}
+
+/* Animation for Harvesting Ready Crops */
+@keyframes harvestPulse {
+    0% { filter: drop-shadow(0 0 5px rgba(34, 197, 94, 0.4)); }
+    50% { filter: drop-shadow(0 0 15px rgba(34, 197, 94, 0.8)); transform: scale(1.05); }
+    100% { filter: drop-shadow(0 0 5px rgba(34, 197, 94, 0.4)); }
+}
+
+.harvest-ready-pulse {
+    animation: harvestPulse 2s infinite ease-in-out;
+}
+
+/* Interactive Stat Cards */
+.stat-item {
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.stat-item:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.stat-item:active {
+    transform: scale(0.98);
+}
+
+/* Weather Interaction */
+.weather-day-item {
+    cursor: help;
+    transition: background 0.2s;
+}
+
+.weather-day-item:hover {
+    background: rgba(255, 255, 255, 0.05);
 }
 

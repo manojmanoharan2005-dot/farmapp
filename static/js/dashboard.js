@@ -94,6 +94,174 @@ function markAllRead() {
 }
 
 /**
+ * Live Clock and dynamic greeting
+ */
+function updateLiveClock() {
+    const clockEl = document.getElementById('liveClock');
+    if (!clockEl) return;
+    
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: true 
+    });
+    clockEl.textContent = timeStr;
+}
+
+// Start clock
+setInterval(updateLiveClock, 1000);
+updateLiveClock();
+
+/**
+ * Toast Notification System
+ */
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toast-container') || createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `toast-message ${type}`;
+    
+    let icon = 'ℹ️';
+    if (type === 'success') icon = '✅';
+    if (type === 'error') icon = '🔴';
+    if (type === 'warning') icon = '⚠️';
+    
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span>${icon}</span>
+            <div style="font-size: 13px; font-weight: 500;">${message}</div>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => toast.style.opacity = '1', 10);
+    
+    // Remove after 4 seconds
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toast-container';
+    container.style.cssText = 'position: fixed; top: 100px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none;';
+    document.body.appendChild(container);
+    
+    // Add CSS for toasts if not in file
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .toast-message {
+            background: rgba(30, 41, 59, 0.95);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            min-width: 250px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+        .toast-message.success { border-left: 4px solid #10b981; }
+        .toast-message.error { border-left: 4px solid #ef4444; }
+        .toast-message.warning { border-left: 4px solid #f59e0b; }
+        .toast-message.info { border-left: 4px solid #3b82f6; }
+    `;
+    document.head.appendChild(style);
+    return container;
+}
+
+/**
+ * Professional Notification/Alerts Panel Logic
+ */
+function toggleNotificationPanel(e) {
+    if (e) e.stopPropagation();
+    const panel = document.getElementById('notificationPanel');
+    const downloadPanel = document.getElementById('downloadPanel');
+    
+    if (downloadPanel) downloadPanel.style.display = 'none';
+    
+    if (panel.style.display === 'block') {
+        panel.style.display = 'none';
+    } else {
+        panel.style.display = 'block';
+    }
+}
+
+function filterNotifs(category) {
+    // Update tabs UI
+    const tabs = document.querySelectorAll('.notif-tab');
+    tabs.forEach(tab => {
+        if (tab.dataset.filter === category) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+
+    // Filter items
+    const items = document.querySelectorAll('.notif-item-panel');
+    let found = 0;
+    
+    // Hide default empty message if any tab other than 'all' is picked
+    const defaultEmpty = document.querySelector('.empty-notif:not(.filter-empty-msg)');
+    if (defaultEmpty) defaultEmpty.style.display = 'none';
+
+    items.forEach(item => {
+        if (category === 'all' || item.classList.contains(category)) {
+            item.style.display = 'flex';
+            found++;
+        } else {
+            item.style.display = 'none';
+        }
+    });
+
+    // Handle empty state within panel
+    const body = document.querySelector('.floating-panel.notification .panel-body');
+    let emptyMsg = body.querySelector('.filter-empty-msg');
+    
+    if (found === 0) {
+        if (!emptyMsg) {
+            emptyMsg = document.createElement('div');
+            emptyMsg.className = 'filter-empty-msg empty-notif';
+            emptyMsg.innerHTML = `
+                <div class="empty-notif-icon"><i class="fas fa-filter" style="opacity:0.5;"></i></div>
+                <p style="color: var(--text-secondary); font-size: 13px;">No ${category} alerts present</p>
+            `;
+            body.appendChild(emptyMsg);
+        }
+        emptyMsg.style.display = 'block';
+    } else {
+        if (emptyMsg) emptyMsg.style.display = 'none';
+        // If 'all' and no items still, show default empty message
+        if (category === 'all' && found === 0 && defaultEmpty) {
+            defaultEmpty.style.display = 'block';
+        }
+    }
+}
+
+function handleNotifAction(type, title) {
+    if (type === 'market') {
+        showToast(`Opening latest market price analyzer for ${title}...`, 'info');
+        // Logic to navigate or open modal
+    } else if (type === 'warning') {
+        showToast("Loading detailed weather forecast advisory...", 'warning');
+    } else {
+        showToast(`Reviewing ${title}...`, 'info');
+    }
+    
+    // Toggle side effect: vibration on mobile if supported
+    if ('vibrate' in navigator) {
+        navigator.vibrate(20);
+    }
+}
+
+/**
  * Download Panel Functions
  */
 function toggleDownloadPanel() {

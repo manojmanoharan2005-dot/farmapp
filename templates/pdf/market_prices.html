@@ -145,8 +145,9 @@
             margin-top: 10px;
             font-style: italic;
         }
-
-        {% if not is_pdf %}
+    </style>
+    {% if not is_pdf %}
+    <style>
         /* Styles only for HTML version */
         body {
             padding: 40px;
@@ -163,8 +164,8 @@
             text-align: center;
             font-size: 9pt;
         }
-        {% endif %}
     </style>
+    {% endif %}
 </head>
 <body>
     {% if not is_pdf %}

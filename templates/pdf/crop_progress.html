@@ -190,16 +190,17 @@
             margin-top: 10px;
             font-style: italic;
         }
-
-        {% if not is_pdf %}
+    </style>
+    {% if not is_pdf %}
+    <style>
         body {
             padding: 40px;
             max-width: 900px;
             margin: 0 auto;
             box-shadow: 0 0 20px rgba(0,0,0,0.05);
         }
-        {% endif %}
     </style>
+    {% endif %}
 </head>
 <body>
     <div class="report-header">
@@ -255,7 +256,9 @@
                     </div>
 
                     <div class="progress-track">
-                        <div class="progress-thumb" style="width: {{ activity.progress or 0 }}%;"></div>
+                        {% set p_width = activity.progress or 0 %}
+                        {% set s_attr = ['style="width: ', p_width, '%;"']|join %}
+                        <div class="progress-thumb" {{ s_attr|safe }}></div>
                     </div>
 
                     {% if activity.notes %}

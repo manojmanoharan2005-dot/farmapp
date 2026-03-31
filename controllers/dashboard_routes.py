@@ -438,7 +438,18 @@ def dashboard():
     if user.get('district') and user.get('state'):
         price_predictions = get_price_predictions(user['district'], user['state'])
         weather_data = get_weather_notifications(user['district'], user['state'])
-    
+        
+        # Inject dynamic weather alerts into the global notification panel
+        if weather_data and 'alerts' in weather_data:
+            for alert in reversed(weather_data['alerts']):
+                notifications.insert(0, {
+                    'type': 'warning' if alert.get('type') in ['alert', 'warning'] else 'info',
+                    'title': alert.get('title', 'Weather Alert'),
+                    'message': alert.get('message', ''),
+                    'priority': alert.get('priority', 'medium'),
+                    'time_ago': 'Just now',
+                    'created_at': datetime.now().isoformat()
+                })    
     # Calculate statistics
     stats = {
         'total_recommendations': len(saved_crops) + len(saved_fertilizers),
