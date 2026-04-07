@@ -268,7 +268,7 @@ def generate_fallback_prices():
     date_seed = int(hashlib.md5(date_today.encode()).hexdigest()[:8], 16)
     random.seed(date_seed)
     
-    # Generate data for ALL states and ALL districts from states_districts.json
+    # Generate data for ALL states and ALL districts from MongoDB configuraton
     for state, districts in states_districts.items():
         for district in districts:
             # Generate ALL 40 commodities for this district

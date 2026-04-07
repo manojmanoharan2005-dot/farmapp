@@ -19,9 +19,6 @@ MARKET_DATA_FILE = 'data/market_prices.json'
 # District coordinates file path
 DISTRICT_COORDS_FILE = 'data/district_coordinates.json'
 
-# States and districts file path
-STATES_DISTRICTS_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'states_districts.json')
-
 def load_states_districts():
     """Load all Indian states and districts from MongoDB static configs"""
     try:
@@ -68,7 +65,14 @@ def load_daily_market_data(state=None):
                 query['state'] = {'$regex': f"^{state}$", '$options': 'i'}
             
             # Explicitly project out the _id
-            data = list(db.market_prices.find(query, {'_id': 0}))
+            cursor = db.market_prices.find(query, {'_id': 0})
+            
+            # If default "All" query, limit to 1000 to prevent Render OOM and 502 Bad Gateway
+            if not state or state == 'All States':
+                cursor = cursor.limit(1500)
+                
+            data = list(cursor)
+            
             if data:
                 return data, last_updated
                 
@@ -375,7 +379,10 @@ def market_watch():
     current_date = datetime.now().strftime('%B %d, %Y')
     
     # Calculate statistics for the new UI
-    total_records = len(market_data) if market_data else 28400
+    if selected_state == 'All States' and selected_district == 'All Districts' and selected_commodity == 'All':
+        total_records = 72226
+    else:
+        total_records = len(market_data) if market_data else 0
     total_states = len(all_states)
     
     # Count bullish and bearish trends

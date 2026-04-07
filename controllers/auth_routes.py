@@ -276,7 +276,7 @@ def register():
         if not states_districts:
             raise FileNotFoundError("Static config states_districts not found")
     except Exception as e:
-        print(f"Warning: states_districts.json not found: {e}")
+        print(f"Warning: states_districts static config not found: {e}")
         # Fallback states and districts
         states_districts = {
             "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik"],
