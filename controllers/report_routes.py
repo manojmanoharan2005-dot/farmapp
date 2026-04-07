@@ -465,41 +465,89 @@ def download_market_prices_pdf():
     if not XHTML2PDF_AVAILABLE:
         return jsonify({'success': False, 'message': 'Server PDF generation not available. Please use browser print (Ctrl+P) to save as PDF.'}), 501
     try:
-        from flask import make_response, render_template
+        from flask import make_response, render_template, request
         from io import BytesIO
+        import random
         
         user_id = session.get('user_id')
         user = find_user_by_id(user_id)
         
+        # Get filters from request args
+        filter_state = request.args.get('state', 'All States')
+        filter_district = request.args.get('district', 'All Districts')
+        filter_commodity_search = request.args.get('commodity_search', '').strip()
+        filter_category = request.args.get('commodity', 'All')
+        
+        # Determine active commodity filter (search takes precedence)
+        selected_commodity = filter_commodity_search if filter_commodity_search else filter_category
+        
         # Get market prices from MongoDB
         db = get_db()
         prices = []
-        user_district = user.get('district', '') if user else session.get('user_district', '')
-        user_state = user.get('state', '') if user else session.get('user_state', '')
         
         if db is not None:
-            # Filter by user's district if available
             query = {}
-            if user_district:
-                query['district'] = user_district
-            elif user_state:
-                query['state'] = user_state
+            if filter_state and filter_state != 'All States':
+                query['state'] = filter_state
+            if filter_district and filter_district != 'All Districts':
+                query['district'] = filter_district
             
-            # Fetch prices (increased limit for "all records" request)
-            prices = list(db.market_prices.find(query, {'_id': 0}).sort('commodity', 1).limit(500))
+            # Fetch records with smaller limit for performance (300 max for high-quality PDF)
+            prices = list(db.market_prices.find(query, {'_id': 0}).sort('commodity', 1).limit(300))
             
-            # If no specific results, fetch any general data
-            if not prices:
-                prices = list(db.market_prices.find({}, {'_id': 0}).sort('commodity', 1).limit(500))
+            # Category lists (synced with market_routes.py)
+            categories = {
+                'Vegetables': ["Tomato", "Onion", "Potato", "Brinjal", "Cabbage", "Cauliflower", "Carrot", "Beetroot", "Green Chilli", "Capsicum (Green)", "Capsicum (Red)", "Capsicum (Yellow)", "Beans", "Cluster Beans", "Lady Finger", "Drumstick", "Bottle Gourd", "Ridge Gourd", "Snake Gourd", "Bitter Gourd", "Pumpkin", "Ash Gourd", "Radish", "Turnip", "Sweet Corn", "Peas", "Garlic", "Ginger", "Coriander Leaves", "Spinach"],
+                'Fruits': ["Apple", "Banana", "Orange", "Mosambi", "Grapes", "Pomegranate", "Papaya", "Pineapple", "Watermelon", "Muskmelon", "Mango", "Guava", "Lemon", "Custard Apple", "Sapota", "Strawberry", "Kiwi", "Pear", "Plum", "Peach"],
+                'Grains': ["Paddy (Rice – Common)", "Paddy (Basmati)", "Wheat", "Maize (Corn)", "Barley", "Jowar (Sorghum)", "Bajra (Pearl Millet)", "Ragi (Finger Millet)"],
+                'Pulses': ["Red Gram (Tur/Arhar)", "Green Gram (Moong)", "Black Gram (Urad)", "Bengal Gram (Chana)", "Lentil (Masur)", "Horse Gram", "Field Pea"],
+                'Oilseeds': ["Groundnut", "Mustard Seed", "Soybean", "Sunflower Seed", "Sesame (Gingelly)", "Castor Seed", "Linseed"],
+                'Spices': ["Dry Chilli", "Turmeric", "Coriander Seed", "Cumin Seed (Jeera)", "Pepper (Black)", "Cardamom", "Clove"],
+                'Commercial Crops': ["Sugarcane", "Cotton", "Jute", "Copra (Dry Coconut)", "Tobacco", "Tea Leaves", "Coffee Beans"],
+                'Dry Fruits': ["Coconut", "Cashew Nut", "Groundnut Kernel", "Almond", "Walnut", "Raisins"],
+                'Animal Products': ["Milk", "Cow Ghee", "Buffalo Ghee", "Egg", "Poultry Chicken", "Fish (Common Varieties)"]
+            }
+            
+            # Apply commodity/category filter in memory (matching market_routes logic)
+            if selected_commodity and selected_commodity != 'All':
+                if selected_commodity in categories:
+                    category_list = categories[selected_commodity]
+                    prices = [p for p in prices if p.get('commodity') in category_list]
+                else:
+                    # Partial search
+                    prices = [p for p in prices if selected_commodity.lower() in p.get('commodity', '').lower()]
+
+            # If still empty and no specific filters were searched, fallback to user profile
+            if not prices and filter_state == 'All States' and filter_district == 'All Districts' and selected_commodity == 'All':
+                user_district = user.get('district', '') if user else session.get('user_district', '')
+                user_state = user.get('state', '') if user else session.get('user_state', '')
+                if user_district:
+                    prices = list(db.market_prices.find({'district': user_district}, {'_id': 0}).limit(500))
+                elif user_state:
+                    prices = list(db.market_prices.find({'state': user_state}, {'_id': 0}).limit(500))
         
         if not prices:
-            return jsonify({'success': False, 'message': 'No market data available to generate PDF.'}), 404
+            return jsonify({'success': False, 'message': 'No market data found for the selected filters.'}), 404
+        
+        # Enrichment
+        for item in prices:
+             # Match template fields (commodity, variety, market, modal_price, arrival)
+             item['market'] = item.get('market') or item.get('mkt') or 'Local Hub'
+             item['variety'] = item.get('variety') or 'Common'
+             item['arrival'] = item.get('arrival') or 'N/A'
+             
+             if 'modal_price' not in item:
+                  # Use existing current_price/modal_price or fallback
+                  price = float(item.get('modal_price') or item.get('current_price') or item.get('Price', 0))
+                  item['modal_price'] = price / 100 if price > 1500 else price
+             if 'unit' not in item: item['unit'] = 'Quintal'
         
         # Render HTML template
         html = render_template('pdf/market_prices.html',
                              prices=prices,
-                             user=user or {'name': session.get('user_name', 'Farmer'), 'district': user_district or 'All Districts', 'state': user_state},
+                             user=user or {'name': session.get('user_name', 'Farmer'), 'district': filter_district, 'state': filter_state},
                              date=datetime.now().strftime('%B %d, %Y'),
+                             filter_info=f"{filter_state} > {filter_district} ({selected_commodity})",
                              is_pdf=True)
         
         # Convert HTML to PDF
@@ -513,7 +561,7 @@ def download_market_prices_pdf():
         
         response = make_response(pdf_file.read())
         response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = f'attachment; filename=market_prices_{datetime.now().strftime("%Y%m%d")}.pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename=market_report_{datetime.now().strftime("%Y%m%d")}.pdf'
         
         return response
         
@@ -526,43 +574,82 @@ def download_market_prices_pdf():
 def download_market_prices_html():
     """Download today's market prices as HTML"""
     try:
-        from flask import make_response, render_template
+        from flask import make_response, render_template, request
         
         user_id = session.get('user_id')
         user = find_user_by_id(user_id)
         
-        # Get market prices from MongoDB
+        filter_state = request.args.get('state', 'All States')
+        filter_district = request.args.get('district', 'All Districts')
+        filter_commodity_search = request.args.get('commodity_search', '').strip()
+        filter_category = request.args.get('commodity', 'All')
+        selected_commodity = filter_commodity_search if filter_commodity_search else filter_category
+        
         db = get_db()
         prices = []
-        user_district = user.get('district', '') if user else session.get('user_district', '')
-        user_state = user.get('state', '') if user else session.get('user_state', '')
         
         if db is not None:
-            print(f"[DEBUG] Market Route - db: {type(db)}, district: {user_district}, state: {user_state}")
             query = {}
-            if user_district:
-                query['district'] = user_district
-            elif user_state:
-                query['state'] = user_state
-                
-            prices = list(db.market_prices.find(query, {'_id': 0}).sort('commodity', 1).limit(1000))
+            if filter_state and filter_state != 'All States':
+                query['state'] = filter_state
+            if filter_district and filter_district != 'All Districts':
+                query['district'] = filter_district
             
-            if not prices:
-                prices = list(db.market_prices.find({}, {'_id': 0}).sort('commodity', 1).limit(1000))
+            # Fetch records with optimized limit for HTML (500 max)
+            prices = list(db.market_prices.find(query, {'_id': 0}).sort('commodity', 1).limit(500))
+            
+            categories = {
+                'Vegetables': ["Tomato", "Onion", "Potato", "Brinjal", "Cabbage", "Cauliflower", "Carrot", "Beetroot", "Green Chilli", "Capsicum (Green)", "Capsicum (Red)", "Capsicum (Yellow)", "Beans", "Cluster Beans", "Lady Finger", "Drumstick", "Bottle Gourd", "Ridge Gourd", "Snake Gourd", "Bitter Gourd", "Pumpkin", "Ash Gourd", "Radish", "Turnip", "Sweet Corn", "Peas", "Garlic", "Ginger", "Coriander Leaves", "Spinach"],
+                'Fruits': ["Apple", "Banana", "Orange", "Mosambi", "Grapes", "Pomegranate", "Papaya", "Pineapple", "Watermelon", "Muskmelon", "Mango", "Guava", "Lemon", "Custard Apple", "Sapota", "Strawberry", "Kiwi", "Pear", "Plum", "Peach"],
+                'Grains': ["Paddy (Rice – Common)", "Paddy (Basmati)", "Wheat", "Maize (Corn)", "Barley", "Jowar (Sorghum)", "Bajra (Pearl Millet)", "Ragi (Finger Millet)"],
+                'Pulses': ["Red Gram (Tur/Arhar)", "Green Gram (Moong)", "Black Gram (Urad)", "Bengal Gram (Chana)", "Lentil (Masur)", "Horse Gram", "Field Pea"],
+                'Oilseeds': ["Groundnut", "Mustard Seed", "Soybean", "Sunflower Seed", "Sesame (Gingelly)", "Castor Seed", "Linseed"],
+                'Spices': ["Dry Chilli", "Turmeric", "Coriander Seed", "Cumin Seed (Jeera)", "Pepper (Black)", "Cardamom", "Clove"],
+                'Commercial Crops': ["Sugarcane", "Cotton", "Jute", "Copra (Dry Coconut)", "Tobacco", "Tea Leaves", "Coffee Beans"],
+                'Dry Fruits': ["Coconut", "Cashew Nut", "Groundnut Kernel", "Almond", "Walnut", "Raisins"],
+                'Animal Products': ["Milk", "Cow Ghee", "Buffalo Ghee", "Egg", "Poultry Chicken", "Fish (Common Varieties)"]
+            }
+            
+            if selected_commodity and selected_commodity != 'All':
+                if selected_commodity in categories:
+                    category_list = categories[selected_commodity]
+                    prices = [p for p in prices if p.get('commodity') in category_list]
+                else:
+                    prices = [p for p in prices if selected_commodity.lower() in p.get('commodity', '').lower()]
+                
+            if not prices and filter_state == 'All States' and filter_district == 'All Districts' and selected_commodity == 'All':
+                user_district = user.get('district', '') if user else session.get('user_district', '')
+                user_state = user.get('state', '') if user else session.get('user_state', '')
+                if user_district:
+                    prices = list(db.market_prices.find({'district': user_district}, {'_id': 0}).limit(500))
+                elif user_state:
+                    prices = list(db.market_prices.find({'state': user_state}, {'_id': 0}).limit(500))
         
         if not prices:
-            return jsonify({'success': False, 'message': 'No market data available to generate report.'}), 404
+            return jsonify({'success': False, 'message': 'No market data available.'}), 404
         
+        # Enrichment
+        for item in prices:
+             item['market'] = item.get('market') or item.get('mkt') or 'Local Hub'
+             item['variety'] = item.get('variety') or 'Common'
+             item['arrival'] = item.get('arrival') or 'N/A'
+             
+             if 'modal_price' not in item:
+                  price = float(item.get('modal_price') or item.get('current_price') or item.get('Price', 0))
+                  item['modal_price'] = price / 100 if price > 1500 else price
+             if 'unit' not in item: item['unit'] = 'Quintal'
+
         # Render HTML template
         html = render_template('pdf/market_prices.html',
                              prices=prices,
-                             user=user or {'name': session.get('user_name', 'Farmer'), 'district': user_district or 'All Districts', 'state': user_state},
+                             user=user or {'name': session.get('user_name', 'Farmer'), 'district': filter_district, 'state': filter_state},
                              date=datetime.now().strftime('%B %d, %Y'),
+                             filter_info=f"{filter_state} > {filter_district} ({selected_commodity})",
                              is_pdf=False)
         
         response = make_response(html)
         response.headers['Content-Type'] = 'text/html'
-        response.headers['Content-Disposition'] = f'attachment; filename=market_prices_{datetime.now().strftime("%Y%m%d")}.html'
+        response.headers['Content-Disposition'] = f'attachment; filename=market_report_{datetime.now().strftime("%Y%m%d")}.html'
         
         return response
         
