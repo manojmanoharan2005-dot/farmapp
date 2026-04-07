@@ -955,10 +955,8 @@ def update_growing_activity(activity_id, user_id, update_data):
         return False
 
 def delete_growing_activity(activity_id, user_id):
-    """Delete a growing activity from MongoDB"""
+    """Delete a growing activity from MongoDB or file fallback"""
     try:
-        deleted = False
-        
         # Try MongoDB first
         if db is not None and not isinstance(db, MockDatabase):
             from bson import ObjectId
@@ -970,24 +968,25 @@ def delete_growing_activity(activity_id, user_id):
             
             if result.deleted_count > 0:
                 print(f"[SUCCESS] Deleted activity {activity_id} from MongoDB")
-                deleted = True
+                return True
         
-        # Also try JSON file
-        with open(GROWING_FILE, 'r') as f:
-            growing_data = json.load(f)
+        # Fallback to JSON file ONLY if it exists
+        if os.path.exists(GROWING_FILE):
+            with open(GROWING_FILE, 'r') as f:
+                growing_data = json.load(f)
+            
+            user_activities = growing_data.get(user_id, [])
+            initial_count = len(user_activities)
+            user_activities = [a for a in user_activities if a.get('_id') != activity_id]
+            
+            if len(user_activities) < initial_count:
+                growing_data[user_id] = user_activities
+                with open(GROWING_FILE, 'w') as f:
+                    json.dump(growing_data, f, indent=2)
+                print(f"[SUCCESS] Deleted activity {activity_id} from JSON")
+                return True
         
-        user_activities = growing_data.get(user_id, [])
-        initial_count = len(user_activities)
-        user_activities = [a for a in user_activities if a.get('_id') != activity_id]
-        
-        if len(user_activities) < initial_count:
-            growing_data[user_id] = user_activities
-            with open(GROWING_FILE, 'w') as f:
-                json.dump(growing_data, f, indent=2)
-            print(f"[SUCCESS] Deleted activity {activity_id} from JSON")
-            deleted = True
-        
-        return deleted
+        return False
             
     except Exception as e:
         print(f"Error deleting activity: {e}")
