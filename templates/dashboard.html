@@ -33,6 +33,10 @@
                     <i class="fas fa-seedling"></i>
                     <span>Crop Suggestion</span>
                 </a>
+                <a href="{{ url_for('crop.disease_detection') }}" class="nav-link">
+                    <i class="fas fa-microscope"></i>
+                    <span>Disease Detection</span>
+                </a>
                 <a href="{{ url_for('fertilizer.fertilizer_recommend') }}" class="nav-link">
                     <i class="fas fa-flask"></i>
                     <span>Fertilizer Advice</span>
@@ -573,6 +577,10 @@
                                     <a href="{{ url_for('crop.crop_suggestion') }}" class="empty-state-btn">
                                         <i class="fas fa-plus"></i> Get Crop Suggestion
                                     </a>
+                <a href="{{ url_for('crop.disease_detection') }}" class="nav-link">
+                    <i class="fas fa-microscope"></i>
+                    <span>Disease Detection</span>
+                </a>
                                 </div>
                                 {% endif %}
                             </div>

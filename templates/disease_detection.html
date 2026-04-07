@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Disease Detection - Smart Farming Assistant{% endblock %}
+
+{% block styles %}
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v={{ range(1000000,9999999) | random }}">
+<style>
+    .upload-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: var(--radius-xl);
+        padding: 40px;
+        text-align: center;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+    }
+    .upload-area:hover {
+        border-color: var(--color-primary);
+        background: var(--pastel-green);
+    }
+    .upload-icon {
+        font-size: 48px;
+        color: var(--color-primary);
+        margin-bottom: 16px;
+    }
+    .upload-text {
+        font-size: 16px;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+    }
+    #imagePreview {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: var(--radius-md);
+        display: none;
+        margin: 20px auto;
+        box-shadow: var(--shadow-sm);
+    }
+    .result-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 30px;
+        box-shadow: var(--shadow-md);
+        margin-top: 30px;
+    }
+    .result-content {
+        line-height: 1.6;
+        color: var(--text-primary);
+        white-space: pre-wrap;
+    }
+    /* Add basic markdown styles for the result */
+    .result-content h2 { color: var(--color-navy); margin-top: 20px; margin-bottom: 10px; font-size: 20px; }
+    .result-content h3 { color: var(--color-navy); margin-top: 15px; margin-bottom: 8px; font-size: 18px; }
+    .result-content p { margin-bottom: 12px; }
+    .result-content ul, .result-content ol { margin-left: 20px; margin-bottom: 15px; }
+    .result-content li { margin-bottom: 5px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">🌾</div>
+            <div>
+                <div class="sidebar-title">Smart Farming</div>
+                <div class="sidebar-subtitle">Agricultural Platform</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Main Menu</div>
+                <a href="{{ url_for('dashboard.dashboard') }}" class="nav-link">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('crop.crop_suggestion') }}" class="nav-link">
+                    <i class="fas fa-seedling"></i>
+                    <span>Crop Suggestion</span>
+                </a>
+                <a href="{{ url_for('crop.disease_detection') }}" class="nav-link active">
+                    <i class="fas fa-microscope"></i>
+                    <span>Disease Detection</span>
+                </a>
+                <a href="{{ url_for('fertilizer.fertilizer_recommend') }}" class="nav-link">
+                    <i class="fas fa-flask"></i>
+                    <span>Fertilizer Advice</span>
+                </a>
+
+                <a href="{{ url_for('market.market_watch') }}" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Market Prices</span>
+                    <span class="badge">Live</span>
+                </a>
+                <a href="{{ url_for('resources.regional_calendar') }}" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Regional Calendar</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-user">
+            <div class="user-info sidebar-user-clickable" onclick="openProfileModal()">
+                <div class="user-avatar">{{ user_name[0] if user_name else 'U' }}</div>
+                <div class="user-details">
+                    <h4>{{ user_name }}</h4>
+                    <span>Farmer</span>
+                </div>
+                <i class="fas fa-chevron-right sidebar-chevron"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Hero Header -->
+        <div class="hero-header">
+            <div class="hero-content">
+                <div class="welcome-text">
+                    <i class="fas fa-microscope"></i> AI-Powered Analysis
+                </div>
+                <h1 class="hero-title">Crop Disease Detection</h1>
+                <p class="hero-subtitle">Upload a photo of your plant or leaf to instantly identify diseases and get eco-friendly treatment recommendations.</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Input Form -->
+            <div class="form-card" style="max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <div class="form-card-header" style="text-align: center; margin-bottom: 24px;">
+                    <div class="icon" style="font-size: 32px; color: #22c55e;"><i class="fas fa-camera"></i></div>
+                    <h2>Upload Plant Image</h2>
+                    <p style="color: #64748b;">Ensure the plant or leaf is clearly visible in good lighting</p>
+                </div>
+                
+                <div class="form-card-body">
+                    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                        <div class="upload-area" onclick="document.getElementById('imageInput').click()" id="dropZone">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <div class="upload-text">Click or drag and drop image here</div>
+                            <small style="color: #94a3b8;">Supports JPG, PNG, JPEG</small>
+                            <img id="imagePreview" src="#" alt="Preview" />
+                        </div>
+                        <input type="file" name="image" id="imageInput" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                        
+                        <div style="text-align: center;">
+                            <button type="submit" class="submit-btn" style="background: #22c55e; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s;" id="analyzeBtn" disabled>
+                                <i class="fas fa-search"></i> Analyze Image
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            {% if result %}
+            <div class="result-card" style="max-width: 800px; margin: 30px auto;">
+                <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 20px;">
+                    <i class="fas fa-file-medical-alt" style="font-size: 24px; color: #3b82f6;"></i>
+                    <h2 style="margin: 0; color: #1e293b;">Analysis Report</h2>
+                </div>
+                <!-- Need safe filter since gemma might output Markdown formatting which should be text, but we'll run it through a basic render if possible or just format as pre-wrap -->
+                <div class="result-content">{{ result }}</div>
+            </div>
+            {% endif %}
+            
+            <!-- JavaScript for Image Preview -->
+            <script>
+                function previewImage(input) {
+                    const preview = document.getElementById('imagePreview');
+                    const uploadIcon = document.querySelector('.upload-icon');
+                    const uploadText = document.querySelector('.upload-text');
+                    const analyzeBtn = document.getElementById('analyzeBtn');
+                    
+                    if (input.files && input.files[0]) {
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            preview.src = e.target.result;
+                            preview.style.display = 'block';
+                            uploadIcon.style.display = 'none';
+                            uploadText.style.display = 'none';
+                            analyzeBtn.disabled = false;
+                            analyzeBtn.style.opacity = '1';
+                        }
+                        
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+                
+                // Form submit loading state
+                document.getElementById('uploadForm').addEventListener('submit', function() {
+                    const btn = document.getElementById('analyzeBtn');
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+                    btn.style.opacity = '0.7';
+                });
+            </script>
+        </div>
+    </div>
+</div>
+{% endblock %}

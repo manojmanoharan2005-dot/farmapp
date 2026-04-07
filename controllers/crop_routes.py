@@ -5,6 +5,8 @@ from ml_models.model_integration import crop_predictor
 from datetime import datetime
 import os
 import google.generativeai as genai
+from PIL import Image
+import io
 
 crop_bp = Blueprint('crop', __name__)
 
@@ -320,3 +322,53 @@ def api_predict_crop():
             'success': False,
             'error': str(e)
         }), 500
+
+@crop_bp.route('/disease-detection', methods=['GET', 'POST'])
+@login_required
+def disease_detection():
+    # GET request - show empty form
+    if request.method == 'GET':
+        return render_template('disease_detection.html', 
+                             user_name=session.get('user_name', 'Farmer'),
+                             current_date=datetime.now().strftime('%B %d, %Y'))
+                             
+    # POST request - process image
+    if request.method == 'POST':
+        if 'image' not in request.files:
+            flash('No image uploaded', 'error')
+            return redirect(url_for('crop.disease_detection'))
+            
+        file = request.files['image']
+        if file.filename == '':
+            flash('No image selected', 'error')
+            return redirect(url_for('crop.disease_detection'))
+            
+        if file:
+            try:
+                # Open image
+                image = Image.open(file)
+                
+                # Check for API key
+                if not GEMINI_API_KEY:
+                    flash('Gemini API key not configured. Please contact administrator.', 'error')
+                    return redirect(url_for('crop.disease_detection'))
+                
+                # Use the exact model requested
+                model = genai.GenerativeModel('gemma-3-4b-it')
+                
+                prompt = "You are an expert plant pathologist. Please analyze this image of a plant/leaf. If there is no plant, say so. Otherwise, identify any diseases, pests, or deficiencies present. Provide the common name, causes, symptoms, and actionable, eco-friendly treatment recommendations. Format with clear headings."
+                
+                # generate content with image
+                response = model.generate_content([prompt, image])
+                
+                result_text = response.text
+                
+                return render_template('disease_detection.html',
+                                     user_name=session.get('user_name', 'Farmer'),
+                                     current_date=datetime.now().strftime('%B %d, %Y'),
+                                     result=result_text)
+                                     
+            except Exception as e:
+                print(f"Error in disease detection: {e}")
+                flash(f'Error analyzing image. Ensure the Gemini API accepts image input for this model or try another image. Error: {str(e)}', 'error')
+                return redirect(url_for('crop.disease_detection'))
