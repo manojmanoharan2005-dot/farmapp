@@ -1,0 +1,329 @@
+    <div class="modal-overlay" id="calculatorModal" style="display: none;">
+        <div class="card" style="width: 1200px; max-width: 95vw; max-height: 90vh; overflow-y: auto;">
+            <div class="card-header" style="background: linear-gradient(135deg, #52b788, #2d6a4f); color: white;">
+                <div class="card-title" style="color: white;"><i class="fas fa-calculator"></i> 💰 Advanced Farming
+                    Expense Calculator</div>
+                <button onclick="closeCalculatorModal()"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: white;">×</button>
+            </div>
+            <div class="card-body" style="padding: 24px;">
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Calculate and track all your farming
+                    expenses for better financial planning with profit analysis</p>
+
+                <!-- Season and Crop Type Selection -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+                    <div style="background: var(--body-bg); padding: 15px; border-radius: 12px;">
+                        <label
+                            style="display: block; margin-bottom: 8px; color: var(--accent-green); font-weight: 600;">🌱
+                            Select Crop Type</label>
+                        <select id="cropType"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px;"
+                            onchange="loadBenchmarkData()">
+                            <option value="">Select Crop</option>
+                            <optgroup label="Cereals">
+                                <option value="rice">Rice</option>
+                                <option value="wheat">Wheat</option>
+                                <option value="maize">Maize (Corn)</option>
+                            </optgroup>
+                            <optgroup label="Pulses & Legumes">
+                                <option value="blackgram">Black Gram</option>
+                                <option value="chickpea">Chickpea</option>
+                                <option value="kidneybeans">Kidney Beans</option>
+                                <option value="lentil">Lentil</option>
+                                <option value="mothbeans">Moth Beans</option>
+                                <option value="mungbean">Mung Bean</option>
+                                <option value="pigeonpeas">Pigeon Peas</option>
+                                <option value="greenpeas">Green Peas</option>
+                                <option value="beans">Beans</option>
+                                <option value="pulses">Other Pulses</option>
+                            </optgroup>
+                            <optgroup label="Vegetables">
+                                <option value="potato">Potato</option>
+                                <option value="tomato">Tomato</option>
+                                <option value="onion">Onion</option>
+                                <option value="carrot">Carrot</option>
+                                <option value="cabbage">Cabbage</option>
+                                <option value="cauliflower">Cauliflower</option>
+                                <option value="spinach">Spinach</option>
+                                <option value="brinjal">Brinjal (Eggplant)</option>
+                                <option value="okra">Lady's Finger (Okra)</option>
+                                <option value="beetroot">Beetroot</option>
+                                <option value="radish">Radish</option>
+                                <option value="capsicum">Capsicum</option>
+                                <option value="pumpkin">Pumpkin</option>
+                                <option value="bottlegourd">Bottle Gourd</option>
+                                <option value="bittergourd">Bitter Gourd</option>
+                                <option value="ridgegourd">Ridge Gourd</option>
+                                <option value="mushroom">Mushroom</option>
+                                <option value="vegetables">Other Vegetables</option>
+                            </optgroup>
+                            <optgroup label="Fruits">
+                                <option value="apple">Apple</option>
+                                <option value="banana">Banana</option>
+                                <option value="mango">Mango</option>
+                                <option value="orange">Orange</option>
+                                <option value="grapes">Grapes</option>
+                                <option value="papaya">Papaya</option>
+                                <option value="pineapple">Pineapple</option>
+                                <option value="guava">Guava</option>
+                                <option value="watermelon">Watermelon</option>
+                                <option value="muskmelon">Muskmelon</option>
+                                <option value="pomegranate">Pomegranate</option>
+                                <option value="strawberry">Strawberry</option>
+                                <option value="cherry">Cherry</option>
+                                <option value="kiwi">Kiwi</option>
+                                <option value="lemon">Lemon</option>
+                                <option value="pear">Pear</option>
+                                <option value="peach">Peach</option>
+                                <option value="plum">Plum</option>
+                                <option value="custardapple">Custard Apple</option>
+                            </optgroup>
+                            <optgroup label="Cash Crops & Others">
+                                <option value="cotton">Cotton</option>
+                                <option value="sugarcane">Sugarcane</option>
+                                <option value="jute">Jute</option>
+                                <option value="coffee">Coffee</option>
+                                <option value="coconut">Coconut</option>
+                                <option value="oilseeds">Oilseeds</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div style="background: var(--body-bg); padding: 15px; border-radius: 12px;">
+                        <label
+                            style="display: block; margin-bottom: 8px; color: var(--accent-green); font-weight: 600;">🗓️
+                            Select Season</label>
+                        <select id="seasonType"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px;">
+                            <option value="kharif">Kharif (Monsoon)</option>
+                            <option value="rabi">Rabi (Winter)</option>
+                            <option value="zaid">Zaid (Summer)</option>
+                        </select>
+                    </div>
+                    <div style="background: var(--body-bg); padding: 15px; border-radius: 12px;">
+                        <label
+                            style="display: block; margin-bottom: 8px; color: var(--accent-green); font-weight: 600;">📅
+                            Entry Date</label>
+                        <input type="date" id="entryDate"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;">
+                    <!-- Input Section -->
+                    <div>
+                        <h3 style="color: var(--accent-green); margin-bottom: 16px;">✏️ Add Expenses</h3>
+
+                        <div
+                            style="background: var(--body-bg); padding: 12px; border-radius: 10px; margin-bottom: 12px;">
+                            <h4 style="margin: 0 0 8px 0; font-size: 14px;">🌾 Seeds & Planting Material</h4>
+                            <input type="number" id="seedCost" placeholder="Enter amount"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;"
+                                oninput="calculateTotal()">
+                            <small id="seedBenchmark" style="color: var(--text-secondary); font-size: 11px;"></small>
+                        </div>
+
+                        <div
+                            style="background: var(--body-bg); padding: 12px; border-radius: 10px; margin-bottom: 12px;">
+                            <h4 style="margin: 0 0 8px 0; font-size: 14px;">🧪 Fertilizers & Manure</h4>
+                            <input type="number" id="fertilizerCost" placeholder="Enter amount"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;"
+                                oninput="calculateTotal()">
+                            <small id="fertilizerBenchmark"
+                                style="color: var(--text-secondary); font-size: 11px;"></small>
+                        </div>
+
+                        <div
+                            style="background: var(--body-bg); padding: 12px; border-radius: 10px; margin-bottom: 12px;">
+                            <h4 style="margin: 0 0 8px 0; font-size: 14px;">🐛 Pesticides & Insecticides</h4>
+                            <input type="number" id="pesticideCost" placeholder="Enter amount"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;"
+                                oninput="calculateTotal()">
+                            <small id="pesticideBenchmark"
+                                style="color: var(--text-secondary); font-size: 11px;"></small>
+                        </div>
+
+                        <div
+                            style="background: var(--body-bg); padding: 12px; border-radius: 10px; margin-bottom: 12px;">
+                            <h4 style="margin: 0 0 8px 0; font-size: 14px;">💧 Irrigation & Water</h4>
+                            <input type="number" id="irrigationCost" placeholder="Enter amount"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;"
+                                oninput="calculateTotal()">
+                        </div>
+
+                        <div
+                            style="background: var(--body-bg); padding: 12px; border-radius: 10px; margin-bottom: 12px;">
+                            <h4 style="margin: 0 0 8px 0; font-size: 14px;">👨‍🌾 Labor Cost</h4>
+                            <input type="number" id="laborCost" placeholder="Enter amount"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;"
+                                oninput="calculateTotal()">
+                        </div>
+
+                        <div
+                            style="background: var(--body-bg); padding: 12px; border-radius: 10px; margin-bottom: 12px;">
+                            <h4 style="margin: 0 0 8px 0; font-size: 14px;">🚜 Machinery & Equipment</h4>
+                            <input type="number" id="machineryCost" placeholder="Enter amount"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;"
+                                oninput="calculateTotal()">
+                        </div>
+
+                        <div style="background: var(--body-bg); padding: 12px; border-radius: 10px;">
+                            <h4 style="margin: 0 0 8px 0; font-size: 14px;">📦 Other Expenses</h4>
+                            <input type="number" id="otherCost" placeholder="Transport, Storage, etc."
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;"
+                                oninput="calculateTotal()">
+                        </div>
+                    </div>
+
+                    <!-- Summary Section -->
+                    <div>
+                        <h3 style="color: var(--accent-green); margin-bottom: 16px;">📄 Expense Summary</h3>
+
+                        <div
+                            style="background: linear-gradient(135deg, #52b788, #2d6a4f); padding: 20px; border-radius: 12px; color: white; margin-bottom: 16px;">
+                            <h3 style="margin: 0 0 8px 0; color: white; font-size: 16px;">Total Expenses</h3>
+                            <h1 style="margin: 0; font-size: 36px; color: white;" id="totalExpense">₹0</h1>
+                        </div>
+
+                        <div
+                            style="background: var(--body-bg); padding: 16px; border-radius: 12px; margin-bottom: 16px;">
+                            <h4 style="margin: 0 0 12px 0;">📊 Expense Breakdown</h4>
+                            <canvas id="expenseChart" style="max-height: 200px;"></canvas>
+                            <div id="expenseBreakdown" style="margin-top: 12px; font-size: 13px;">
+                                <div
+                                    style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                    <span>Seeds:</span><strong id="seedDisplay">₹0</strong>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                    <span>Fertilizers:</span><strong id="fertilizerDisplay">₹0</strong>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                    <span>Pesticides:</span><strong id="pesticideDisplay">₹0</strong>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                    <span>Irrigation:</span><strong id="irrigationDisplay">₹0</strong>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                    <span>Labor:</span><strong id="laborDisplay">₹0</strong>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-color);">
+                                    <span>Machinery:</span><strong id="machineryDisplay">₹0</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                                    <span>Other:</span><strong id="otherDisplay">₹0</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 16px; border-radius: 8px;">
+                            <h4 style="margin: 0 0 8px 0; color: #856404;">💡 Cost per Acre</h4>
+                            <input type="number" id="landArea" placeholder="Land area (acres)" step="0.1"
+                                style="width: 100%; padding: 10px; border: 1px solid #ffc107; border-radius: 8px; margin-bottom: 8px;"
+                                oninput="calculateTotal()">
+                            <h3 style="margin: 0; color: #856404;" id="costPerAcre">₹0 per acre</h3>
+                            <small id="benchmarkComparison" style="color: #856404;"></small>
+                        </div>
+                    </div>
+
+                    <!-- Revenue & Profit Section -->
+                    <div>
+                        <h3 style="color: var(--accent-green); margin-bottom: 16px;">💵 Revenue & Profit</h3>
+
+                        <div
+                            style="background: #d1f2eb; border-left: 4px solid #52b788; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                            <h4 style="margin: 0 0 12px 0; color: #0f5132;">📦 Expected Production</h4>
+                            <input type="number" id="expectedYield" placeholder="Yield (quintals)"
+                                style="width: 100%; padding: 10px; border: 1px solid #52b788; border-radius: 8px; margin-bottom: 8px;"
+                                oninput="calculateTotal()">
+                            <input type="number" id="marketPrice" placeholder="Price (₹/quintal)"
+                                style="width: 100%; padding: 10px; border: 1px solid #52b788; border-radius: 8px;"
+                                oninput="calculateTotal()">
+                        </div>
+
+                        <div class="revenue-card-container">
+                            <h3 class="revenue-label">Total Revenue</h3>
+                            <h2 class="revenue-value" id="totalRevenue">₹0</h2>
+                        </div>
+
+                        <div id="profitCard" class="profit-card-container">
+                            <h3 class="profit-label">Net Profit</h3>
+                            <h2 class="profit-value" id="netProfit">₹0</h2>
+                            <p class="profit-margin" id="profitMargin">Profit Margin: 0%</p>
+                        </div>
+
+                        <div
+                            style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                            <h4 style="margin: 0 0 8px 0; color: #2e7d32;">🎯 Break-even Analysis</h4>
+                            <p style="margin: 4px 0; color: #2e7d32; font-size: 12px;">Min selling price:</p>
+                            <h4 style="margin: 4px 0; color: #2e7d32;" id="minPrice">₹0 per quintal</h4>
+                            <p style="margin: 8px 0 4px 0; color: #2e7d32; font-size: 12px;">Break-even quantity:
+                            </p>
+                            <h4 style="margin: 4px 0; color: #2e7d32;" id="breakEvenQty">0 quintals</h4>
+                        </div>
+
+                        <div
+                            style="background: #fff9e6; border-left: 4px solid #ff9800; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                            <h4 style="margin: 0 0 12px 0; color: #e65100;">🏦 Loan Calculator</h4>
+                            <input type="number" id="loanAmount" placeholder="Loan amount (₹)"
+                                style="width: 100%; padding: 8px; border: 1px solid #ff9800; border-radius: 6px; margin-bottom: 8px; font-size: 13px;"
+                                oninput="calculateLoan()">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                                <input type="number" id="interestRate" placeholder="Rate %" value="7"
+                                    style="padding: 8px; border: 1px solid #ff9800; border-radius: 6px; font-size: 13px;"
+                                    oninput="calculateLoan()">
+                                <input type="number" id="loanPeriod" placeholder="Months" value="12"
+                                    style="padding: 8px; border: 1px solid #ff9800; border-radius: 6px; font-size: 13px;"
+                                    oninput="calculateLoan()">
+                            </div>
+                            <div style="background: white; padding: 10px; border-radius: 6px; font-size: 12px;">
+                                <div style="display: flex; justify-content: space-between;"><span>Monthly
+                                        EMI:</span><strong id="monthlyEMI" style="color: #e65100;">₹0</strong></div>
+                                <div style="display: flex; justify-content: space-between;"><span>Total
+                                        Interest:</span><strong id="totalInterest" style="color: #e65100;">₹0</strong>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; border-top: 1px solid #ffe0b2; padding-top: 6px; margin-top: 6px;">
+                                    <span>Total Amount:</span><strong id="totalAmount"
+                                        style="color: #e65100;">₹0</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <button onclick="saveExpenseEntry()"
+                                style="padding: 12px; background: #52b788; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">💾
+                                Save</button>
+                            <button onclick="exportToPDF()"
+                                style="padding: 12px; background: #0284c7; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">📄
+                                PDF</button>
+                        </div>
+                        <button onclick="resetCalculator()"
+                            style="width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 8px;">🔄
+                            Reset</button>
+                    </div>
+                </div>
+
+                <!-- Tips Section -->
+                <div
+                    style="margin-top: 24px; background: #e7f5ff; border-left: 4px solid #0284c7; padding: 16px; border-radius: 8px;">
+                    <h4 style="color: #0c4a6e; margin: 0 0 12px 0;">💡 Money Saving Tips</h4>
+                    <ul style="margin: 0; padding-left: 20px; line-height: 1.8; color: #0c4a6e; font-size: 13px;">
+                        <li><strong>Buy in Bulk:</strong> Purchase seeds and fertilizers with other farmers to get
+                            discounts</li>
+                        <li><strong>Government Subsidies:</strong> Check schemes for subsidy on seeds, fertilizers,
+                            equipment</li>
+                        <li><strong>Drip Irrigation:</strong> Saves 40-60% water cost compared to flood irrigation
+                        </li>
+                        <li><strong>Organic Manure:</strong> Make your own compost to reduce fertilizer cost</li>
+                        <li><strong>Soil Testing:</strong> Prevents over-fertilization, saves 20-30% fertilizer cost
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>

@@ -517,6 +517,7 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    cursor: pointer;
 }
 
 .user-avatar {
@@ -558,7 +559,7 @@ body {
    ============================================ */
 .hero-header {
     background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
-    padding: var(--space-2xl) var(--space-2xl) var(--space-lg);
+    padding: var(--space-2xl) var(--space-lg) var(--space-lg);
     color: var(--text-primary);
     position: relative;
     overflow: hidden;
@@ -644,7 +645,7 @@ body {
    ============================================ */
 .stats-bar {
     background: var(--bg-white);
-    padding: var(--space-lg) var(--space-2xl);
+    padding: var(--space-lg) var(--space-lg);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -722,7 +723,7 @@ body {
    DASHBOARD GRID
    ============================================ */
 .dashboard-content {
-    padding: var(--space-xl) var(--space-2xl);
+    padding: var(--space-xl) var(--space-lg);
 }
 
 .dashboard-grid {
@@ -2829,8 +2830,8 @@ body {
     }
 }
 
-/* Medium devices - Tablets (577px to 992px) */
-@media (min-width: 577px) and (max-width: 992px) {
+/* Medium devices - Tablets & Small Laptops (577px to 1200px) */
+@media (min-width: 577px) and (max-width: 1200px) {
     .dashboard-grid {
         grid-template-columns: repeat(2, 1fr) !important;
     }

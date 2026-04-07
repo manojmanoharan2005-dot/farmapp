@@ -1,0 +1,576 @@
+    <div class="modal-overlay" id="farmersManualModal" style="display: none;">
+        <div class="card" style="width: 1000px; max-width: 95vw; max-height: 90vh; overflow-y: auto;">
+            <div class="card-header"
+                style="background: linear-gradient(135deg, #059669, #047857); color: white; padding: 24px; position: sticky; top: 0; z-index: 100;">
+                <button onclick="closeFarmersManualModal()"
+                    style="position: absolute; right: 16px; top: 16px; background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; color: white; font-size: 18px;">×</button>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div
+                        style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 32px;">
+                        📚</div>
+                    <div>
+                        <h2 style="margin: 0; font-size: 24px;">Farmer's Manual</h2>
+                        <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 14px;">Understanding Agricultural
+                            Calculations & Recommendations</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body" style="padding: 24px;">
+                <!-- Navigation Tabs -->
+                <div
+                    style="display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">
+                    <button onclick="showManualSection('soil')" id="tab-soil" class="manual-tab active"
+                        style="padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        🌱 Soil Analysis
+                    </button>
+                    <button onclick="showManualSection('npk')" id="tab-npk" class="manual-tab"
+                        style="padding: 10px 20px; background: #f1f5f9; color: #64748b; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        🧪 NPK Values
+                    </button>
+                    <button onclick="showManualSection('climate')" id="tab-climate" class="manual-tab"
+                        style="padding: 10px 20px; background: #f1f5f9; color: #64748b; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        🌦️ Climate Factors
+                    </button>
+                    <button onclick="showManualSection('crop')" id="tab-crop" class="manual-tab"
+                        style="padding: 10px 20px; background: #f1f5f9; color: #64748b; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        🌾 Crop Recommendation
+                    </button>
+                    <button onclick="showManualSection('fertilizer')" id="tab-fertilizer" class="manual-tab"
+                        style="padding: 10px 20px; background: #f1f5f9; color: #64748b; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">
+                        💊 Fertilizer Recommendation
+                    </button>
+                </div>
+
+                <!-- Soil Analysis Section -->
+                <div id="section-soil" class="manual-section">
+                    <h3 style="color: #059669; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-flask"></i> Soil Analysis Parameters
+                    </h3>
+
+                    <!-- pH Value -->
+                    <div
+                        style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 12px 0; color: #065f46; font-size: 16px;">📊 Soil pH Value</h4>
+                        <p style="margin: 0 0 12px 0; color: #374151; line-height: 1.6;">
+                            <strong>Definition:</strong> pH measures the acidity or alkalinity of soil on a scale of
+                            0-14.
+                        </p>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #059669;">Calculation Method:</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                pH = -log₁₀[H⁺]<br>
+                                Where [H⁺] is the hydrogen ion concentration in moles per liter
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px;">
+                            <strong style="color: #059669;">Interpretation:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.8;">
+                                <li><strong>pH &lt; 5.5:</strong> Highly Acidic - Lime application needed</li>
+                                <li><strong>pH 5.5-6.5:</strong> Slightly Acidic - Ideal for most crops</li>
+                                <li><strong>pH 6.5-7.5:</strong> Neutral - Optimal for nutrient availability</li>
+                                <li><strong>pH 7.5-8.5:</strong> Slightly Alkaline - May need sulfur</li>
+                                <li><strong>pH &gt; 8.5:</strong> Highly Alkaline - Nutrient deficiency risk</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Soil Moisture -->
+                    <div
+                        style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 12px 0; color: #1e40af; font-size: 16px;">💧 Soil Moisture Content</h4>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #3b82f6;">Gravimetric Method:</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                Moisture % = [(Wet Weight - Dry Weight) / Dry Weight] × 100
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px;">
+                            <strong style="color: #3b82f6;">Optimal Ranges:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.8;">
+                                <li><strong>Sandy Soil:</strong> 10-15% - Drains quickly</li>
+                                <li><strong>Loamy Soil:</strong> 20-30% - Ideal water retention</li>
+                                <li><strong>Clay Soil:</strong> 30-40% - High water holding capacity</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Carbon Level -->
+                    <div
+                        style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 12px;">
+                        <h4 style="margin: 0 0 12px 0; color: #92400e; font-size: 16px;">🍂 Organic Carbon Content</h4>
+                        <p style="margin: 0 0 12px 0; color: #374151; line-height: 1.6;">
+                            <strong>Definition:</strong> Organic carbon is the carbon stored in soil organic matter,
+                            crucial for soil fertility, water retention, and microbial activity.
+                        </p>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #f59e0b;">Walkley-Black Method (Wet Oxidation):</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                Organic Carbon % = [(Blank - Sample) × N × 0.003 × 100] / Sample Weight<br>
+                                Organic Matter % = Organic Carbon % × 1.724<br><br>
+                                Where:<br>
+                                • Blank = ml of FeSO₄ used for blank titration<br>
+                                • Sample = ml of FeSO₄ used for sample titration<br>
+                                • N = Normality of FeSO₄ solution<br>
+                                • 0.003 = Milliequivalent weight of carbon
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #f59e0b;">Step-by-Step Calculation Example:</strong>
+                            <p style="margin: 8px 0; color: #374151; line-height: 1.8;">
+                                <strong>Given:</strong><br>
+                                • Blank titration = 15.0 ml FeSO₄<br>
+                                • Sample titration = 10.5 ml FeSO₄<br>
+                                • Normality of FeSO₄ = 0.5 N<br>
+                                • Soil sample weight = 0.5 g<br><br>
+                                <strong>Calculation:</strong><br>
+                                OC % = [(15.0 - 10.5) × 0.5 × 0.003 × 100] / 0.5<br>
+                                OC % = [4.5 × 0.5 × 0.003 × 100] / 0.5<br>
+                                OC % = 0.675 / 0.5 = <strong>1.35%</strong><br><br>
+                                Organic Matter % = 1.35 × 1.724 = <strong>2.33%</strong>
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #f59e0b;">Classification & Interpretation:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.8;">
+                                <li><strong>&lt; 0.5%:</strong> Very Low - Severe deficiency, add 10-15 tons/ha FYM</li>
+                                <li><strong>0.5-0.75%:</strong> Low - Add 5-10 tons/ha compost/manure</li>
+                                <li><strong>0.75-1.0%:</strong> Medium - Maintain with crop residues</li>
+                                <li><strong>&gt; 1.0%:</strong> High - Good soil health, continue practices</li>
+                            </ul>
+                        </div>
+                        <div style="background: #fffbeb; padding: 16px; border-radius: 8px; border: 1px solid #fde68a;">
+                            <strong style="color: #92400e;">💡 Importance of Soil Carbon:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.8; color: #374151;">
+                                <li>Improves soil structure and water holding capacity</li>
+                                <li>Enhances nutrient availability and cation exchange</li>
+                                <li>Supports beneficial soil microorganisms</li>
+                                <li>Reduces soil erosion and compaction</li>
+                                <li>Sequesters atmospheric CO₂ (climate benefit)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NPK Section -->
+                <div id="section-npk" class="manual-section" style="display: none;">
+                    <h3 style="color: #059669; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-atom"></i> NPK Nutrient Analysis
+                    </h3>
+
+                    <!-- Nitrogen (N) -->
+                    <div
+                        style="background: #dbeafe; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 12px 0; color: #1e40af; font-size: 16px;">🔵 Nitrogen (N)</h4>
+                        <p style="margin: 0 0 12px 0; color: #374151; line-height: 1.6;">
+                            <strong>Role:</strong> Essential for leaf growth, chlorophyll production, and protein
+                            synthesis.
+                        </p>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #3b82f6;">Alkaline Permanganate Method:</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                Available N (kg/ha) = [(Blank - Sample) × N × 0.014 × 1000] / Sample Weight
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px;">
+                            <strong style="color: #3b82f6;">Nutrient Status:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.8;">
+                                <li><strong>&lt; 280 kg/ha:</strong> Low - Heavy fertilization needed</li>
+                                <li><strong>280-560 kg/ha:</strong> Medium - Moderate fertilization</li>
+                                <li><strong>&gt; 560 kg/ha:</strong> High - Minimal fertilization</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Phosphorus (P) -->
+                    <div
+                        style="background: #fce7f3; border-left: 4px solid #ec4899; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 12px 0; color: #9f1239; font-size: 16px;">🔴 Phosphorus (P)</h4>
+                        <p style="margin: 0 0 12px 0; color: #374151; line-height: 1.6;">
+                            <strong>Role:</strong> Critical for root development, flowering, and energy transfer (ATP).
+                        </p>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #ec4899;">Olsen's Method (for alkaline soils):</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                Available P₂O₅ (kg/ha) = [Reading × 2.5 × Volume] / Sample Weight
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px;">
+                            <strong style="color: #ec4899;">Nutrient Status:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.8;">
+                                <li><strong>&lt; 12.5 kg/ha:</strong> Low - Phosphatic fertilizers required</li>
+                                <li><strong>12.5-25 kg/ha:</strong> Medium - Moderate application</li>
+                                <li><strong>&gt; 25 kg/ha:</strong> High - Maintenance dose only</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Potassium (K) -->
+                    <div
+                        style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 12px;">
+                        <h4 style="margin: 0 0 12px 0; color: #92400e; font-size: 16px;">🟡 Potassium (K)</h4>
+                        <p style="margin: 0 0 12px 0; color: #374151; line-height: 1.6;">
+                            <strong>Role:</strong> Regulates water uptake, disease resistance, and fruit quality.
+                        </p>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #f59e0b;">Flame Photometer Method:</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                Available K₂O (kg/ha) = [Reading × Dilution Factor × 2.5] / Sample Weight
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px;">
+                            <strong style="color: #f59e0b;">Nutrient Status:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.8;">
+                                <li><strong>&lt; 110 kg/ha:</strong> Low - Potassic fertilizers needed</li>
+                                <li><strong>110-280 kg/ha:</strong> Medium - Balanced application</li>
+                                <li><strong>&gt; 280 kg/ha:</strong> High - Minimal supplementation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Climate Factors Section -->
+                <div id="section-climate" class="manual-section" style="display: none;">
+                    <h3 style="color: #059669; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-cloud-rain"></i> Climate & Environmental Factors
+                    </h3>
+
+                    <!-- Rainfall -->
+                    <div
+                        style="background: #dbeafe; border-left: 4px solid #0ea5e9; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 12px 0; color: #075985; font-size: 16px;">🌧️ Rainfall Analysis</h4>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #0ea5e9;">Measurement & Calculation:</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                Rainfall (mm) = Volume of Water Collected (ml) / Area of Collector (cm²) × 10<br>
+                                Annual Rainfall = Σ Monthly Rainfall
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px;">
+                            <strong style="color: #0ea5e9;">Crop Water Requirements:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.8;">
+                                <li><strong>Rice:</strong> 1200-1500 mm/season</li>
+                                <li><strong>Wheat:</strong> 450-650 mm/season</li>
+                                <li><strong>Cotton:</strong> 700-1300 mm/season</li>
+                                <li><strong>Sugarcane:</strong> 1500-2500 mm/season</li>
+                                <li><strong>Vegetables:</strong> 300-500 mm/season</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Temperature -->
+                    <div
+                        style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 12px 0; color: #92400e; font-size: 16px;">🌡️ Temperature Requirements
+                        </h4>
+                        <div style="background: white; padding: 16px; border-radius: 8px;">
+                            <strong style="color: #f59e0b;">Optimal Temperature Ranges:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.8;">
+                                <li><strong>Cool Season Crops:</strong> 15-20°C (Wheat, Peas, Cabbage)</li>
+                                <li><strong>Warm Season Crops:</strong> 20-30°C (Rice, Cotton, Tomato)</li>
+                                <li><strong>Hot Season Crops:</strong> 25-35°C (Watermelon, Okra, Chili)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Humidity -->
+                    <div
+                        style="background: #e0f2fe; border-left: 4px solid #06b6d4; padding: 20px; border-radius: 12px;">
+                        <h4 style="margin: 0 0 12px 0; color: #164e63; font-size: 16px;">💨 Humidity Measurement &
+                            Calculations</h4>
+                        <p style="margin: 0 0 12px 0; color: #374151; line-height: 1.6;">
+                            <strong>Definition:</strong> Humidity measures the amount of water vapor in the air,
+                            critical for plant transpiration, disease development, and irrigation scheduling.
+                        </p>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #06b6d4;">Relative Humidity (RH) Formula:</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                RH % = (Actual Vapor Pressure / Saturation Vapor Pressure) × 100<br><br>
+                                Alternative Formula:<br>
+                                RH % = (Actual Moisture Content / Maximum Moisture Capacity) × 100
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #06b6d4;">Saturation Vapor Pressure Calculation:</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                SVP = 6.11 × 10^[(7.5 × T) / (237.3 + T)]<br><br>
+                                Where:<br>
+                                • SVP = Saturation Vapor Pressure (mb or hPa)<br>
+                                • T = Temperature in °C<br>
+                                • 6.11 = Constant (mb at 0°C)
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #06b6d4;">Step-by-Step Calculation Example:</strong>
+                            <p style="margin: 8px 0; color: #374151; line-height: 1.8;">
+                                <strong>Given:</strong><br>
+                                • Air temperature = 30°C<br>
+                                • Dew point temperature = 20°C<br><br>
+                                <strong>Step 1: Calculate SVP at air temperature (30°C)</strong><br>
+                                SVP₃₀ = 6.11 × 10^[(7.5 × 30) / (237.3 + 30)]<br>
+                                SVP₃₀ = 6.11 × 10^[225 / 267.3]<br>
+                                SVP₃₀ = 6.11 × 10^0.842 = 6.11 × 6.95<br>
+                                SVP₃₀ = <strong>42.46 mb</strong><br><br>
+                                <strong>Step 2: Calculate actual vapor pressure at dew point (20°C)</strong><br>
+                                AVP₂₀ = 6.11 × 10^[(7.5 × 20) / (237.3 + 20)]<br>
+                                AVP₂₀ = 6.11 × 10^[150 / 257.3]<br>
+                                AVP₂₀ = 6.11 × 10^0.583 = 6.11 × 3.83<br>
+                                AVP₂₀ = <strong>23.40 mb</strong><br><br>
+                                <strong>Step 3: Calculate Relative Humidity</strong><br>
+                                RH = (23.40 / 42.46) × 100<br>
+                                RH = <strong>55.1%</strong>
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #06b6d4;">Dew Point Calculation:</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                Td = (237.3 × b) / (a - b)<br><br>
+                                Where:<br>
+                                a = (17.27 × T) / (237.3 + T) + ln(RH/100)<br>
+                                b = (a × 237.3) / (17.27 - a)<br>
+                                Td = Dew Point Temperature (°C)
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #06b6d4;">Impact on Crops & Agriculture:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.8;">
+                                <li><strong>&lt; 40% RH:</strong> Low humidity - Increased transpiration, water stress,
+                                    tip burn</li>
+                                <li><strong>40-60% RH:</strong> Optimal for most field crops - Balanced water uptake
+                                </li>
+                                <li><strong>60-70% RH:</strong> Good for leafy vegetables - Reduced water loss</li>
+                                <li><strong>70-80% RH:</strong> High humidity - Disease risk (fungal), poor pollination
+                                </li>
+                                <li><strong>&gt; 80% RH:</strong> Very high - Severe disease pressure, blossom drop</li>
+                            </ul>
+                        </div>
+                        <div style="background: #f0f9ff; padding: 16px; border-radius: 8px; border: 1px solid #bae6fd;">
+                            <strong style="color: #164e63;">💡 Practical Applications:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.8; color: #374151;">
+                                <li><strong>Irrigation Timing:</strong> High RH (>70%) = Delay irrigation to prevent
+                                    disease</li>
+                                <li><strong>Fungicide Application:</strong> Apply when RH &lt; 80% for better efficacy
+                                </li>
+                                <li><strong>Pollination:</strong> Optimal at 50-70% RH for pollen viability</li>
+                                <li><strong>Harvest Planning:</strong> Low RH (&lt;60%) ideal for grain harvesting</li>
+                                <li><strong>Disease Forecasting:</strong> RH &gt; 90% for 6+ hours = High disease risk
+                                </li>
+                            </ul>
+                        </div>
+                        <div
+                            style="background: #fef3c7; padding: 16px; border-radius: 8px; border: 1px solid #fde68a; margin-top: 12px;">
+                            <strong style="color: #92400e;">⚠️ Critical Humidity Thresholds:</strong>
+                            <table style="width: 100%; margin-top: 8px; font-size: 13px;">
+                                <tr style="border-bottom: 1px solid #fde68a;">
+                                    <td style="padding: 8px; font-weight: 600;">Disease</td>
+                                    <td style="padding: 8px; font-weight: 600;">Critical RH</td>
+                                    <td style="padding: 8px; font-weight: 600;">Duration</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #fef3c7;">
+                                    <td style="padding: 8px;">Late Blight (Potato/Tomato)</td>
+                                    <td style="padding: 8px;">&gt; 90%</td>
+                                    <td style="padding: 8px;">12+ hours</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #fef3c7;">
+                                    <td style="padding: 8px;">Powdery Mildew</td>
+                                    <td style="padding: 8px;">40-70%</td>
+                                    <td style="padding: 8px;">Continuous</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px;">Downy Mildew</td>
+                                    <td style="padding: 8px;">&gt; 85%</td>
+                                    <td style="padding: 8px;">6+ hours</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Crop Recommendation Section -->
+                <div id="section-crop" class="manual-section" style="display: none;">
+                    <h3 style="color: #059669; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-seedling"></i> Crop Recommendation System
+                    </h3>
+
+                    <div
+                        style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 12px 0; color: #065f46; font-size: 16px;">🤖 Machine Learning Model</h4>
+                        <p style="margin: 0 0 12px 0; color: #374151; line-height: 1.6;">
+                            Our system uses a <strong>Random Forest Classifier</strong> trained on thousands of
+                            agricultural data points to recommend the best crop for your conditions.
+                        </p>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #10b981;">Input Parameters:</strong>
+                            <ul style="margin: 8px 0; padding-left: 20px; line-height: 1.8;">
+                                <li><strong>Nitrogen (N):</strong> Available nitrogen in soil (kg/ha)</li>
+                                <li><strong>Phosphorus (P):</strong> Available phosphorus in soil (kg/ha)</li>
+                                <li><strong>Potassium (K):</strong> Available potassium in soil (kg/ha)</li>
+                                <li><strong>Temperature:</strong> Average temperature (°C)</li>
+                                <li><strong>Humidity:</strong> Relative humidity (%)</li>
+                                <li><strong>pH:</strong> Soil pH value (0-14)</li>
+                                <li><strong>Rainfall:</strong> Annual rainfall (mm)</li>
+                            </ul>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px;">
+                            <strong style="color: #10b981;">Recommendation Logic:</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                1. Normalize all input parameters<br>
+                                2. Compare with optimal ranges for each crop<br>
+                                3. Calculate suitability score using weighted factors<br>
+                                4. Rank crops by probability score<br>
+                                5. Return top 3 recommendations with confidence levels
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 12px;">
+                        <h4 style="margin: 0 0 12px 0; color: #1e40af; font-size: 16px;">📊 Suitability Scoring</h4>
+                        <div style="background: white; padding: 16px; border-radius: 8px;">
+                            <strong style="color: #3b82f6;">Weighted Score Formula:</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                Score = (0.25 × NPK_Match) + (0.20 × Climate_Match) + <br>
+                                (0.20 × pH_Match) + (0.20 × Rainfall_Match) + <br>
+                                (0.15 × Seasonal_Factor)
+                            </p>
+                            <p style="margin: 12px 0 0 0; color: #374151; line-height: 1.6;">
+                                Where each match factor is calculated as:<br>
+                                <code style="background: #f8fafc; padding: 4px 8px; border-radius: 4px;">
+                                    Match = 100 - |Actual - Optimal| / Optimal × 100
+                                </code>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fertilizer Recommendation Section -->
+                <div id="section-fertilizer" class="manual-section" style="display: none;">
+                    <h3 style="color: #059669; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-flask"></i> Fertilizer Recommendation System
+                    </h3>
+
+                    <div
+                        style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 12px 0; color: #92400e; font-size: 16px;">🧮 Nutrient Requirement
+                            Calculation</h4>
+                        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                            <strong style="color: #f59e0b;">Fertilizer Dose Formula:</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                Fertilizer Required (kg/ha) = <br>
+                                [(Crop Requirement - Soil Available) × 100] / Fertilizer Nutrient %
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 8px;">
+                            <strong style="color: #f59e0b;">Example Calculation for Rice:</strong>
+                            <p style="margin: 8px 0; color: #374151; line-height: 1.8;">
+                                <strong>Given:</strong><br>
+                                • Crop N requirement: 120 kg/ha<br>
+                                • Soil available N: 280 kg/ha<br>
+                                • Urea contains: 46% N<br><br>
+                                <strong>Calculation:</strong><br>
+                                N deficit = 120 - (280 × 0.5) = -20 kg/ha<br>
+                                Since soil has sufficient N, minimal urea needed<br>
+                                Urea = max(0, deficit) × 100 / 46 = 0 kg/ha
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background: #dbeafe; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="margin: 0 0 12px 0; color: #1e40af; font-size: 16px;">📋 Common Fertilizer Types</h4>
+                        <div style="background: white; padding: 16px; border-radius: 8px;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                        <th style="padding: 12px; text-align: left; color: #1e293b;">Fertilizer</th>
+                                        <th style="padding: 12px; text-align: center; color: #1e293b;">N%</th>
+                                        <th style="padding: 12px; text-align: center; color: #1e293b;">P%</th>
+                                        <th style="padding: 12px; text-align: center; color: #1e293b;">K%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 10px;">Urea</td>
+                                        <td style="padding: 10px; text-align: center;">46</td>
+                                        <td style="padding: 10px; text-align: center;">0</td>
+                                        <td style="padding: 10px; text-align: center;">0</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 10px;">DAP</td>
+                                        <td style="padding: 10px; text-align: center;">18</td>
+                                        <td style="padding: 10px; text-align: center;">46</td>
+                                        <td style="padding: 10px; text-align: center;">0</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 10px;">MOP</td>
+                                        <td style="padding: 10px; text-align: center;">0</td>
+                                        <td style="padding: 10px; text-align: center;">0</td>
+                                        <td style="padding: 10px; text-align: center;">60</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                                        <td style="padding: 10px;">NPK 10:26:26</td>
+                                        <td style="padding: 10px; text-align: center;">10</td>
+                                        <td style="padding: 10px; text-align: center;">26</td>
+                                        <td style="padding: 10px; text-align: center;">26</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px;">NPK 20:20:20</td>
+                                        <td style="padding: 10px; text-align: center;">20</td>
+                                        <td style="padding: 10px; text-align: center;">20</td>
+                                        <td style="padding: 10px; text-align: center;">20</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; border-radius: 12px;">
+                        <h4 style="margin: 0 0 12px 0; color: #065f46; font-size: 16px;">⚖️ Recommendation Algorithm
+                        </h4>
+                        <div style="background: white; padding: 16px; border-radius: 8px;">
+                            <strong style="color: #10b981;">Decision Tree Logic:</strong>
+                            <p
+                                style="margin: 8px 0; font-family: monospace; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                                IF (N &lt; Low_Threshold) AND (P &lt; Low_Threshold) AND (K &lt; Low_Threshold)<br>
+                                THEN Recommend: NPK Complex (20:20:20)<br>
+                                ELSE IF (N &lt; Low_Threshold) AND (P is Adequate)<br>
+                                THEN Recommend: Urea<br>
+                                ELSE IF (P &lt; Low_Threshold)<br>
+                                THEN Recommend: DAP or SSP<br>
+                                ELSE IF (K &lt; Low_Threshold)<br>
+                                THEN Recommend: MOP<br>
+                                ELSE<br>
+                                THEN Recommend: Maintenance dose only
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div style="margin-top: 24px; padding-top: 20px; border-top: 2px solid #e2e8f0; text-align: center;">
+                    <p style="color: #64748b; font-size: 13px; margin: 0 0 16px 0;">
+                        💡 <strong>Note:</strong> These calculations are based on standard agricultural practices and
+                        scientific methods.
+                        Always consult with local agricultural experts for region-specific recommendations.
+                    </p>
+                    <button onclick="closeFarmersManualModal()"
+                        style="padding: 12px 32px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                        <i class="fas fa-check"></i> Got It!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>

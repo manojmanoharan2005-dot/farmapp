@@ -1,0 +1,141 @@
+    <div class="modal-overlay" id="profileModal" style="display: none;">
+        <div class="card" style="width: 500px; max-width: 95vw; max-height: 90vh; overflow-y: auto;">
+            <div class="card-header"
+                style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; text-align: center; padding: 30px;">
+                <button onclick="closeProfileModal()"
+                    style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 24px; cursor: pointer; color: white;">×</button>
+                <div
+                    style="width: 80px; height: 80px; background: linear-gradient(135deg, #a78bfa, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 32px; font-weight: 700; border: 4px solid white; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+                    {{ user_name[0] if user_name else 'U' }}
+                </div>
+                <h2 style="margin: 0; font-size: 24px;">{{ user_name or 'Farmer' }}</h2>
+                <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 14px;">🌾 Smart Farmer</p>
+            </div>
+            <div class="card-body" style="padding: 24px;">
+                <div style="display: grid; gap: 16px;">
+                    <!-- Email -->
+                    <div
+                        style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <div
+                            style="width: 44px; height: 44px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600;">
+                                Email</div>
+                            <div style="font-size: 15px; color: #1e293b; font-weight: 500;">{{ user.email if user
+                                else
+                                'Not set' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div
+                        style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <div
+                            style="width: 44px; height: 44px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600;">
+                                Phone</div>
+                            <div style="font-size: 15px; color: #1e293b; font-weight: 500;">{{ user.phone if user
+                                and
+                                user.phone else 'Not set' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <div
+                        style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <div
+                            style="width: 44px; height: 44px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600;">
+                                Location</div>
+                            <div style="font-size: 15px; color: #1e293b; font-weight: 500;">
+                                {% if user and user.village %}{{ user.village }}, {% endif %}{{ user.district if user
+                                and
+                                user.district else 'Not set' }}{% if user and user.state %}, {{ user.state }}{%
+                                endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Member Since -->
+                    <div
+                        style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <div
+                            style="width: 44px; height: 44px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600;">
+                                Member Since</div>
+                            <div style="font-size: 15px; color: #1e293b; font-weight: 500;">{{
+                                user.created_at.strftime('%B %d, %Y') if user and user.created_at and
+                                user.created_at.strftime else 'December 2025' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Last Used -->
+                    <div
+                        style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <div
+                            style="width: 44px; height: 44px; background: linear-gradient(135deg, #06b6d4, #0891b2); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600;">
+                                Last Used</div>
+                            <div style="font-size: 15px; color: #1e293b; font-weight: 500;">{{
+                                user.last_login.strftime('%B %d, %Y at %I:%M %p') if user and user.last_login and
+                                user.last_login.strftime else 'Just now' }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div
+                    style="margin-top: 24px; padding: 20px; background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border-radius: 12px; border: 1px solid #bbf7d0;">
+                    <h4
+                        style="margin: 0 0 16px 0; font-size: 14px; color: #166534; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-chart-bar"></i> Your Farming Activity
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center;">
+                        <div>
+                            <div style="font-size: 24px; font-weight: 700; color: #10b981;">{{ stats.crops_suggested
+                                if
+                                stats else 0 }}</div>
+                            <div style="font-size: 11px; color: #64748b;">Crops Suggested</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: 700; color: #3b82f6;">{{
+                                stats.fertilizers_saved
+                                if stats else 0 }}</div>
+                            <div style="font-size: 11px; color: #64748b;">Fertilizer Plans</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: 700; color: #f59e0b;">{{ stats.active_crops if
+                                stats else 0 }}</div>
+                            <div style="font-size: 11px; color: #64748b;">Active Crops</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div style="margin-top: 24px; display: flex; gap: 12px;">
+                    <button onclick="closeProfileModal()"
+                        style="flex: 1; padding: 12px; background: white; border: 2px solid #e2e8f0; border-radius: 10px; font-weight: 600; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                    <button onclick="window.location.href=this.dataset.url;" data-url="{{ url_for('auth.logout') }}"
+                        style="flex: 1; padding: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; border-radius: 10px; font-weight: 600; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>

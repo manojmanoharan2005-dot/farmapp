@@ -154,11 +154,41 @@ app.register_blueprint(resources_bp)
 # Global context processor for date and user info
 @app.context_processor
 def inject_globals():
+    user = None
+    stats = None
+    if 'user_id' in session:
+        try:
+            from utils.db import find_user_by_id, get_user_crops, get_user_fertilizers, get_user_growing_activities
+            user_id = session['user_id']
+            user = find_user_by_id(user_id)
+            
+            if user:
+                # Handle datetime fields
+                if 'created_at' in user and isinstance(user['created_at'], str):
+                    try: 
+                        user['created_at'] = datetime.fromisoformat(user['created_at'].replace('Z', '+00:00'))
+                    except: pass
+                
+                # Fetch minimal stats for the global profile modal
+                crops = get_user_crops(user_id)
+                ferts = get_user_fertilizers(user_id)
+                activities = get_user_growing_activities(user_id)
+                
+                stats = {
+                    'crops_suggested': len(crops) if crops else 0,
+                    'fertilizers_saved': len(ferts) if ferts else 0,
+                    'active_crops': len(activities) if activities else 0
+                }
+        except Exception as e:
+            print(f"Error in global context processor: {e}")
+
     return {
         'current_date': datetime.now().strftime('%Y-%m-%d'),
         'current_time': datetime.now().strftime('%H:%M'),
         'user_logged_in': 'user_id' in session,
-        'user_name': session.get('user_name', '')
+        'user_name': session.get('user_name', ''),
+        'user': user,
+        'stats': stats
     }
 
 # Helper function for forgot password routes to access database

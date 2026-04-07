@@ -76,3 +76,14 @@ window.toggleMobileMenu = function () {
         navMenu.classList.toggle('active');
     }
 };
+/**
+ * Global Sidebar Toggle
+ */
+window.toggleSidebar = function () {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+    if (sidebar && overlay) {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+};

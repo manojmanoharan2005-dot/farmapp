@@ -1,0 +1,39 @@
+    <div class="modal-overlay" id="weatherModal" style="display: none;">
+        <div class="card" style="width: 550px; max-width: 90vw;">
+            <div class="card-header" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white;">
+                <div class="card-title" style="color: white;"><i class="fas fa-cloud-sun"></i> Weather Forecast
+                </div>
+                <button onclick="closeWeatherModal()" class="modal-close-btn">×</button>
+            </div>
+            <div class="card-body" style="padding: 20px;">
+                <!-- Search Section -->
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                        <input type="text" id="citySearchInput" placeholder="Enter city name (e.g., Mumbai, Delhi)"
+                            style="flex: 1; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 14px;"
+                            onkeypress="if(event.key==='Enter') searchWeatherByCity()">
+                        <button onclick="searchWeatherByCity()"
+                            style="padding: 12px 20px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                        <span style="color: var(--text-secondary); font-size: 12px;">OR</span>
+                        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                    </div>
+                    <button onclick="fetchWeatherByLocation()"
+                        style="width: 100%; margin-top: 12px; padding: 12px; background: var(--accent-green); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        <i class="fas fa-location-arrow"></i> Use My Current Location
+                    </button>
+                </div>
+                <!-- Weather Content -->
+                <div id="weatherModalContent">
+                    <div style="text-align: center; padding: 30px; color: var(--text-secondary);">
+                        <i class="fas fa-cloud-sun" style="font-size: 48px; color: #3b82f6; margin-bottom: 16px;"></i>
+                        <p>Search for a city or use your current location to see weather</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
