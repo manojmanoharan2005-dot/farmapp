@@ -43,24 +43,99 @@
     .result-card {
         background: white;
         border-radius: var(--radius-xl);
-        padding: 30px;
-        box-shadow: var(--shadow-md);
-        margin-top: 30px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08); /* Premium shadow */
+        margin: 30px auto;
+        max-width: 950px;
+        border-top: 5px solid #10B981;
     }
     .result-content {
-        line-height: 1.6;
-        color: var(--text-primary);
+        line-height: 1.8;
+        color: #334155;
+        font-size: 16px;
     }
-    /* Add basic markdown styles for the result */
-    .result-content h1 { color: var(--color-navy); margin-top: 24px; margin-bottom: 12px; font-size: 24px; }
-    .result-content h2 { color: var(--color-navy); margin-top: 20px; margin-bottom: 10px; font-size: 20px; }
-    .result-content h3 { color: var(--color-navy); margin-top: 15px; margin-bottom: 8px; font-size: 18px; }
-    .result-content p { margin-bottom: 12px; }
-    .result-content ul, .result-content ol { margin-left: 20px; margin-bottom: 15px; }
-    .result-content li { margin-bottom: 5px; }
-    .result-content strong { color: #1e293b; font-weight: 600; }
-    .result-content code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; }
-    .result-content pre { background: #f1f5f9; padding: 12px; border-radius: 6px; overflow-x: auto; margin-bottom: 12px;}
+    .result-content h1 { 
+        color: #0f172a; 
+        font-size: 28px; 
+        margin: 35px 0 15px 0; 
+        border-bottom: 2px solid #e2e8f0; 
+        padding-bottom: 10px;
+        font-weight: 700;
+    }
+    .result-content h2 { 
+        color: #059669;
+        font-size: 22px; 
+        margin: 30px 0 15px 0; 
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f0fdf4;
+        padding: 10px 15px;
+        border-radius: 8px;
+    }
+    .result-content h3 { 
+        color: #1e293b; 
+        font-size: 18px; 
+        margin: 20px 0 10px 0;
+        font-weight: 600;
+        border-left: 3px solid #10b981;
+        padding-left: 10px;
+    }
+    .result-content p { 
+        margin-bottom: 16px; 
+    }
+    .result-content ul { 
+        margin: 0 0 20px 0; 
+        padding-left: 0;
+        list-style: none;
+    }
+    .result-content ul li { 
+        margin-bottom: 10px; 
+        padding-left: 28px;
+        position: relative;
+    }
+    .result-content ul li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #10B981;
+        font-weight: bold;
+        background: #ecfdf5;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+    .result-content ol {
+        margin: 0 0 20px 24px;
+    }
+    .result-content ol li {
+        margin-bottom: 10px;
+        color: #1e293b;
+        padding-left: 5px;
+    }
+    .result-content ol li::marker {
+        color: #10B981;
+        font-weight: 700;
+    }
+    .result-content strong { 
+        color: #0f172a; 
+        background: rgba(16, 185, 129, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+    .result-content pre { 
+        background: #1e293b; 
+        color: #f8fafc;
+        padding: 16px; 
+        border-radius: 12px; 
+        overflow-x: auto; 
+        margin: 20px 0;
+    }
 </style>
 <!-- Include marked.js for Markdown parsing -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -168,7 +243,7 @@
         <!-- Dashboard Content -->
         <div class="dashboard-content">
             <!-- Input Form -->
-            <div class="form-card" style="max-width: 800px; margin: 0 auto;">
+            <div class="form-card" style="max-width: 950px; margin: 0 auto;">
                 <div class="form-card-header">
                     <div class="icon"><i class="fas fa-camera-retro"></i></div>
                     <div>
@@ -198,7 +273,7 @@
 
             <!-- Results Section -->
             {% if result %}
-            <div class="result-card" style="max-width: 800px; margin: 30px auto;">
+            <div class="result-card">
                 <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 20px;">
                     <i class="fas fa-clipboard-check" style="font-size: 24px; color: #3b82f6;"></i>
                     <h2 style="margin: 0; color: #1e293b;">AI Diagnosis Report</h2>
