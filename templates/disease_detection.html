@@ -5,8 +5,8 @@
 {% block styles %}
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v={{ range(1000000,9999999) | random }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/crop_suggestion.css') }}?v={{ range(1000000,9999999) | random }}">
 <style>
     .upload-area {
         border: 2px dashed #cbd5e1;
@@ -50,15 +50,20 @@
     .result-content {
         line-height: 1.6;
         color: var(--text-primary);
-        white-space: pre-wrap;
     }
     /* Add basic markdown styles for the result */
+    .result-content h1 { color: var(--color-navy); margin-top: 24px; margin-bottom: 12px; font-size: 24px; }
     .result-content h2 { color: var(--color-navy); margin-top: 20px; margin-bottom: 10px; font-size: 20px; }
     .result-content h3 { color: var(--color-navy); margin-top: 15px; margin-bottom: 8px; font-size: 18px; }
     .result-content p { margin-bottom: 12px; }
     .result-content ul, .result-content ol { margin-left: 20px; margin-bottom: 15px; }
     .result-content li { margin-bottom: 5px; }
+    .result-content strong { color: #1e293b; font-weight: 600; }
+    .result-content code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; }
+    .result-content pre { background: #f1f5f9; padding: 12px; border-radius: 6px; overflow-x: auto; margin-bottom: 12px;}
 </style>
+<!-- Include marked.js for Markdown parsing -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -130,14 +135,46 @@
             </div>
         </div>
 
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-icon green"><i class="fas fa-camera"></i></div>
+                <div class="stat-info">
+                    <h4>Step 1</h4>
+                    <span>Upload Image</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon blue"><i class="fas fa-brain"></i></div>
+                <div class="stat-info">
+                    <h4>Step 2</h4>
+                    <span>AI Inference</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon purple"><i class="fas fa-file-medical-alt"></i></div>
+                <div class="stat-info">
+                    <h4>Step 3</h4>
+                    <span>Get Plan</span>
+                </div>
+            </div>
+            <div class="stats-bar-right">
+                <a href="{{ url_for('auth.logout') }}" class="logout-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+
         <!-- Dashboard Content -->
         <div class="dashboard-content">
             <!-- Input Form -->
-            <div class="form-card" style="max-width: 800px; margin: 0 auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                <div class="form-card-header" style="text-align: center; margin-bottom: 24px;">
-                    <div class="icon" style="font-size: 32px; color: #22c55e;"><i class="fas fa-camera"></i></div>
-                    <h2>Upload Plant Image</h2>
-                    <p style="color: #64748b;">Ensure the plant or leaf is clearly visible in good lighting</p>
+            <div class="form-card" style="max-width: 800px; margin: 0 auto;">
+                <div class="form-card-header">
+                    <div class="icon"><i class="fas fa-camera-retro"></i></div>
+                    <div>
+                        <h2>Upload Plant Image</h2>
+                        <p>Ensure the plant or leaf is clearly visible in good lighting for AI analysis</p>
+                    </div>
                 </div>
                 
                 <div class="form-card-body">
@@ -151,8 +188,8 @@
                         <input type="file" name="image" id="imageInput" accept="image/*" style="display: none;" onchange="previewImage(this)">
                         
                         <div style="text-align: center;">
-                            <button type="submit" class="submit-btn" style="background: #22c55e; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s;" id="analyzeBtn" disabled>
-                                <i class="fas fa-search"></i> Analyze Image
+                            <button type="submit" class="submit-btn" id="analyzeBtn" disabled>
+                                <i class="fas fa-magic"></i> Analyze Plant Image
                             </button>
                         </div>
                     </form>
@@ -163,11 +200,36 @@
             {% if result %}
             <div class="result-card" style="max-width: 800px; margin: 30px auto;">
                 <div style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 20px;">
-                    <i class="fas fa-file-medical-alt" style="font-size: 24px; color: #3b82f6;"></i>
-                    <h2 style="margin: 0; color: #1e293b;">Analysis Report</h2>
+                    <i class="fas fa-clipboard-check" style="font-size: 24px; color: #3b82f6;"></i>
+                    <h2 style="margin: 0; color: #1e293b;">AI Diagnosis Report</h2>
                 </div>
-                <!-- Need safe filter since gemma might output Markdown formatting which should be text, but we'll run it through a basic render if possible or just format as pre-wrap -->
-                <div class="result-content">{{ result }}</div>
+                
+                <!-- Hidden raw Markdown -->
+                <div id="markdownResult" style="display: none;">{{ result }}</div>
+                
+                <!-- Rendered HTML -->
+                <div class="result-content" id="htmlResult"></div>
+                
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        const markdownText = document.getElementById("markdownResult").textContent;
+                        // Render markup securely
+                        // If marked is successfully loaded:
+                        if (typeof marked !== 'undefined') {
+                            document.getElementById("htmlResult").innerHTML = marked.parse(markdownText);
+                        } else {
+                            // Basic fallback if CDN fails
+                            let formatted = markdownText
+                                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                                .replace(/### (.*?)\n/g, '<h3>$1</h3>')
+                                .replace(/## (.*?)\n/g, '<h2>$1</h2>')
+                                .replace(/# (.*?)\n/g, '<h1>$1</h1>')
+                                .replace(/\n\n/g, '<br><br>');
+                            document.getElementById("htmlResult").innerHTML = formatted;
+                        }
+                    });
+                </script>
             </div>
             {% endif %}
             
