@@ -54,7 +54,7 @@ def log_info(message):
     """Print info message with formatting"""
     print(f"{ConsoleColors.OKBLUE}ℹ️  [INFO]{ConsoleColors.ENDC} {message}")
 
-from flask import Flask, render_template, session, redirect, url_for
+from flask import Flask, render_template, session, redirect, url_for, request
 from flask_cors import CORS
 from controllers.auth_routes import auth_bp
 from controllers.otp_routes import otp_bp
@@ -143,6 +143,25 @@ def add_header(response):
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
+
+    # Extra CORS safety for dynamic localhost ports used by Flutter web.
+    origin = request.headers.get('Origin', '')
+    localhost_origin = (
+        origin.startswith('http://localhost:')
+        or origin.startswith('https://localhost:')
+        or origin.startswith('http://127.0.0.1:')
+        or origin.startswith('https://127.0.0.1:')
+    )
+    configured_origin = origin in allowed_origins
+
+    if origin and (localhost_origin or configured_origin):
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = request.headers.get(
+            'Access-Control-Request-Headers',
+            'Content-Type, Authorization',
+        )
     return response
 
 log_info(f"Flask application initialized with secret key")
