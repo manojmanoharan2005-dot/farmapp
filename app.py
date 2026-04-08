@@ -55,6 +55,7 @@ def log_info(message):
     print(f"{ConsoleColors.OKBLUE}ℹ️  [INFO]{ConsoleColors.ENDC} {message}")
 
 from flask import Flask, render_template, session, redirect, url_for
+from flask_cors import CORS
 from controllers.auth_routes import auth_bp
 from controllers.otp_routes import otp_bp
 from controllers.dashboard_routes import dashboard_bp
@@ -89,6 +90,23 @@ else:
     # Development: no caching
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+# Enable CORS for Flutter web clients (localhost during development) and
+# allow cookies/session credentials to flow in cross-origin requests.
+allowed_origins = [
+    origin.strip()
+    for origin in os.environ.get(
+        'CORS_ALLOWED_ORIGINS',
+        'http://localhost:3000,http://localhost:5000,http://localhost:8080',
+    ).split(',')
+    if origin.strip()
+]
+
+CORS(
+    app,
+    resources={r"/*": {"origins": allowed_origins + [r"http://localhost:\\d+", r"http://127.0.0.1:\\d+"]}},
+    supports_credentials=True,
+)
 
 # Enable gzip compression
 try:

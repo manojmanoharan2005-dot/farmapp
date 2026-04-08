@@ -1,0 +1,208 @@
+import 'package:dio/dio.dart';
+
+import '../core/network/api_client.dart';
+import '../core/network/api_result.dart';
+import 'base_service.dart';
+
+class AuthService extends BaseService {
+  final ApiClient _client = ApiClient.instance;
+
+  Future<ApiResult<void>> login({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await _client.postForm(
+        '/login',
+        <String, dynamic>{'email': email, 'password': password},
+        followRedirects: false,
+        options: Options(validateStatus: (int? c) => c != null && c < 400),
+      );
+
+      final location = response.headers.map['location']?.join(',') ?? '';
+      if (response.statusCode == 302 || location.contains('/dashboard')) {
+        return ApiResult.success(null, statusCode: response.statusCode);
+      }
+
+      return ApiResult.failure('Invalid email or password');
+    } catch (error) {
+      return failureFromError<void>(error);
+    }
+  }
+
+  Future<ApiResult<void>> register({
+    required String name,
+    required String email,
+    required String password,
+    required String confirmPassword,
+    required String phone,
+    required String state,
+    required String district,
+    String village = '',
+    String pincode = '',
+  }) async {
+    try {
+      final response = await _client.postForm(
+        '/register',
+        <String, dynamic>{
+          'name': name,
+          'email': email,
+          'password': password,
+          'confirm_password': confirmPassword,
+          'phone': phone,
+          'state': state,
+          'district': district,
+          'village': village,
+          'pincode': pincode,
+        },
+        followRedirects: false,
+        options: Options(validateStatus: (int? c) => c != null && c < 400),
+      );
+
+      final location = response.headers.map['location']?.join(',') ?? '';
+      if (response.statusCode == 302 || location.contains('/dashboard')) {
+        return ApiResult.success(null, statusCode: response.statusCode);
+      }
+
+      return ApiResult.failure(
+        'Registration failed. Please verify OTP and retry.',
+      );
+    } catch (error) {
+      return failureFromError<void>(error);
+    }
+  }
+
+  Future<ApiResult<String>> sendRegistrationOtp(String email) async {
+    try {
+      final response = await _client.postJson(
+        '/api/register/send-otp',
+        <String, dynamic>{'email': email},
+      );
+      final body = asMap(parseBody(response));
+
+      if ((body['success'] ?? false) == true) {
+        return ApiResult.success((body['message'] ?? 'OTP sent').toString());
+      }
+
+      return ApiResult.failure(
+        (body['message'] ?? body['error'] ?? 'Failed to send OTP').toString(),
+      );
+    } catch (error) {
+      return failureFromError<String>(error);
+    }
+  }
+
+  Future<ApiResult<String>> verifyRegistrationOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      final response = await _client.postJson(
+        '/api/register/verify-otp',
+        <String, dynamic>{'email': email, 'otp': otp},
+      );
+      final body = asMap(parseBody(response));
+
+      if ((body['success'] ?? false) == true) {
+        return ApiResult.success((body['message'] ?? 'Verified').toString());
+      }
+
+      return ApiResult.failure(
+        (body['message'] ?? body['error'] ?? 'OTP verification failed')
+            .toString(),
+      );
+    } catch (error) {
+      return failureFromError<String>(error);
+    }
+  }
+
+  Future<ApiResult<String>> requestForgotPasswordOtp(String identifier) async {
+    try {
+      final response = await _client.postJson(
+        '/api/forgot-password/request-otp',
+        <String, dynamic>{'identifier': identifier},
+      );
+      final body = asMap(parseBody(response));
+
+      if ((body['success'] ?? false) == true) {
+        return ApiResult.success((body['message'] ?? 'OTP sent').toString());
+      }
+
+      return ApiResult.failure(
+        (body['message'] ?? body['error'] ?? 'Failed to send OTP').toString(),
+      );
+    } catch (error) {
+      return failureFromError<String>(error);
+    }
+  }
+
+  Future<ApiResult<String>> verifyForgotPasswordOtp(String otp) async {
+    try {
+      final response = await _client.postJson(
+        '/api/forgot-password/verify-otp',
+        <String, dynamic>{'otp': otp},
+      );
+      final body = asMap(parseBody(response));
+
+      if ((body['success'] ?? false) == true) {
+        return ApiResult.success(
+          (body['message'] ?? 'OTP verified').toString(),
+        );
+      }
+
+      return ApiResult.failure(
+        (body['message'] ?? body['error'] ?? 'OTP verification failed')
+            .toString(),
+      );
+    } catch (error) {
+      return failureFromError<String>(error);
+    }
+  }
+
+  Future<ApiResult<String>> resetPassword(String password) async {
+    try {
+      final response = await _client.postJson(
+        '/api/forgot-password/reset-password',
+        <String, dynamic>{'password': password},
+      );
+      final body = asMap(parseBody(response));
+
+      if ((body['success'] ?? false) == true) {
+        return ApiResult.success(
+          (body['message'] ?? 'Password reset successful').toString(),
+        );
+      }
+
+      return ApiResult.failure(
+        (body['message'] ?? body['error'] ?? 'Failed to reset password')
+            .toString(),
+      );
+    } catch (error) {
+      return failureFromError<String>(error);
+    }
+  }
+
+  Future<ApiResult<void>> logout() async {
+    try {
+      await _client.get('/logout');
+      return ApiResult.success(null);
+    } catch (error) {
+      return failureFromError<void>(error);
+    }
+  }
+
+  Future<ApiResult<bool>> validateSession() async {
+    try {
+      final response = await _client.get('/api/weather-update');
+      final body = parseBody(response);
+
+      if (response.statusCode == 200 && body is Map) {
+        return ApiResult.success(true);
+      }
+
+      return ApiResult.success(false);
+    } catch (_) {
+      return ApiResult.success(false);
+    }
+  }
+}
