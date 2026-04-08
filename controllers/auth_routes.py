@@ -1,10 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from utils.db import create_user, find_user_by_email, get_db, find_user_by_phone, update_user_password
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
+from utils.db import create_user, find_user_by_email, get_db, find_user_by_phone, update_user_password, get_static_config
 from utils.auth import hash_password, check_password, create_session, clear_session
 from controllers.otp_routes import is_email_verified, clear_email_verification
 import json
 import os
 import re
+import requests
 import secrets
 import smtplib
 from email.mime.text import MIMEText
@@ -12,6 +13,136 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
 
 auth_bp = Blueprint('auth', __name__)
+
+
+def _fallback_states_districts():
+    """Fallback location config used only when static config is unavailable."""
+    return {
+        "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik"],
+        "Karnataka": ["Bangalore", "Mysore", "Mangalore", "Hubli"],
+        "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Salem"],
+    }
+
+
+def _load_states_districts_config():
+    """Load states/districts from Mongo static config with safe fallback."""
+    try:
+        states_districts = get_static_config('states_districts')
+        if not isinstance(states_districts, dict) or not states_districts:
+            raise ValueError("states_districts static config missing")
+
+        cleaned = {}
+        for state, districts in states_districts.items():
+            state_name = str(state).strip()
+            if not state_name:
+                continue
+
+            district_values = []
+            if isinstance(districts, list):
+                district_values = sorted(
+                    {
+                        str(district).strip()
+                        for district in districts
+                        if str(district).strip()
+                    }
+                )
+
+            cleaned[state_name] = district_values
+
+        if cleaned:
+            return dict(sorted(cleaned.items(), key=lambda item: item[0]))
+    except Exception as e:
+        print(f"Warning: could not load states_districts from static config: {e}")
+
+    return _fallback_states_districts()
+
+
+@auth_bp.route('/api/register/location-config', methods=['GET'])
+def register_location_config():
+    """Return state/district mapping used by registration forms."""
+    try:
+        states_districts = _load_states_districts_config()
+        return jsonify({
+            'success': True,
+            'states_districts': states_districts,
+            'states': list(states_districts.keys()),
+        })
+    except Exception as e:
+        print(f"Error in register_location_config: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Unable to load location configuration',
+        }), 500
+
+
+@auth_bp.route('/api/register/pincode/<pincode>', methods=['GET'])
+def register_pincode_lookup(pincode):
+    """Lookup pincode and return inferred state, district and village names."""
+    pincode = (pincode or '').strip()
+    if not re.fullmatch(r'^\d{6}$', pincode):
+        return jsonify({
+            'success': False,
+            'message': 'Please provide a valid 6-digit pincode',
+        }), 400
+
+    try:
+        response = requests.get(
+            f'https://api.postalpincode.in/pincode/{pincode}',
+            timeout=8,
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except requests.RequestException as e:
+        print(f"Pincode lookup request error: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Unable to fetch pincode details right now',
+        }), 502
+    except ValueError as e:
+        print(f"Pincode lookup parse error: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Invalid pincode response format',
+        }), 502
+
+    if not payload or payload[0].get('Status') != 'Success':
+        return jsonify({
+            'success': False,
+            'message': 'Invalid pincode',
+        }), 404
+
+    post_offices = payload[0].get('PostOffice') or []
+    if not post_offices:
+        return jsonify({
+            'success': False,
+            'message': 'No location details found for this pincode',
+        }), 404
+
+    first_office = post_offices[0]
+    state = (first_office.get('State') or '').strip()
+    district = (first_office.get('District') or '').strip()
+    villages = sorted(
+        {
+            (office.get('Name') or '').strip()
+            for office in post_offices
+            if (office.get('Name') or '').strip()
+        }
+    )
+
+    if not state or not district:
+        return jsonify({
+            'success': False,
+            'message': 'Incomplete location details for this pincode',
+        }), 404
+
+    return jsonify({
+        'success': True,
+        'pincode': pincode,
+        'state': state,
+        'district': district,
+        'villages': villages,
+        'message': f'Location found: {district}, {state}',
+    })
 
 # Rate limiting for password reset requests (in production, use Redis)
 reset_request_tracker = {}
@@ -269,20 +400,8 @@ def login():
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    # Load states and districts
-    try:
-        from utils.db import get_static_config
-        states_districts = get_static_config('states_districts')
-        if not states_districts:
-            raise FileNotFoundError("Static config states_districts not found")
-    except Exception as e:
-        print(f"Warning: states_districts static config not found: {e}")
-        # Fallback states and districts
-        states_districts = {
-            "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik"],
-            "Karnataka": ["Bangalore", "Mysore", "Mangalore", "Hubli"],
-            "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Salem"]
-        }
+    # Load states and districts used in web register dropdowns.
+    states_districts = _load_states_districts_config()
     
     if request.method == 'POST':
         name = request.form['name']

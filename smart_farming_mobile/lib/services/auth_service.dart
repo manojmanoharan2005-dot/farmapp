@@ -4,8 +4,108 @@ import '../core/network/api_client.dart';
 import '../core/network/api_result.dart';
 import 'base_service.dart';
 
+class PincodeLookupData {
+  const PincodeLookupData({
+    required this.state,
+    required this.district,
+    required this.villages,
+    required this.message,
+  });
+
+  final String state;
+  final String district;
+  final List<String> villages;
+  final String message;
+}
+
 class AuthService extends BaseService {
   final ApiClient _client = ApiClient.instance;
+
+  Map<String, List<String>> _parseStatesDistricts(dynamic raw) {
+    final rawMap = asMap(raw);
+    final result = <String, List<String>>{};
+
+    for (final entry in rawMap.entries) {
+      final state = entry.key.toString().trim();
+      if (state.isEmpty) continue;
+
+      final districts = <String>[];
+      if (entry.value is List) {
+        for (final district in (entry.value as List)) {
+          final name = district.toString().trim();
+          if (name.isNotEmpty) {
+            districts.add(name);
+          }
+        }
+      }
+
+      districts.sort();
+      result[state] = districts.toSet().toList(growable: false);
+    }
+
+    return result;
+  }
+
+  Future<ApiResult<Map<String, List<String>>>> fetchRegisterLocationConfig() async {
+    try {
+      final response = await _client.get('/api/register/location-config');
+      final body = asMap(parseBody(response));
+
+      if ((body['success'] ?? false) == true) {
+        final parsed = _parseStatesDistricts(body['states_districts']);
+        if (parsed.isNotEmpty) {
+          return ApiResult.success(parsed);
+        }
+      }
+
+      return ApiResult.failure(
+        (body['message'] ?? 'Failed to load state and district data').toString(),
+      );
+    } catch (error) {
+      return failureFromError<Map<String, List<String>>>(error);
+    }
+  }
+
+  Future<ApiResult<PincodeLookupData>> lookupPincode(String pincode) async {
+    if (!RegExp(r'^\d{6}$').hasMatch(pincode)) {
+      return ApiResult.failure('Please enter a valid 6-digit pincode');
+    }
+
+    try {
+      final response = await _client.get('/api/register/pincode/$pincode');
+      final body = asMap(parseBody(response));
+
+      if ((body['success'] ?? false) == true) {
+        final villages = <String>[];
+        final rawVillages = body['villages'];
+        if (rawVillages is List) {
+          for (final village in rawVillages) {
+            final value = village.toString().trim();
+            if (value.isNotEmpty) {
+              villages.add(value);
+            }
+          }
+        }
+
+        return ApiResult.success(
+          PincodeLookupData(
+            state: (body['state'] ?? '').toString(),
+            district: (body['district'] ?? '').toString(),
+            villages: villages.toSet().toList(growable: false),
+            message: (body['message'] ?? 'Location found').toString(),
+          ),
+          statusCode: response.statusCode,
+        );
+      }
+
+      return ApiResult.failure(
+        (body['message'] ?? 'Invalid pincode').toString(),
+        statusCode: response.statusCode,
+      );
+    } catch (error) {
+      return failureFromError<PincodeLookupData>(error);
+    }
+  }
 
   Future<bool> _hasActiveSession() async {
     final sessionCheck = await validateSession();
