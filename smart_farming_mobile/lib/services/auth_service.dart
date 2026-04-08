@@ -7,6 +7,11 @@ import 'base_service.dart';
 class AuthService extends BaseService {
   final ApiClient _client = ApiClient.instance;
 
+  Future<bool> _hasActiveSession() async {
+    final sessionCheck = await validateSession();
+    return sessionCheck.data == true;
+  }
+
   Future<ApiResult<void>> login({
     required String email,
     required String password,
@@ -22,6 +27,17 @@ class AuthService extends BaseService {
       final location = response.headers.map['location']?.join(',') ?? '';
       if (response.statusCode == 302 || location.contains('/dashboard')) {
         return ApiResult.success(null, statusCode: response.statusCode);
+      }
+
+      // On web, the browser can auto-follow redirects and return 200 HTML.
+      // Validate session to detect successful login in that case.
+      if (await _hasActiveSession()) {
+        return ApiResult.success(null, statusCode: response.statusCode);
+      }
+
+      final bodyText = response.data?.toString() ?? '';
+      if (bodyText.contains('Invalid email or password')) {
+        return ApiResult.failure('Invalid email or password');
       }
 
       return ApiResult.failure('Invalid email or password');
@@ -61,6 +77,11 @@ class AuthService extends BaseService {
 
       final location = response.headers.map['location']?.join(',') ?? '';
       if (response.statusCode == 302 || location.contains('/dashboard')) {
+        return ApiResult.success(null, statusCode: response.statusCode);
+      }
+
+      // Same fallback as login for web redirect handling.
+      if (await _hasActiveSession()) {
         return ApiResult.success(null, statusCode: response.statusCode);
       }
 

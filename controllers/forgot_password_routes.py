@@ -47,7 +47,7 @@ def request_otp():
     - Sends via SMS (Fast2SMS) -> Fallback to Email
     """
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         identifier = data.get('identifier') or data.get('email') or data.get('mobile_number')
         
         if not identifier:
@@ -161,7 +161,7 @@ def verify_otp():
     - Checks Expiry
     """
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         otp_entered = data.get('otp', '').strip()
         
         # Check if session has OTP data
@@ -212,7 +212,7 @@ def reset_password():
         if not session.get('reset_verified') or not session.get('reset_user_id'):
              return jsonify({'success': False, 'message': 'Session expired'}), 401
              
-        data = request.get_json()
+        data = request.get_json(silent=True) or {}
         new_password = data.get('password')
         
         # Validate Strength

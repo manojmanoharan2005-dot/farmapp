@@ -86,10 +86,17 @@ if IS_PRODUCTION:
     # Production: cache static assets for 1 day
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
     app.config['TEMPLATES_AUTO_RELOAD'] = False
+    # Required for cross-site session cookies (Flutter web localhost -> Render).
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 else:
     # Development: no caching
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.config['SESSION_COOKIE_SECURE'] = False
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
+app.config['SESSION_COOKIE_HTTPONLY'] = True
 
 # Enable CORS for Flutter web clients (localhost during development) and
 # allow cookies/session credentials to flow in cross-origin requests.
