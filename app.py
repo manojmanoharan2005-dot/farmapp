@@ -104,7 +104,19 @@ allowed_origins = [
 
 CORS(
     app,
-    resources={r"/*": {"origins": allowed_origins + [r"http://localhost:\\d+", r"http://127.0.0.1:\\d+"]}},
+    resources={
+        r"/*": {
+            "origins": allowed_origins
+            + [
+                r"http://localhost:\d+",
+                r"http://127\.0\.0\.1:\d+",
+                r"https://localhost:\d+",
+                r"https://127\.0\.0\.1:\d+",
+            ],
+            "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+        }
+    },
     supports_credentials=True,
 )
 
