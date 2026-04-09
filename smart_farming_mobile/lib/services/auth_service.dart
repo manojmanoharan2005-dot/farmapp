@@ -155,21 +155,47 @@ class AuthService extends BaseService {
     }
 
     Future<ApiResult<PincodeLookupData>> directLookup() async {
-      try {
-        final response = await _client.get(
-          'https://api.postalpincode.in/pincode/$pincode',
-          options: Options(responseType: ResponseType.json),
-        );
+      final fallbackClient = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 12),
+          receiveTimeout: const Duration(seconds: 12),
+          sendTimeout: const Duration(seconds: 12),
+          responseType: ResponseType.plain,
+          validateStatus: (int? code) => code != null && code < 500,
+          headers: <String, String>{'Accept': 'application/json'},
+        ),
+      );
 
-        return parsePostalPayload(response.data);
-      } on DioException catch (_) {
+      final encoded = Uri.encodeComponent(
+        'https://api.postalpincode.in/pincode/$pincode',
+      );
+      final sources = <String>[
+        'https://api.postalpincode.in/pincode/$pincode',
+        'https://api.allorigins.win/raw?url=$encoded',
+      ];
+
+      String? lastError;
+      try {
+        for (final source in sources) {
+          try {
+            final response = await fallbackClient.get<dynamic>(source);
+            final parsed = await parsePostalPayload(response.data);
+            if (parsed.isSuccess) {
+              return parsed;
+            }
+
+            lastError = parsed.error;
+          } on DioException catch (e) {
+            lastError = e.message;
+          }
+        }
+
         return ApiResult.failure(
-          'Pincode service is temporarily unavailable. Please select state and district manually.',
+          lastError ??
+              'Pincode service is temporarily unavailable. Please select state and district manually.',
         );
-      } catch (_) {
-        return ApiResult.failure(
-          'Pincode service is temporarily unavailable. Please select state and district manually.',
-        );
+      } finally {
+        fallbackClient.close(force: true);
       }
     }
 
@@ -230,7 +256,7 @@ class AuthService extends BaseService {
         return fallback;
       }
 
-      return ApiResult.failure(
+        return ApiResult.failure(
         'Unable to fetch pincode details. Please select state and district manually.',
       );
     }

@@ -8,7 +8,6 @@ import '../../../controllers/auth_controller.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/navigation/app_routes.dart';
 import '../../../core/utils/validators.dart';
-import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/error_banner.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../../services/auth_service.dart';
@@ -51,6 +50,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _pincodeStatusIsError = false;
   String? _locationConfigStatus;
   String? _pincodeStatus;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void initState() {
@@ -290,6 +291,80 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  InputDecoration _fieldDecoration({
+    required String label,
+    required IconData icon,
+    String? hint,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      prefixIcon: Icon(icon),
+      suffixIcon: suffixIcon,
+      filled: true,
+      fillColor: const Color(0xFFF8FBFA),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFD5E4DC)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFD5E4DC)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFF1F7A4C), width: 1.4),
+      ),
+    );
+  }
+
+  Widget _sectionCard({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFCFFFD),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFDBE9E2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1F7A4C).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 17, color: const Color(0xFF1F7A4C)),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF103026),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasStateOptions = _states.isNotEmpty;
@@ -302,296 +377,556 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Consumer<AuthController>(
       builder: (context, auth, _) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Register')),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 700),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        if (auth.errorMessage != null)
-                          ErrorBanner(message: auth.errorMessage!),
-                        if (_isLoadingLocationConfig)
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 10),
-                            child: LinearProgressIndicator(minHeight: 2),
-                          ),
-                        if (_locationConfigStatus != null)
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.shade50,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.orange.shade200),
-                            ),
-                            child: Text(_locationConfigStatus!),
-                          ),
-                        if (auth.successMessage != null)
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade50,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.green.shade200),
-                            ),
-                            child: Text(auth.successMessage!),
-                          ),
-                        AppTextField(
-                          controller: _nameController,
-                          label: 'Full name',
-                          validator: (v) =>
-                              Validators.requiredField(v, label: 'Name'),
-                        ),
-                        const SizedBox(height: 10),
-                        AppTextField(
-                          controller: _emailController,
-                          label: 'Email',
-                          keyboardType: TextInputType.emailAddress,
-                          validator: Validators.email,
-                        ),
-                        const SizedBox(height: 10),
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            final narrow = constraints.maxWidth < 540;
-
-                            if (narrow) {
-                              return Column(
-                                children: <Widget>[
-                                  AppTextField(
-                                    controller: _otpController,
-                                    label: 'OTP',
-                                    validator: (v) =>
-                                        Validators.requiredField(v, label: 'OTP'),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton(
-                                      onPressed: _sendOtp,
-                                      child: const Text('Send OTP'),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: OutlinedButton(
-                                      onPressed: _verifyOtp,
-                                      child: const Text('Verify'),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }
-
-                            return Row(
-                              children: <Widget>[
-                                Expanded(
-                                  child: AppTextField(
-                                    controller: _otpController,
-                                    label: 'OTP',
-                                    validator: (v) =>
-                                        Validators.requiredField(v, label: 'OTP'),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                ElevatedButton(
-                                  onPressed: _sendOtp,
-                                  child: const Text('Send OTP'),
-                                ),
-                                const SizedBox(width: 8),
-                                OutlinedButton(
-                                  onPressed: _verifyOtp,
-                                  child: const Text('Verify'),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        AppTextField(
-                          controller: _passwordController,
-                          label: 'Password',
-                          obscureText: true,
-                          validator: Validators.password,
-                        ),
-                        const SizedBox(height: 10),
-                        AppTextField(
-                          controller: _confirmPasswordController,
-                          label: 'Confirm password',
-                          obscureText: true,
-                          validator: (v) {
-                            if (v != _passwordController.text) {
-                              return 'Passwords do not match';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        AppTextField(
-                          controller: _phoneController,
-                          label: 'Phone',
-                          keyboardType: TextInputType.phone,
-                          validator: Validators.phone,
-                        ),
-                        const SizedBox(height: 10),
-                        if (hasStateOptions)
-                          DropdownButtonFormField<String>(
-                            key: ValueKey<String>(
-                              'state-${_selectedState ?? ''}-${_states.length}',
-                            ),
-                            initialValue: _selectedState,
-                            isExpanded: true,
-                            menuMaxHeight: 360,
-                            items: _states
-                                .map(
-                                  (state) => DropdownMenuItem<String>(
-                                    value: state,
-                                    child: Text(state),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              if (value == null) return;
-                              setState(() {
-                                _selectedState = value;
-                                _syncDistrictsForState();
-                                _selectedVillage = null;
-                                _villages = <String>[];
-                                _villageController.clear();
-                              });
-                            },
-                            validator: (value) =>
-                                Validators.requiredField(value, label: 'State'),
-                            decoration: const InputDecoration(labelText: 'State'),
-                          )
-                        else
-                          AppTextField(
-                            controller: _stateController,
-                            label: 'State',
-                            validator: (v) =>
-                                Validators.requiredField(v, label: 'State'),
-                          ),
-                        const SizedBox(height: 10),
-                        if (hasDistrictOptions)
-                          DropdownButtonFormField<String>(
-                            key: ValueKey<String>(
-                              'district-${_selectedState ?? ''}-${_selectedDistrict ?? ''}-${_districts.length}',
-                            ),
-                            initialValue: _selectedDistrict,
-                            isExpanded: true,
-                            menuMaxHeight: 360,
-                            items: _districts
-                                .map(
-                                  (district) => DropdownMenuItem<String>(
-                                    value: district,
-                                    child: Text(district),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedDistrict = value;
-                                _districtController.text = value ?? '';
-                              });
-                            },
-                            validator: (value) =>
-                                Validators.requiredField(value, label: 'District'),
-                            decoration:
-                                const InputDecoration(labelText: 'District'),
-                          )
-                        else
-                          AppTextField(
-                            controller: _districtController,
-                            label: 'District',
-                            validator: (v) =>
-                                Validators.requiredField(v, label: 'District'),
-                          ),
-                        const SizedBox(height: 10),
-                        if (hasVillageOptions)
-                          DropdownButtonFormField<String>(
-                            key: ValueKey<String>(
-                              'village-${_selectedVillage ?? ''}-${_villages.length}',
-                            ),
-                            initialValue: _selectedVillage,
-                            isExpanded: true,
-                            menuMaxHeight: 320,
-                            items: _villages
-                                .map(
-                                  (village) => DropdownMenuItem<String>(
-                                    value: village,
-                                    child: Text(village),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedVillage = value;
-                                _villageController.text = value ?? '';
-                              });
-                            },
-                            decoration: const InputDecoration(
-                              labelText: 'Village (optional)',
-                            ),
-                          )
-                        else
-                          AppTextField(
-                            controller: _villageController,
-                            label: 'Village (optional)',
-                          ),
-                        const SizedBox(height: 10),
-                        TextFormField(
-                          controller: _pincodeController,
-                          keyboardType: TextInputType.number,
-                          maxLength: 6,
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          decoration: const InputDecoration(
-                            labelText: 'Pincode (optional)',
-                            hintText: 'Enter 6-digit pincode',
-                            counterText: '',
-                          ),
-                        ),
-                        if (_pincodeStatus != null)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Text(
-                              _pincodeStatus!,
-                              style: TextStyle(color: statusColor, fontSize: 12),
-                            ),
-                          ),
-                        if (_isLookingUpPincode)
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 10),
-                            child: LinearProgressIndicator(minHeight: 2),
-                          ),
-                        const SizedBox(height: 18),
-                        PrimaryButton(
-                          label: auth.registerOtpVerified
-                              ? 'Register'
-                              : 'Verify OTP to Continue',
-                          isLoading: auth.isLoading,
-                          onPressed: auth.registerOtpVerified
-                              ? _register
-                              : _verifyOtp,
-                        ),
-                        const SizedBox(height: 10),
-                        TextButton(
-                          onPressed: () =>
-                              Navigator.pushNamed(context, AppRoutes.login),
-                          child: const Text('Already have an account? Login'),
-                        ),
-                      ],
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: <Color>[
+                  Color(0xFFEAF9F0),
+                  Color(0xFFE0F0EA),
+                  Color(0xFFDCE9FF),
+                ],
+              ),
+            ),
+            child: SafeArea(
+              child: Stack(
+                children: <Widget>[
+                  Positioned(
+                    top: -90,
+                    right: -70,
+                    child: Container(
+                      width: 240,
+                      height: 240,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1F7A4C).withValues(alpha: 0.08),
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
-                ),
+                  Positioned(
+                    bottom: -120,
+                    left: -80,
+                    child: Container(
+                      width: 270,
+                      height: 270,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4D8DFF).withValues(alpha: 0.08),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 780),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: <Widget>[
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: TextButton.icon(
+                                  onPressed: () =>
+                                      Navigator.pushNamed(context, AppRoutes.login),
+                                  icon: const Icon(Icons.arrow_back_rounded),
+                                  label: const Text('Back to login'),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Create Premium Account',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF102A1C),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Join Smart Farming with live weather, prices, and personalized insights.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF4B6158),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Container(
+                                padding: const EdgeInsets.fromLTRB(18, 20, 18, 14),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.95),
+                                  borderRadius: BorderRadius.circular(26),
+                                  border: Border.all(
+                                    color: const Color(0xFFD4E5DC),
+                                  ),
+                                  boxShadow: <BoxShadow>[
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.07),
+                                      blurRadius: 30,
+                                      offset: const Offset(0, 14),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: <Widget>[
+                                    if (auth.errorMessage != null)
+                                      ErrorBanner(message: auth.errorMessage!),
+                                    if (auth.successMessage != null)
+                                      Container(
+                                        margin: const EdgeInsets.only(bottom: 10),
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.shade50,
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: Colors.green.shade200,
+                                          ),
+                                        ),
+                                        child: Text(auth.successMessage!),
+                                      ),
+                                    if (_isLoadingLocationConfig)
+                                      const Padding(
+                                        padding: EdgeInsets.only(bottom: 8),
+                                        child: LinearProgressIndicator(minHeight: 2),
+                                      ),
+                                    if (_locationConfigStatus != null)
+                                      Container(
+                                        margin: const EdgeInsets.only(bottom: 10),
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.orange.shade50,
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: Colors.orange.shade200,
+                                          ),
+                                        ),
+                                        child: Text(_locationConfigStatus!),
+                                      ),
+                                    _sectionCard(
+                                      title: 'Personal Information',
+                                      icon: Icons.person_outline_rounded,
+                                      children: <Widget>[
+                                        TextFormField(
+                                          controller: _nameController,
+                                          validator: (v) => Validators.requiredField(
+                                            v,
+                                            label: 'Name',
+                                          ),
+                                          decoration: _fieldDecoration(
+                                            label: 'Full Name',
+                                            hint: 'Enter your full name',
+                                            icon: Icons.badge_outlined,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        TextFormField(
+                                          controller: _phoneController,
+                                          keyboardType: TextInputType.phone,
+                                          validator: Validators.phone,
+                                          decoration: _fieldDecoration(
+                                            label: 'Phone Number',
+                                            hint: '10-digit mobile number',
+                                            icon: Icons.call_outlined,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        TextFormField(
+                                          controller: _emailController,
+                                          keyboardType: TextInputType.emailAddress,
+                                          validator: Validators.email,
+                                          decoration: _fieldDecoration(
+                                            label: 'Email Address',
+                                            hint: 'farmer@email.com',
+                                            icon: Icons.alternate_email_rounded,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        LayoutBuilder(
+                                          builder: (context, constraints) {
+                                            final narrow = constraints.maxWidth < 640;
+                                            final otpField = TextFormField(
+                                              controller: _otpController,
+                                              keyboardType: TextInputType.number,
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly,
+                                              ],
+                                              validator: (v) =>
+                                                  Validators.requiredField(
+                                                    v,
+                                                    label: 'OTP',
+                                                  ),
+                                              decoration: _fieldDecoration(
+                                                label: 'Email OTP',
+                                                hint: 'Enter 6-digit OTP',
+                                                icon: Icons.verified_user_outlined,
+                                              ),
+                                            );
+
+                                            if (narrow) {
+                                              return Column(
+                                                children: <Widget>[
+                                                  otpField,
+                                                  const SizedBox(height: 8),
+                                                  Row(
+                                                    children: <Widget>[
+                                                      Expanded(
+                                                        child: ElevatedButton(
+                                                          onPressed: auth.isLoading
+                                                              ? null
+                                                              : _sendOtp,
+                                                          child: const Text(
+                                                            'Send OTP',
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      Expanded(
+                                                        child: OutlinedButton(
+                                                          onPressed: auth.isLoading
+                                                              ? null
+                                                              : _verifyOtp,
+                                                          child: const Text(
+                                                            'Verify OTP',
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              );
+                                            }
+
+                                            return Row(
+                                              children: <Widget>[
+                                                Expanded(child: otpField),
+                                                const SizedBox(width: 8),
+                                                ElevatedButton(
+                                                  onPressed: auth.isLoading
+                                                      ? null
+                                                      : _sendOtp,
+                                                  child: const Text('Send OTP'),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                OutlinedButton(
+                                                  onPressed: auth.isLoading
+                                                      ? null
+                                                      : _verifyOtp,
+                                                  child: const Text('Verify OTP'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    _sectionCard(
+                                      title: 'Security',
+                                      icon: Icons.shield_outlined,
+                                      children: <Widget>[
+                                        TextFormField(
+                                          controller: _passwordController,
+                                          obscureText: _obscurePassword,
+                                          validator: Validators.password,
+                                          decoration: _fieldDecoration(
+                                            label: 'Password',
+                                            hint: 'Create a strong password',
+                                            icon: Icons.lock_outline_rounded,
+                                            suffixIcon: IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  _obscurePassword =
+                                                      !_obscurePassword;
+                                                });
+                                              },
+                                              icon: Icon(
+                                                _obscurePassword
+                                                    ? Icons.visibility_outlined
+                                                    : Icons.visibility_off_outlined,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        TextFormField(
+                                          controller: _confirmPasswordController,
+                                          obscureText: _obscureConfirmPassword,
+                                          validator: (v) {
+                                            if (v != _passwordController.text) {
+                                              return 'Passwords do not match';
+                                            }
+                                            return null;
+                                          },
+                                          decoration: _fieldDecoration(
+                                            label: 'Confirm Password',
+                                            hint: 'Re-enter your password',
+                                            icon: Icons.lock_reset_rounded,
+                                            suffixIcon: IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  _obscureConfirmPassword =
+                                                      !_obscureConfirmPassword;
+                                                });
+                                              },
+                                              icon: Icon(
+                                                _obscureConfirmPassword
+                                                    ? Icons.visibility_outlined
+                                                    : Icons.visibility_off_outlined,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    _sectionCard(
+                                      title: 'Location Details',
+                                      icon: Icons.location_on_outlined,
+                                      children: <Widget>[
+                                        TextFormField(
+                                          controller: _pincodeController,
+                                          keyboardType: TextInputType.number,
+                                          maxLength: 6,
+                                          inputFormatters: <TextInputFormatter>[
+                                            FilteringTextInputFormatter
+                                                .digitsOnly,
+                                          ],
+                                          decoration: _fieldDecoration(
+                                            label: 'Pincode (optional)',
+                                            hint: 'Enter 6-digit pincode',
+                                            icon: Icons.pin_drop_outlined,
+                                          ).copyWith(counterText: ''),
+                                        ),
+                                        if (_pincodeStatus != null)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 10,
+                                            ),
+                                            child: Text(
+                                              _pincodeStatus!,
+                                              style: TextStyle(
+                                                color: statusColor,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        if (_isLookingUpPincode)
+                                          const Padding(
+                                            padding: EdgeInsets.only(bottom: 10),
+                                            child: LinearProgressIndicator(
+                                              minHeight: 2,
+                                            ),
+                                          ),
+                                        LayoutBuilder(
+                                          builder: (context, constraints) {
+                                            final narrow = constraints.maxWidth < 640;
+
+                                            final stateField = hasStateOptions
+                                                ? DropdownButtonFormField<String>(
+                                                    key: ValueKey<String>(
+                                                      'state-${_selectedState ?? ''}-${_states.length}',
+                                                    ),
+                                                    initialValue: _selectedState,
+                                                    isExpanded: true,
+                                                    menuMaxHeight: 360,
+                                                    items: _states
+                                                        .map(
+                                                          (state) => DropdownMenuItem<
+                                                              String>(
+                                                            value: state,
+                                                            child: Text(state),
+                                                          ),
+                                                        )
+                                                        .toList(),
+                                                    onChanged: (value) {
+                                                      if (value == null) return;
+                                                      setState(() {
+                                                        _selectedState = value;
+                                                        _syncDistrictsForState();
+                                                        _selectedVillage = null;
+                                                        _villages = <String>[];
+                                                        _villageController.clear();
+                                                      });
+                                                    },
+                                                    validator: (value) =>
+                                                        Validators.requiredField(
+                                                      value,
+                                                      label: 'State',
+                                                    ),
+                                                    decoration: _fieldDecoration(
+                                                      label: 'State',
+                                                      icon: Icons.map_outlined,
+                                                    ),
+                                                  )
+                                                : TextFormField(
+                                                    controller: _stateController,
+                                                    validator: (v) =>
+                                                        Validators.requiredField(
+                                                      v,
+                                                      label: 'State',
+                                                    ),
+                                                    decoration: _fieldDecoration(
+                                                      label: 'State',
+                                                      icon: Icons.map_outlined,
+                                                    ),
+                                                  );
+
+                                            final districtField = hasDistrictOptions
+                                                ? DropdownButtonFormField<String>(
+                                                    key: ValueKey<String>(
+                                                      'district-${_selectedState ?? ''}-${_selectedDistrict ?? ''}-${_districts.length}',
+                                                    ),
+                                                    initialValue: _selectedDistrict,
+                                                    isExpanded: true,
+                                                    menuMaxHeight: 360,
+                                                    items: _districts
+                                                        .map(
+                                                          (district) =>
+                                                              DropdownMenuItem<
+                                                                  String>(
+                                                            value: district,
+                                                            child:
+                                                                Text(district),
+                                                          ),
+                                                        )
+                                                        .toList(),
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        _selectedDistrict = value;
+                                                        _districtController.text =
+                                                            value ?? '';
+                                                      });
+                                                    },
+                                                    validator: (value) =>
+                                                        Validators.requiredField(
+                                                      value,
+                                                      label: 'District',
+                                                    ),
+                                                    decoration: _fieldDecoration(
+                                                      label: 'District',
+                                                      icon:
+                                                          Icons.location_city_outlined,
+                                                    ),
+                                                  )
+                                                : TextFormField(
+                                                    controller:
+                                                        _districtController,
+                                                    validator: (v) =>
+                                                        Validators.requiredField(
+                                                      v,
+                                                      label: 'District',
+                                                    ),
+                                                    decoration: _fieldDecoration(
+                                                      label: 'District',
+                                                      icon:
+                                                          Icons.location_city_outlined,
+                                                    ),
+                                                  );
+
+                                            if (narrow) {
+                                              return Column(
+                                                children: <Widget>[
+                                                  stateField,
+                                                  const SizedBox(height: 10),
+                                                  districtField,
+                                                ],
+                                              );
+                                            }
+
+                                            return Row(
+                                              children: <Widget>[
+                                                Expanded(child: stateField),
+                                                const SizedBox(width: 10),
+                                                Expanded(child: districtField),
+                                              ],
+                                            );
+                                          },
+                                        ),
+                                        const SizedBox(height: 10),
+                                        if (hasVillageOptions)
+                                          DropdownButtonFormField<String>(
+                                            key: ValueKey<String>(
+                                              'village-${_selectedVillage ?? ''}-${_villages.length}',
+                                            ),
+                                            initialValue: _selectedVillage,
+                                            isExpanded: true,
+                                            menuMaxHeight: 320,
+                                            items: _villages
+                                                .map(
+                                                  (village) =>
+                                                      DropdownMenuItem<String>(
+                                                    value: village,
+                                                    child: Text(village),
+                                                  ),
+                                                )
+                                                .toList(),
+                                            onChanged: (value) {
+                                              setState(() {
+                                                _selectedVillage = value;
+                                                _villageController.text =
+                                                    value ?? '';
+                                              });
+                                            },
+                                            decoration: _fieldDecoration(
+                                              label: 'Village (optional)',
+                                              icon: Icons.home_work_outlined,
+                                            ),
+                                          )
+                                        else
+                                          TextFormField(
+                                            controller: _villageController,
+                                            decoration: _fieldDecoration(
+                                              label: 'Village (optional)',
+                                              icon: Icons.home_work_outlined,
+                                              hint: 'Enter village or area',
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    PrimaryButton(
+                                      label: auth.registerOtpVerified
+                                          ? 'Create Account'
+                                          : 'Verify OTP to Continue',
+                                      isLoading: auth.isLoading,
+                                      onPressed: auth.registerOtpVerified
+                                          ? _register
+                                          : _verifyOtp,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        const Text(
+                                          'Already have an account? ',
+                                          style: TextStyle(
+                                            color: Color(0xFF4F655C),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () => Navigator.pushNamed(
+                                            context,
+                                            AppRoutes.login,
+                                          ),
+                                          child: const Text('Login'),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
