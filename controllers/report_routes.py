@@ -51,14 +51,82 @@ def get_crop_plan_data():
         
         # Prepare crop plan data
         crop_plan = []
+        now = datetime.now()
+        stage_names = [
+            'Seed Sowing',
+            'Germination',
+            'Seedling',
+            'Vegetative Growth',
+            'Flowering',
+            'Fruit Development',
+            'Maturity',
+            'Harvest Ready',
+        ]
+
         for activity in activities:
+            crop_name = (
+                activity.get('crop_display_name')
+                or activity.get('crop')
+                or activity.get('crop_name')
+                or 'Unknown'
+            )
+
+            current_stage = activity.get('current_stage', 'Growing')
+            if isinstance(current_stage, int):
+                if 0 <= current_stage < len(stage_names):
+                    current_stage = stage_names[current_stage]
+                else:
+                    current_stage = 'Growing'
+
+            start_date_str = activity.get('start_date') or ''
+            started = activity.get('started', 'N/A')
+            current_day = int(activity.get('current_day', 0) or 0)
+            duration_days = int(activity.get('duration_days', 90) or 90)
+
+            if start_date_str:
+                try:
+                    start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+                    current_day = max((now - start_date).days, 0)
+                    started = start_date.strftime('%b %d')
+                except Exception:
+                    pass
+
+            progress = activity.get('progress', 0)
+            try:
+                progress = float(progress)
+            except Exception:
+                progress = 0
+
+            if progress <= 0 and duration_days > 0:
+                progress = min(100, int((current_day / duration_days) * 100))
+
+            harvest_date_raw = (
+                activity.get('expected_harvest_date') or activity.get('harvest_date') or ''
+            )
+            harvest_date = ''
+            days_to_harvest = None
+
+            if harvest_date_raw:
+                try:
+                    if 'T' in harvest_date_raw:
+                        parsed_harvest = datetime.fromisoformat(harvest_date_raw)
+                    else:
+                        parsed_harvest = datetime.strptime(harvest_date_raw, '%Y-%m-%d')
+                    harvest_date = parsed_harvest.strftime('%Y-%m-%d')
+                    days_to_harvest = (parsed_harvest.date() - now.date()).days
+                except Exception:
+                    harvest_date = str(harvest_date_raw)
+
             plan_item = {
-                'crop': activity.get('crop', 'Unknown'),
-                'stage': activity.get('current_stage', 'Unknown'),
-                'started': activity.get('started', 'N/A'),
-                'progress': activity.get('progress', 0),
-                'current_day': activity.get('current_day', 0),
-                'notes': activity.get('notes', '')
+                '_id': str(activity.get('_id', '')),
+                'crop': crop_name,
+                'stage': current_stage,
+                'started': started,
+                'progress': int(progress),
+                'current_day': current_day,
+                'harvest_date': harvest_date,
+                'days_to_harvest': days_to_harvest,
+                'notes': activity.get('notes', ''),
             }
             crop_plan.append(plan_item)
         

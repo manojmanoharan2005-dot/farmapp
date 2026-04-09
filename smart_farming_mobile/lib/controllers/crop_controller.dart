@@ -57,7 +57,7 @@ class CropController extends BaseController {
     setError(result.error ?? 'Crop prediction failed');
   }
 
-  Future<void> saveGrowingPlan({
+  Future<bool> saveGrowingPlan({
     required String cropName,
     required String startDate,
     required String harvestDate,
@@ -77,8 +77,10 @@ class CropController extends BaseController {
 
     if (result.isSuccess) {
       setSuccess('Growing plan saved');
+      return true;
     } else {
       setError(result.error ?? 'Failed to save plan');
+      return false;
     }
   }
 

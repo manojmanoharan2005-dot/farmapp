@@ -82,6 +82,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return int.tryParse(value?.toString() ?? '') ?? 0;
   }
 
+  int? _asNullableInt(dynamic value) {
+    if (value is int) {
+      return value;
+    }
+    if (value is num) {
+      return value.toInt();
+    }
+    return int.tryParse(value?.toString() ?? '');
+  }
+
+  String _harvestStatus(Map<String, dynamic> crop) {
+    final days = _asNullableInt(crop['days_to_harvest']);
+    if (days != null) {
+      if (days > 1) return 'Harvest in $days days';
+      if (days == 1) return 'Harvest tomorrow';
+      if (days == 0) return 'Harvest today';
+      return 'Harvest overdue by ${days.abs()} days';
+    }
+
+    final harvestDate = (crop['harvest_date'] ?? '').toString().trim();
+    if (harvestDate.isNotEmpty) {
+      return 'Harvest: $harvestDate';
+    }
+
+    return '';
+  }
+
+  Widget _timelineMetaItem(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Icon(icon, size: 14, color: const Color(0xFF0EA75B)),
+        const SizedBox(width: 4),
+        Text(
+          text,
+          style: TextStyle(fontSize: 12, color: Colors.blueGrey.shade700),
+        ),
+      ],
+    );
+  }
+
   String _greeting() {
     final hour = _now.hour;
     if (hour < 12) {
@@ -594,6 +635,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   (crop['stage'] ?? crop['current_stage'] ?? 'Growing').toString();
               final progress = _asDouble(crop['progress']).clamp(0, 100);
               final day = _asInt(crop['current_day']);
+              final started = (crop['started'] ?? '').toString().trim();
+              final harvestStatus = _harvestStatus(crop);
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -628,8 +671,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      day > 0 ? '$stage - Day $day' : stage,
+                      stage,
                       style: TextStyle(color: Colors.blueGrey.shade700),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 6,
+                      children: <Widget>[
+                        if (started.isNotEmpty)
+                          _timelineMetaItem(
+                            Icons.calendar_today_outlined,
+                            'Started: $started',
+                          ),
+                        if (day > 0)
+                          _timelineMetaItem(Icons.timelapse_outlined, 'Day $day'),
+                        if (harvestStatus.isNotEmpty)
+                          _timelineMetaItem(
+                            Icons.flag_outlined,
+                            harvestStatus,
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     LinearProgressIndicator(
