@@ -90,20 +90,19 @@ def register_pincode_lookup(pincode):
             f'https://api.postalpincode.in/pincode/{pincode}',
             timeout=8,
         )
-        response.raise_for_status()
-        payload = response.json()
+        payload = response.json() if response.ok else []
     except requests.RequestException as e:
         print(f"Pincode lookup request error: {e}")
         return jsonify({
             'success': False,
-            'message': 'Unable to fetch pincode details right now',
-        }), 502
+            'message': 'Pincode service is temporarily unavailable. Please select state and district manually.',
+        })
     except ValueError as e:
         print(f"Pincode lookup parse error: {e}")
         return jsonify({
             'success': False,
-            'message': 'Invalid pincode response format',
-        }), 502
+            'message': 'Unable to read pincode details right now. Please select state and district manually.',
+        })
 
     if not payload or payload[0].get('Status') != 'Success':
         return jsonify({

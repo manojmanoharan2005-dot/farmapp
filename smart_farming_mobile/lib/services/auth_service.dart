@@ -21,6 +21,28 @@ class PincodeLookupData {
 class AuthService extends BaseService {
   final ApiClient _client = ApiClient.instance;
 
+  String _friendlyNetworkMessage(
+    DioException error, {
+    String fallback = 'Unable to fetch pincode details. Please select state and district manually.',
+  }) {
+    final response = error.response;
+    if (response != null) {
+      final body = asMap(parseBody(response));
+      final message = body['message'] ?? body['error'];
+      if (message is String && message.trim().isNotEmpty) {
+        return message.trim();
+      }
+    }
+
+    if (error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout) {
+      return 'Pincode lookup timed out. Please select state and district manually.';
+    }
+
+    return fallback;
+  }
+
   Map<String, List<String>> _parseStatesDistricts(dynamic raw) {
     final rawMap = asMap(raw);
     final result = <String, List<String>>{};
@@ -102,8 +124,15 @@ class AuthService extends BaseService {
         (body['message'] ?? 'Invalid pincode').toString(),
         statusCode: response.statusCode,
       );
-    } catch (error) {
-      return failureFromError<PincodeLookupData>(error);
+    } on DioException catch (error) {
+      return ApiResult.failure(
+        _friendlyNetworkMessage(error),
+        statusCode: error.response?.statusCode,
+      );
+    } catch (_) {
+      return ApiResult.failure(
+        'Unable to fetch pincode details. Please select state and district manually.',
+      );
     }
   }
 
