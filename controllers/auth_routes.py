@@ -85,23 +85,49 @@ def register_pincode_lookup(pincode):
             'message': 'Please provide a valid 6-digit pincode',
         }), 400
 
-    try:
-        response = requests.get(
-            f'https://api.postalpincode.in/pincode/{pincode}',
-            timeout=8,
+    payload = []
+    upstream_errors = []
+    sources = (
+        f'https://api.postalpincode.in/pincode/{pincode}',
+        f'http://api.postalpincode.in/pincode/{pincode}',
+    )
+
+    for source in sources:
+        try:
+            response = requests.get(
+                source,
+                timeout=8,
+                headers={
+                    'User-Agent': 'SmartFarmingAssistant/1.0 (+https://farmapp-6shn.onrender.com)',
+                    'Accept': 'application/json',
+                },
+            )
+
+            if not response.ok:
+                upstream_errors.append(
+                    f"{source} returned HTTP {response.status_code}"
+                )
+                continue
+
+            parsed_payload = response.json()
+            if isinstance(parsed_payload, list) and parsed_payload:
+                payload = parsed_payload
+                break
+
+            upstream_errors.append(f"{source} returned unexpected payload")
+        except requests.RequestException as e:
+            upstream_errors.append(f"{source} request error: {e}")
+        except ValueError as e:
+            upstream_errors.append(f"{source} parse error: {e}")
+
+    if not payload:
+        print(
+            "Pincode lookup upstream failure:\n"
+            + "\n".join(f"- {error}" for error in upstream_errors)
         )
-        payload = response.json() if response.ok else []
-    except requests.RequestException as e:
-        print(f"Pincode lookup request error: {e}")
         return jsonify({
             'success': False,
             'message': 'Pincode service is temporarily unavailable. Please select state and district manually.',
-        })
-    except ValueError as e:
-        print(f"Pincode lookup parse error: {e}")
-        return jsonify({
-            'success': False,
-            'message': 'Unable to read pincode details right now. Please select state and district manually.',
         })
 
     if not payload or payload[0].get('Status') != 'Success':

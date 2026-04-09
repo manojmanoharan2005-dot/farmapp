@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../core/network/api_client.dart';
@@ -93,6 +95,84 @@ class AuthService extends BaseService {
       return ApiResult.failure('Please enter a valid 6-digit pincode');
     }
 
+    Future<ApiResult<PincodeLookupData>> parsePostalPayload(
+      dynamic rawPayload,
+    ) async {
+      dynamic payloadSource = rawPayload;
+      if (payloadSource is String) {
+        try {
+          payloadSource = jsonDecode(payloadSource);
+        } catch (_) {
+          payloadSource = <dynamic>[];
+        }
+      }
+
+      final payload = payloadSource is List ? payloadSource : <dynamic>[];
+      if (payload.isEmpty || payload.first is! Map) {
+        return ApiResult.failure('Invalid pincode response');
+      }
+
+      final first = Map<String, dynamic>.from(payload.first as Map);
+      if ((first['Status'] ?? '').toString().toLowerCase() != 'success') {
+        final message = (first['Message'] ?? 'Invalid pincode').toString();
+        return ApiResult.failure(message);
+      }
+
+      final postOffices = first['PostOffice'] is List
+          ? first['PostOffice'] as List
+          : <dynamic>[];
+      if (postOffices.isEmpty || postOffices.first is! Map) {
+        return ApiResult.failure('No location details found for this pincode');
+      }
+
+      final firstOffice = Map<String, dynamic>.from(postOffices.first as Map);
+      final state = (firstOffice['State'] ?? '').toString().trim();
+      final district = (firstOffice['District'] ?? '').toString().trim();
+
+      if (state.isEmpty || district.isEmpty) {
+        return ApiResult.failure('Incomplete location details for this pincode');
+      }
+
+      final villages = <String>[];
+      for (final office in postOffices) {
+        if (office is! Map) continue;
+        final name = (office['Name'] ?? '').toString().trim();
+        if (name.isNotEmpty) {
+          villages.add(name);
+        }
+      }
+
+      villages.sort();
+
+      return ApiResult.success(
+        PincodeLookupData(
+          state: state,
+          district: district,
+          villages: villages.toSet().toList(growable: false),
+          message: 'Location found: $district, $state',
+        ),
+      );
+    }
+
+    Future<ApiResult<PincodeLookupData>> directLookup() async {
+      try {
+        final response = await _client.get(
+          'https://api.postalpincode.in/pincode/$pincode',
+          options: Options(responseType: ResponseType.json),
+        );
+
+        return parsePostalPayload(response.data);
+      } on DioException catch (_) {
+        return ApiResult.failure(
+          'Pincode service is temporarily unavailable. Please select state and district manually.',
+        );
+      } catch (_) {
+        return ApiResult.failure(
+          'Pincode service is temporarily unavailable. Please select state and district manually.',
+        );
+      }
+    }
+
     try {
       final response = await _client.get('/api/register/pincode/$pincode');
       final body = asMap(parseBody(response));
@@ -120,16 +200,36 @@ class AuthService extends BaseService {
         );
       }
 
+      final backendMessage =
+          (body['message'] ?? 'Invalid pincode').toString();
+
+      final fallback = await directLookup();
+      if (fallback.isSuccess) {
+        return fallback;
+      }
+
       return ApiResult.failure(
-        (body['message'] ?? 'Invalid pincode').toString(),
+        backendMessage,
         statusCode: response.statusCode,
       );
     } on DioException catch (error) {
+      // If backend lookup fails in production (e.g., outbound restrictions),
+      // fallback to direct postal API lookup from the client.
+      final fallback = await directLookup();
+      if (fallback.isSuccess) {
+        return fallback;
+      }
+
       return ApiResult.failure(
         _friendlyNetworkMessage(error),
         statusCode: error.response?.statusCode,
       );
     } catch (_) {
+      final fallback = await directLookup();
+      if (fallback.isSuccess) {
+        return fallback;
+      }
+
       return ApiResult.failure(
         'Unable to fetch pincode details. Please select state and district manually.',
       );
