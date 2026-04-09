@@ -52,12 +52,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? _pincodeStatus;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  String? _lastShownSuccessMessage;
 
   @override
   void initState() {
     super.initState();
     _loadLocationConfig();
     _pincodeController.addListener(_onPincodeChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AuthController>().clearMessages();
+    });
+  }
+
+  void _showSuccessToastIfNeeded(AuthController auth) {
+    final message = auth.successMessage;
+    if (message == null || message.trim().isEmpty) {
+      return;
+    }
+
+    if (message == _lastShownSuccessMessage) {
+      return;
+    }
+
+    _lastShownSuccessMessage = message;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: const Color(0xFF15803D),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      auth.clearMessages();
+    });
   }
 
   String _normalizeLocation(String value) {
@@ -376,6 +408,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Consumer<AuthController>(
       builder: (context, auth, _) {
+        _showSuccessToastIfNeeded(auth);
+
         return Scaffold(
           body: Container(
             decoration: const BoxDecoration(
@@ -476,19 +510,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   children: <Widget>[
                                     if (auth.errorMessage != null)
                                       ErrorBanner(message: auth.errorMessage!),
-                                    if (auth.successMessage != null)
-                                      Container(
-                                        margin: const EdgeInsets.only(bottom: 10),
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.green.shade50,
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: Colors.green.shade200,
-                                          ),
-                                        ),
-                                        child: Text(auth.successMessage!),
-                                      ),
                                     if (_isLoadingLocationConfig)
                                       const Padding(
                                         padding: EdgeInsets.only(bottom: 8),

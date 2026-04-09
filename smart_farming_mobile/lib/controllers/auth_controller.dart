@@ -108,7 +108,6 @@ class AuthController extends BaseController {
 
     if (result.isSuccess) {
       _isAuthenticated = true;
-      setSuccess('Registration successful');
       return true;
     }
 
@@ -169,5 +168,6 @@ class AuthController extends BaseController {
     _registerOtpVerified = false;
     _pendingIdentifier = '';
     setLoading(false);
+    clearMessages();
   }
 }
